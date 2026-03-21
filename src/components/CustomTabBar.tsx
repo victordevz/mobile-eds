@@ -16,6 +16,7 @@ import { tabConfig } from '../navigation/tabConfig';
 
 const ICON_SIZE = 28;
 const ACTIVE_CIRCLE = 64;
+const INACTIVE_CIRCLE = 46;
 const SPRING_CONFIG = { damping: 15, stiffness: 150 };
 
 export default function CustomTabBar({
@@ -74,14 +75,12 @@ interface TabBarItemProps {
 
 function TabBarItem({ isFocused, label, Icon, onPress }: TabBarItemProps) {
   const animatedCircle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: withSpring(isFocused ? 1 : 0, SPRING_CONFIG) },
-      { translateY: withSpring(isFocused ? -18 : 0, SPRING_CONFIG) },
-    ],
-    opacity: withSpring(isFocused ? 1 : 0, SPRING_CONFIG),
-  }));
-
-  const animatedIcon = useAnimatedStyle(() => ({
+    width: withSpring(isFocused ? ACTIVE_CIRCLE : INACTIVE_CIRCLE, SPRING_CONFIG),
+    height: withSpring(isFocused ? ACTIVE_CIRCLE : INACTIVE_CIRCLE, SPRING_CONFIG),
+    borderRadius: withSpring(
+      isFocused ? ACTIVE_CIRCLE / 2 : INACTIVE_CIRCLE / 2,
+      SPRING_CONFIG
+    ),
     transform: [
       { translateY: withSpring(isFocused ? -18 : 0, SPRING_CONFIG) },
     ],
@@ -96,15 +95,12 @@ function TabBarItem({ isFocused, label, Icon, onPress }: TabBarItemProps) {
 
   return (
     <Pressable style={styles.tab} onPress={onPress}>
-      {/* White circle background — only visible when focused */}
-      <Animated.View style={[styles.circle, animatedCircle]} />
-
-      {/* Icon — always visible, animates up when focused */}
-      <Animated.View style={[styles.iconWrapper, animatedIcon]}>
+      {/* Circle with icon inside — always visible */}
+      <Animated.View style={[styles.circle, animatedCircle]}>
         <Icon
           width={ICON_SIZE}
           height={ICON_SIZE}
-          fill={isFocused ? colors.primary : colors.white}
+          fill={colors.primary}
         />
       </Animated.View>
 
@@ -138,12 +134,11 @@ const styles = StyleSheet.create({
     minHeight: 60,
   },
   circle: {
-    position: 'absolute',
-    top: -4,
-    width: ACTIVE_CIRCLE,
-    height: ACTIVE_CIRCLE,
-    borderRadius: ACTIVE_CIRCLE / 2,
     backgroundColor: colors.white,
+    borderWidth: 3,
+    borderColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,

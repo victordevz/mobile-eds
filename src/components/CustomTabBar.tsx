@@ -17,7 +17,7 @@ import { tabConfig } from '../navigation/tabConfig';
 const ICON_SIZE = 28;
 const ACTIVE_CIRCLE = 64;
 const INACTIVE_CIRCLE = 46;
-const SPRING_CONFIG = { damping: 15, stiffness: 150 };
+const SPRING_CONFIG = { damping: 30, stiffness: 200, overshootClamping: true };
 
 export default function CustomTabBar({
   state,

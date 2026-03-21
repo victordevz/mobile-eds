@@ -14,9 +14,10 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { colors } from '../theme';
 import { tabConfig } from '../navigation/tabConfig';
 
-const ICON_SIZE = 28;
-const ACTIVE_CIRCLE = 64;
-const INACTIVE_CIRCLE = 46;
+const ICON_SIZE = 36;
+const ICON_SIZE_PLAIN = 34;
+const ACTIVE_CIRCLE = 78;
+const INACTIVE_CIRCLE = 60;
 const SPRING_CONFIG = { damping: 30, stiffness: 200, overshootClamping: true };
 
 export default function CustomTabBar({
@@ -38,7 +39,7 @@ export default function CustomTabBar({
 
         if (!config) return null;
 
-        const { label, icon: Icon } = config;
+        const { label, showLabel, icon: Icon } = config;
 
         const onPress = () => {
           const event = navigation.emit({
@@ -57,6 +58,7 @@ export default function CustomTabBar({
             key={route.key}
             isFocused={isFocused}
             label={label}
+            showLabel={showLabel ?? false}
             Icon={Icon}
             onPress={onPress}
           />
@@ -69,11 +71,12 @@ export default function CustomTabBar({
 interface TabBarItemProps {
   isFocused: boolean;
   label: string;
+  showLabel: boolean;
   Icon: React.FC<import('react-native-svg').SvgProps>;
   onPress: () => void;
 }
 
-function TabBarItem({ isFocused, label, Icon, onPress }: TabBarItemProps) {
+function TabBarItem({ isFocused, label, showLabel, Icon, onPress }: TabBarItemProps) {
   const animatedCircle = useAnimatedStyle(() => ({
     width: withSpring(isFocused ? ACTIVE_CIRCLE : INACTIVE_CIRCLE, SPRING_CONFIG),
     height: withSpring(isFocused ? ACTIVE_CIRCLE : INACTIVE_CIRCLE, SPRING_CONFIG),
@@ -93,9 +96,31 @@ function TabBarItem({ isFocused, label, Icon, onPress }: TabBarItemProps) {
     ],
   }));
 
+  if (showLabel) {
+    // Suporte & Histórico: plain white SVG, no circle background
+    return (
+      <Pressable style={styles.tab} onPress={onPress}>
+        <View style={styles.plainIconWrapper}>
+          <Icon
+            width={ICON_SIZE_PLAIN}
+            height={ICON_SIZE_PLAIN}
+            color={colors.white}
+            fill={colors.white}
+          />
+        </View>
+        <Animated.Text
+          style={[styles.label, animatedLabel]}
+          numberOfLines={2}
+        >
+          {label}
+        </Animated.Text>
+      </Pressable>
+    );
+  }
+
+  // Roleta, Futebol, Slot: animated circle with colored icon
   return (
     <Pressable style={styles.tab} onPress={onPress}>
-      {/* Circle with icon inside — always visible */}
       <Animated.View style={[styles.circle, animatedCircle]}>
         <Icon
           width={ICON_SIZE}
@@ -103,14 +128,6 @@ function TabBarItem({ isFocused, label, Icon, onPress }: TabBarItemProps) {
           fill={colors.primary}
         />
       </Animated.View>
-
-      {/* Label — fades out when focused */}
-      <Animated.Text
-        style={[styles.label, animatedLabel]}
-        numberOfLines={2}
-      >
-        {label}
-      </Animated.Text>
     </Pressable>
   );
 }
@@ -122,7 +139,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-around',
     paddingTop: 10,
-    height: 70,
+    height: 88,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     overflow: 'visible',
@@ -131,8 +148,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    height: 60,
-    paddingBottom: 4,
+    height: 78,
+    paddingBottom: 8,
     overflow: 'visible',
   },
   circle: {
@@ -153,6 +170,11 @@ const styles = StyleSheet.create({
     zIndex: 2,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  plainIconWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
   },
   label: {
     color: colors.white,

@@ -10,13 +10,14 @@ import HistoricoIcon from '../../assets/historico.svg';
 export interface TabItem {
   routeName: string;
   label: string;
+  showLabel?: boolean;
   icon: React.FC<SvgProps>;
 }
 
 export const tabConfig: TabItem[] = [
-  { routeName: 'Suporte', label: 'SUPORTE', icon: SuporteIcon },
-  { routeName: 'Roleta', label: 'ROLETA', icon: RoletaIcon },
-  { routeName: 'Slot', label: 'SLOT', icon: SlotIcon },
-  { routeName: 'Futebol', label: 'FUTEBOL', icon: FutebolIcon },
-  { routeName: 'Historico', label: 'HISTÓRICO\nAPOSTAS', icon: HistoricoIcon },
+  { routeName: 'Suporte', label: 'SUPORTE', showLabel: true, icon: SuporteIcon },
+  { routeName: 'Roleta', label: 'ROLETA', showLabel: false, icon: RoletaIcon },
+  { routeName: 'Slot', label: 'SLOT', showLabel: false, icon: SlotIcon },
+  { routeName: 'Futebol', label: 'FUTEBOL', showLabel: false, icon: FutebolIcon },
+  { routeName: 'Historico', label: 'HISTÓRICO', showLabel: true, icon: HistoricoIcon },
 ];

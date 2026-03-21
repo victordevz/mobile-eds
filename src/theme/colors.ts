@@ -19,7 +19,7 @@ export const colors = {
   black: '#000000',
 
   /** Fundo padrão */
-  background: '#023397',
+  background: '#FFFFFF',
 
   /** Texto sobre fundo escuro */
   textLight: '#FFFFFF',

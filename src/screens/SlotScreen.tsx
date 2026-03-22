@@ -47,24 +47,30 @@ const CATEGORIES = [
 const BANNERS = [
   {
     id: 'b1',
-    title: 'BÔNUS DE BOAS-VINDAS',
-    subtitle: 'Até R$ 500 no primeiro depósito',
-    cta: 'DEPOSITAR',
-    accent: colors.secondary,
+    badge: '● EM DESTAQUE',
+    game: 'Gates of Olympus',
+    multiplier: '5000x',
+    emoji: '⚡',
+    accent: '#3A86FF',
+    bg: '#0D1B4B',
   },
   {
     id: 'b2',
-    title: 'GIROS GRÁTIS',
-    subtitle: '50 rodadas em Fortune Tiger',
-    cta: 'RESGATAR',
-    accent: '#FF6B35',
+    badge: '● NOVO',
+    game: 'Sweet Bonanza',
+    multiplier: '21100x',
+    emoji: '🍬',
+    accent: '#FB5607',
+    bg: '#2D0A00',
   },
   {
     id: 'b3',
-    title: 'CASHBACK SEMANAL',
-    subtitle: 'Receba 15% de volta toda segunda',
-    cta: 'SAIBA MAIS',
+    badge: '● POPULAR',
+    game: 'Spaceman',
+    multiplier: '5000x',
+    emoji: '🧑‍🚀',
     accent: '#9B5DE5',
+    bg: '#1A0033',
   },
 ];
 
@@ -185,16 +191,43 @@ function PromoBanner() {
         scrollEventThrottle={16}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={[styles.bannerCard, { borderColor: item.accent }]}>
-            <View style={[styles.bannerAccentBar, { backgroundColor: item.accent }]} />
+          <View style={[styles.bannerCard, { backgroundColor: item.bg }]}>
+            {/* Emoji hero */}
+            <View style={styles.bannerHeroEmoji}>
+              <Text style={styles.bannerEmoji}>{item.emoji}</Text>
+            </View>
+
+            {/* Gradiente sobre o conteúdo */}
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.75)']}
+              style={styles.bannerGradient}
+            />
+
+            {/* Conteúdo */}
             <View style={styles.bannerContent}>
-              <Text style={styles.bannerTitle}>{item.title}</Text>
-              <Text style={styles.bannerSubtitle}>{item.subtitle}</Text>
-              <Pressable
-                style={[styles.bannerCta, { backgroundColor: item.accent }]}
-              >
-                <Text style={styles.bannerCtaText}>{item.cta}</Text>
-              </Pressable>
+              {/* Badge */}
+              <View style={[styles.bannerBadge, { borderColor: item.accent }]}>
+                <Text style={[styles.bannerBadgeText, { color: item.accent }]}>{item.badge}</Text>
+              </View>
+
+              {/* Título */}
+              <Text style={styles.bannerTitle}>{item.game}</Text>
+
+              {/* Multiplicador */}
+              <Text style={styles.bannerSubtitle}>
+                Multiplicador até{' '}
+                <Text style={[styles.bannerMultiplier, { color: colors.secondary }]}>{item.multiplier}</Text>
+              </Text>
+
+              {/* Botões */}
+              <View style={styles.bannerButtons}>
+                <Pressable style={styles.bannerBtnPlay}>
+                  <Text style={styles.bannerBtnPlayText}>▶  Jogar</Text>
+                </Pressable>
+                <Pressable style={styles.bannerBtnInfo}>
+                  <Text style={styles.bannerBtnInfoText}>+ Info</Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         )}
@@ -473,44 +506,96 @@ const styles = StyleSheet.create({
   },
   bannerCard: {
     width: BANNER_W,
-    height: BANNER_H,
-    backgroundColor: colors.card,
-    borderRadius: 14,
+    height: 230,
+    borderRadius: 16,
     overflow: 'hidden',
-    borderWidth: 1,
+    justifyContent: 'flex-end',
   },
-  bannerAccentBar: {
-    height: 4,
-    width: '100%',
+  bannerHeroEmoji: {
+    position: 'absolute',
+    right: 12,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+  },
+  bannerEmoji: {
+    fontSize: 100,
+  },
+  bannerGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '70%',
   },
   bannerContent: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
+    paddingBottom: 18,
+    gap: 6,
+  },
+  bannerBadge: {
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  bannerBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   bannerTitle: {
     color: colors.white,
-    fontSize: 18,
-    fontWeight: '800',
-    letterSpacing: 0.8,
+    fontSize: 26,
+    fontWeight: '900',
+    letterSpacing: 0.2,
+    lineHeight: 30,
   },
   bannerSubtitle: {
-    color: colors.grey,
+    color: colors.white,
     fontSize: 13,
+    fontWeight: '400',
+    opacity: 0.9,
+  },
+  bannerMultiplier: {
+    fontWeight: '800',
+    fontSize: 14,
+  },
+  bannerButtons: {
+    flexDirection: 'row',
+    gap: 10,
     marginTop: 6,
   },
-  bannerCta: {
-    alignSelf: 'flex-start',
-    marginTop: 14,
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 8,
+  bannerBtnPlay: {
+    backgroundColor: colors.secondary,
+    paddingHorizontal: 22,
+    paddingVertical: 11,
+    borderRadius: 12,
+    shadowColor: colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  bannerCtaText: {
-    color: colors.white,
-    fontSize: 12,
+  bannerBtnPlayText: {
+    color: colors.primaryDark,
+    fontSize: 14,
     fontWeight: '800',
-    letterSpacing: 0.5,
+  },
+  bannerBtnInfo: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingHorizontal: 22,
+    paddingVertical: 11,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+  },
+  bannerBtnInfoText: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '700',
   },
 
   /* ── Dots ── */

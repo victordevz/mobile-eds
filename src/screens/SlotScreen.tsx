@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../theme';
+import Logotipo from '../../assets/logotipo.svg';
 
 /* ───────────────────── Constantes ───────────────────── */
 
@@ -117,13 +118,24 @@ const PROVIDERS = [
 function Header() {
   return (
     <View style={styles.header}>
-      <View>
-        <Text style={styles.headerGreeting}>Olá, Jogador 👋</Text>
-        <Text style={styles.headerBalance}>R$ 1.250,00</Text>
-      </View>
+      {/* Logo */}
+      <Logotipo width={80} height={28} />
+
       <View style={styles.headerActions}>
-        <Pressable style={styles.depositBtn}>
-          <Text style={styles.depositBtnText}>DEPOSITAR</Text>
+        {/* Pill unificada: botão + e saldo */}
+        <Pressable style={styles.balancePill}>
+          <View style={styles.depositCircle}>
+            <View style={styles.plusHorizontal} />
+            <View style={styles.plusVertical} />
+          </View>
+          <Text style={styles.balanceValue}>R$ 1.300,50</Text>
+        </Pressable>
+
+        {/* Sanduiche */}
+        <Pressable style={styles.menuBtn}>
+          <View style={styles.menuBar} />
+          <View style={[styles.menuBar, { width: 16 }]} />
+          <View style={styles.menuBar} />
         </Pressable>
       </View>
     </View>
@@ -356,35 +368,77 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 8,
-  },
-  headerGreeting: {
-    color: colors.grey,
-    fontSize: 13,
-  },
-  headerBalance: {
-    color: colors.white,
-    fontSize: 22,
-    fontWeight: '700',
-    marginTop: 2,
+    paddingTop: 14,
+    paddingBottom: 10,
   },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
-  depositBtn: {
-    backgroundColor: colors.secondary,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: 8,
+  balancePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: 50,
+    paddingVertical: 6,
+    paddingRight: 18,
+    paddingLeft: 6,
+    gap: 10,
   },
-  depositBtnText: {
+  depositCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.secondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.7,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  depositCircleText: {
     color: colors.primaryDark,
-    fontSize: 13,
+    fontSize: 26,
+    fontWeight: '400',
+    lineHeight: 30,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    includeFontPadding: false,
+  },
+  plusHorizontal: {
+    position: 'absolute',
+    width: 16,
+    height: 2.5,
+    borderRadius: 2,
+    backgroundColor: colors.primaryDark,
+  },
+  plusVertical: {
+    position: 'absolute',
+    width: 2.5,
+    height: 16,
+    borderRadius: 2,
+    backgroundColor: colors.primaryDark,
+  },
+  balanceValue: {
+    color: colors.secondary,
+    fontSize: 15,
     fontWeight: '800',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
+  },
+  menuBtn: {
+    gap: 5,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    padding: 4,
+  },
+  menuBar: {
+    width: 22,
+    height: 2.5,
+    borderRadius: 2,
+    backgroundColor: colors.white,
   },
 
   /* ── Search ── */

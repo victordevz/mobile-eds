@@ -8,11 +8,11 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Circle, Line } from 'react-native-svg';
 import { colors } from '../theme';
 import Logotipo from '../../assets/logotipo.svg';
 
@@ -128,6 +128,14 @@ function Header() {
       <Logotipo width={80} height={28} />
 
       <View style={styles.headerActions}>
+        {/* Lupa */}
+        <Pressable style={styles.searchIconBtn}>
+          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+            <Circle cx="11" cy="11" r="7" stroke="#FFFFFF" strokeWidth="2" />
+            <Line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+          </Svg>
+        </Pressable>
+
         {/* Pill unificada: botão + e saldo */}
         <Pressable style={styles.balancePill}>
           <View style={styles.depositCircle}>
@@ -144,21 +152,6 @@ function Header() {
           <View style={styles.menuBar} />
         </Pressable>
       </View>
-    </View>
-  );
-}
-
-/** Barra de busca */
-function SearchBar() {
-  return (
-    <View style={styles.searchWrapper}>
-      <Text style={styles.searchIcon}>🔍</Text>
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Buscar jogos..."
-        placeholderTextColor={colors.grey}
-        selectionColor={colors.secondary}
-      />
     </View>
   );
 }
@@ -370,7 +363,6 @@ export default function SlotScreen() {
         contentContainerStyle={styles.scroll}
       >
         <Header />
-        <SearchBar />
         <PromoBanner />
         <CategoryPills />
         <GameSection title="🔥  Populares" games={POPULAR_GAMES} />
@@ -474,26 +466,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
 
-  /* ── Search ── */
-  searchWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    marginHorizontal: 16,
-    marginTop: 12,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    height: 46,
-  },
-  searchIcon: {
-    fontSize: 16,
-    marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    color: colors.white,
-    fontSize: 14,
-    paddingVertical: 0,
+  searchIconBtn: {
+    padding: 6,
   },
 
   /* ── Banner ── */

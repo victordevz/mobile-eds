@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Line } from 'react-native-svg';
 import { colors } from '../theme';
 import Logotipo from '../../assets/logotipo.svg';
+import OddsTurbinadas from '../components/OddsTurbinadas';
 
 /* ───────────────────── Constantes ───────────────────── */
 
@@ -35,14 +36,6 @@ interface Game {
   accent: string;
   emoji: string;
 }
-
-const CATEGORIES = [
-  { id: 'c1', label: 'Todos' },
-  { id: 'c2', label: 'Slots' },
-  { id: 'c3', label: 'Crash' },
-  { id: 'c4', label: 'Ao Vivo' },
-  { id: 'c5', label: 'Mesa' },
-];
 
 const BANNERS = [
   {
@@ -254,42 +247,6 @@ function PromoBanner() {
   );
 }
 
-/** Pills de categorias */
-function CategoryPills() {
-  const [active, setActive] = useState('c1');
-
-  return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.pillsContainer}
-    >
-      {CATEGORIES.map((cat) => {
-        const isActive = active === cat.id;
-        return (
-          <Pressable
-            key={cat.id}
-            onPress={() => setActive(cat.id)}
-            style={[
-              styles.pill,
-              isActive ? styles.pillActive : styles.pillInactive,
-            ]}
-          >
-            <Text
-              style={[
-                styles.pillText,
-                isActive ? styles.pillTextActive : styles.pillTextInactive,
-              ]}
-            >
-              {cat.label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
-  );
-}
-
 /** Card de jogo individual */
 function GameCard({ game }: { game: Game }) {
   return (
@@ -418,7 +375,7 @@ export default function FutebolScreen() {
         <Header />
         <StoriesBar />
         <PromoBanner />
-        <CategoryPills />
+        <OddsTurbinadas />
         <GameSection title="🔥  Populares" games={POPULAR_GAMES} />
         <GameSection title="⭐  Novos Jogos" games={NEW_GAMES} />
         <GameSection title="🚀  Crash Games" games={CRASH_GAMES} />

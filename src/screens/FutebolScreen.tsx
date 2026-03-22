@@ -416,8 +416,8 @@ export default function FutebolScreen() {
         contentContainerStyle={styles.scroll}
       >
         <Header />
-        <PromoBanner />
         <StoriesBar />
+        <PromoBanner />
         <CategoryPills />
         <GameSection title="🔥  Populares" games={POPULAR_GAMES} />
         <GameSection title="⭐  Novos Jogos" games={NEW_GAMES} />

@@ -2,6 +2,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import {
   Dimensions,
   FlatList,
+  Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Pressable,
@@ -36,12 +37,11 @@ interface Game {
 }
 
 const CATEGORIES = [
-  { id: 'c1', label: '🔥  Populares' },
-  { id: 'c2', label: '⭐  Novos' },
-  { id: 'c3', label: '🎰  Slots' },
-  { id: 'c4', label: '🚀  Crash' },
-  { id: 'c5', label: '🃏  Ao Vivo' },
-  { id: 'c6', label: '🎲  Mesa' },
+  { id: 'c1', label: 'Todos' },
+  { id: 'c2', label: 'Slots' },
+  { id: 'c3', label: 'Crash' },
+  { id: 'c4', label: 'Ao Vivo' },
+  { id: 'c5', label: 'Mesa' },
 ];
 
 const BANNERS = [
@@ -50,27 +50,24 @@ const BANNERS = [
     badge: '● EM DESTAQUE',
     game: 'Gates of Olympus',
     multiplier: '5000x',
-    emoji: '⚡',
+    image: require('../../assets/gatesof.jpg'),
     accent: '#3A86FF',
-    bg: '#0D1B4B',
   },
   {
     id: 'b2',
     badge: '● NOVO',
     game: 'Sweet Bonanza',
     multiplier: '21100x',
-    emoji: '🍬',
+    image: require('../../assets/sweetbonanza.webp'),
     accent: '#FB5607',
-    bg: '#2D0A00',
   },
   {
     id: 'b3',
     badge: '● POPULAR',
-    game: 'Spaceman',
-    multiplier: '5000x',
-    emoji: '🧑‍🚀',
-    accent: '#9B5DE5',
-    bg: '#1A0033',
+    game: 'Aviator',
+    multiplier: '1000000x',
+    image: require('../../assets/aviator.jpeg'),
+    accent: '#E63946',
   },
 ];
 
@@ -184,15 +181,13 @@ function PromoBanner() {
         scrollEventThrottle={16}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={[styles.bannerCard, { backgroundColor: item.bg }]}>
-            {/* Emoji hero */}
-            <View style={styles.bannerHeroEmoji}>
-              <Text style={styles.bannerEmoji}>{item.emoji}</Text>
-            </View>
+          <View style={styles.bannerCard}>
+            {/* Imagem de fundo */}
+            <Image source={item.image} style={styles.bannerImage} />
 
             {/* Gradiente sobre o conteúdo */}
             <LinearGradient
-              colors={['transparent', 'rgba(0,0,0,0.75)']}
+              colors={['transparent', 'rgba(0,0,0,0.82)']}
               style={styles.bannerGradient}
             />
 
@@ -485,15 +480,15 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     justifyContent: 'flex-end',
   },
-  bannerHeroEmoji: {
+  bannerImage: {
     position: 'absolute',
-    right: 12,
     top: 0,
+    left: 0,
+    right: 0,
     bottom: 0,
-    justifyContent: 'center',
-  },
-  bannerEmoji: {
-    fontSize: 100,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
   bannerGradient: {
     position: 'absolute',

@@ -115,6 +115,23 @@ const PROVIDERS = [
   'NetEnt',
 ];
 
+interface Story {
+  id: string;
+  label: string;
+  emoji: string;
+  active: boolean;
+  bg: string;
+}
+
+const STORIES: Story[] = [
+  { id: 's1', label: 'WORLD CUP',   emoji: '🏆', active: true,  bg: '#01184F' },
+  { id: 's2', label: 'FLASH ODDS',  emoji: '⚡', active: true,  bg: '#01184F' },
+  { id: 's3', label: 'PROMOÇÕES',   emoji: '🇧🇷', active: false, bg: '#01184F' },
+  { id: 's4', label: 'FAVORITOS',   emoji: '⭐', active: false, bg: '#01184F' },
+  { id: 's5', label: 'AO VIVO',     emoji: '🔴', active: false, bg: '#01184F' },
+  { id: 's6', label: 'LIGAS',       emoji: '🏅', active: false, bg: '#01184F' },
+];
+
 /* ───────────────────── Componentes auxiliares ──────────── */
 
 /** Cabeçalho com saudação e saldo */
@@ -324,6 +341,47 @@ function GameSection({
   );
 }
 
+/** Barra de stories estilo Instagram */
+function StoriesBar() {
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.storiesContainer}
+    >
+      {STORIES.map((story) => (
+        <Pressable key={story.id} style={styles.storyItem}>
+          {/* Anel externo: verde se ativo, cinza se inativo */}
+          <View
+            style={[
+              styles.storyRingOuter,
+              story.active
+                ? styles.storyRingActive
+                : styles.storyRingInactive,
+            ]}
+          >
+            {/* Espaço entre anel e círculo interno */}
+            <View style={styles.storyRingGap}>
+              <View style={styles.storyCircle}>
+                <Text style={styles.storyEmoji}>{story.emoji}</Text>
+              </View>
+            </View>
+          </View>
+          <Text
+            style={[
+              styles.storyLabel,
+              story.active ? styles.storyLabelActive : styles.storyLabelInactive,
+            ]}
+            numberOfLines={1}
+          >
+            {story.label}
+          </Text>
+        </Pressable>
+      ))}
+    </ScrollView>
+  );
+}
+
 /** Seção de provedores */
 function ProvidersSection() {
   return (
@@ -359,6 +417,7 @@ export default function FutebolScreen() {
       >
         <Header />
         <PromoBanner />
+        <StoriesBar />
         <CategoryPills />
         <GameSection title="🔥  Populares" games={POPULAR_GAMES} />
         <GameSection title="⭐  Novos Jogos" games={NEW_GAMES} />
@@ -675,6 +734,64 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     textAlign: 'center',
+  },
+
+  /* ── Stories ── */
+  storiesContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 4,
+    gap: 16,
+  },
+  storyItem: {
+    alignItems: 'center',
+    gap: 6,
+    width: 68,
+  },
+  storyRingOuter: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 2.5,
+    padding: 3,
+  },
+  storyRingActive: {
+    borderColor: colors.secondary,
+    shadowColor: colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.55,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  storyRingInactive: {
+    borderColor: colors.grey,
+  },
+  storyRingGap: {
+    flex: 1,
+    borderRadius: 28,
+    overflow: 'hidden',
+  },
+  storyCircle: {
+    flex: 1,
+    backgroundColor: colors.card,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  storyEmoji: {
+    fontSize: 26,
+  },
+  storyLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.4,
+    textAlign: 'center',
+  },
+  storyLabelActive: {
+    color: colors.white,
+  },
+  storyLabelInactive: {
+    color: colors.grey,
   },
 
   /* ── Providers ── */

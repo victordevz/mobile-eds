@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../theme';
 
 /* ───────────────────── Constantes ───────────────────── */
@@ -245,13 +246,18 @@ function GameCard({ game }: { game: Game }) {
     <Pressable style={styles.gameCard}>
       <View style={[styles.gameThumb, { backgroundColor: game.accent }]}>
         <Text style={styles.gameEmoji}>{game.emoji}</Text>
+        <LinearGradient
+          colors={['transparent', 'rgba(5,60,30,0.45)', 'rgba(5,50,25,0.82)']}
+          locations={[0, 0.55, 1]}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={styles.gameTitleOverlay}
+        >
+          <Text style={styles.gameTitle} numberOfLines={1}>
+            {game.title}
+          </Text>
+        </LinearGradient>
       </View>
-      <Text style={styles.gameTitle} numberOfLines={1}>
-        {game.title}
-      </Text>
-      <Text style={styles.gameProvider} numberOfLines={1}>
-        {game.provider}
-      </Text>
     </Pressable>
   );
 }
@@ -540,20 +546,27 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   gameEmoji: {
     fontSize: 44,
   },
+  gameTitleOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '60%',
+    paddingBottom: 7,
+    paddingHorizontal: 6,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
   gameTitle: {
     color: colors.white,
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 6,
-  },
-  gameProvider: {
-    color: colors.grey,
     fontSize: 11,
-    marginTop: 2,
+    fontWeight: '700',
+    textAlign: 'center',
   },
 
   /* ── Providers ── */

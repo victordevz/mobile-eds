@@ -1,6 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import SuporteScreen from '../../screens/SuporteScreen';
+import ChatScreen from '../../screens/ChatScreen';
 import { colors } from '../../theme';
 
 const Stack = createNativeStackNavigator();
@@ -16,7 +16,7 @@ export default function SuporteStack() {
     >
       <Stack.Screen
         name="SuporteHome"
-        component={SuporteScreen}
+        component={ChatScreen}
         options={{ title: 'Suporte' }}
       />
     </Stack.Navigator>

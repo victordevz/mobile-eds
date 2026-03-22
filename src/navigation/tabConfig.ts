@@ -16,8 +16,8 @@ export interface TabItem {
 
 export const tabConfig: TabItem[] = [
   { routeName: 'Suporte', label: 'SUPORTE', showLabel: true, icon: SuporteIcon },
-  { routeName: 'Roleta', label: 'ROLETA', showLabel: false, icon: RoletaIcon },
-  { routeName: 'Slot', label: 'SLOT', showLabel: false, icon: SlotIcon },
-  { routeName: 'Futebol', label: 'FUTEBOL', showLabel: false, icon: FutebolIcon },
+  { routeName: 'Roleta', label: 'ROLETA', showLabel: true, icon: RoletaIcon },
+  { routeName: 'Slot', label: 'SLOT', showLabel: true, icon: SlotIcon },
+  { routeName: 'Futebol', label: 'FUTEBOL', showLabel: true, icon: FutebolIcon },
   { routeName: 'Historico', label: 'HISTÓRICO', showLabel: true, icon: HistoricoIcon },
 ];

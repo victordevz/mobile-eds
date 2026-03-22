@@ -21,9 +21,9 @@ import { tabConfig } from '../navigation/tabConfig';
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const AnimatedRadialGradient = Animated.createAnimatedComponent(RadialGradient);
 
-const ICON_SIZE = 36;
-const ICON_SIZE_PLAIN = 34;
-const ACTIVE_CIRCLE = 78;
+const ICON_SIZE = 35;
+const ICON_SIZE_PLAIN = 30;
+const ACTIVE_CIRCLE = 75;
 const INACTIVE_CIRCLE = 60;
 const SPRING_CONFIG = { damping: 30, stiffness: 200, overshootClamping: true };
 
@@ -43,8 +43,8 @@ export default function CustomTabBar({
 
   const animatedPathProps = useAnimatedProps(() => {
     const xPos = (activeIndex.value + 0.5) * tabWidth;
-    const waveWidth = 86; // largura da onda
-    const waveHeight = 24; // profundidade da onda
+    const waveWidth = 150; // largura da onda
+    const waveHeight = 45; // profundidade da onda
 
     const p1x = xPos - waveWidth / 2;
     const p2x = xPos - waveWidth / 4;
@@ -157,7 +157,7 @@ function TabBarItem({ isFocused, label, showLabel, Icon, onPress }: TabBarItemPr
       SPRING_CONFIG
     ),
     transform: [
-      { translateY: withSpring(isFocused ? -18 : 0, SPRING_CONFIG) },
+      { translateY: withSpring(isFocused ? -30 : 0, SPRING_CONFIG) },
     ],
   }));
 

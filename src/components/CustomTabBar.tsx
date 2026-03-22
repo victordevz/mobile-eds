@@ -1,18 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Pressable,
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
   withSpring,
+  useSharedValue,
+  useAnimatedProps,
 } from 'react-native-reanimated';
+import Svg, { Path, Defs, RadialGradient, Stop } from 'react-native-svg';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { colors } from '../theme';
 import { tabConfig } from '../navigation/tabConfig';
+
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+const AnimatedRadialGradient = Animated.createAnimatedComponent(RadialGradient);
 
 const ICON_SIZE = 36;
 const ICON_SIZE_PLAIN = 34;
@@ -25,6 +32,52 @@ export default function CustomTabBar({
   navigation,
 }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const tabWidth = width / 5;
+
+  const activeIndex = useSharedValue(state.index);
+
+  useEffect(() => {
+    activeIndex.value = withSpring(state.index, SPRING_CONFIG);
+  }, [state.index, activeIndex]);
+
+  const animatedPathProps = useAnimatedProps(() => {
+    const xPos = (activeIndex.value + 0.5) * tabWidth;
+    const waveWidth = 86; // largura da onda
+    const waveHeight = 24; // profundidade da onda
+
+    const p1x = xPos - waveWidth / 2;
+    const p2x = xPos - waveWidth / 4;
+    const p3x = xPos - waveWidth / 4;
+    const p4x = xPos;
+    const p5x = xPos + waveWidth / 4;
+    const p6x = xPos + waveWidth / 4;
+    const p7x = xPos + waveWidth / 2;
+
+    const d = `
+      M 0 20
+      Q 0 0 20 0
+      L ${p1x} 0
+      C ${p2x} 0, ${p3x} ${waveHeight}, ${p4x} ${waveHeight}
+      C ${p5x} ${waveHeight}, ${p6x} 0, ${p7x} 0
+      L ${width - 20} 0
+      Q ${width} 0 ${width} 20
+      L ${width} 200
+      L 0 200
+      Z
+    `;
+
+    return { d };
+  });
+
+  const animatedGradientProps = useAnimatedProps(() => {
+    const xPos = (activeIndex.value + 0.5) * tabWidth;
+    return {
+      cx: String(xPos),
+      cy: '15',
+      r: '80',
+    };
+  });
 
   return (
     <View
@@ -33,6 +86,25 @@ export default function CustomTabBar({
         { paddingBottom: Math.max(insets.bottom, 8) },
       ]}
     >
+      <View style={StyleSheet.absoluteFill}>
+        <Svg width={width} height={200}>
+          <Defs>
+            <AnimatedRadialGradient
+              id="waveGradient"
+              gradientUnits="userSpaceOnUse"
+              animatedProps={animatedGradientProps as any}
+            >
+              <Stop offset="0%" stopColor="#4B7BFF" stopOpacity="1" />
+              <Stop offset="100%" stopColor={colors.primary} stopOpacity="1" />
+            </AnimatedRadialGradient>
+          </Defs>
+          <AnimatedPath
+            animatedProps={animatedPathProps}
+            fill="url(#waveGradient)"
+          />
+        </Svg>
+      </View>
+
       {state.routes.map((route, index) => {
         const isFocused = state.index === index;
         const config = tabConfig.find((t) => t.routeName === route.name);
@@ -135,13 +207,11 @@ function TabBarItem({ isFocused, label, showLabel, Icon, onPress }: TabBarItemPr
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: colors.primary,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'space-around',
     paddingTop: 10,
     height: 88,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
     overflow: 'visible',
   },
   tab: {

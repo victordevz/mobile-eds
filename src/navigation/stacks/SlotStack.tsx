@@ -9,15 +9,12 @@ export default function SlotStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: colors.primary },
-        headerTintColor: colors.white,
-        headerTitleStyle: { fontWeight: 'bold' },
+        headerShown: false,
       }}
     >
       <Stack.Screen
         name="SlotHome"
         component={SlotScreen}
-        options={{ title: 'Slot' }}
       />
     </Stack.Navigator>
   );

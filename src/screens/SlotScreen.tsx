@@ -40,8 +40,8 @@ const CATEGORIES = [
   { id: 'c1', label: 'Todos' },
   { id: 'c2', label: 'Slots' },
   { id: 'c3', label: 'Crash' },
-  { id: 'c4', label: 'Ao Vivo' },
-  { id: 'c5', label: 'Mesa' },
+  { id: 'c4', label: 'Roleta' },
+  { id: 'c5', label: 'Blackjack' },
 ];
 
 const BANNERS = [
@@ -121,34 +121,46 @@ const PROVIDERS = [
 function Header() {
   return (
     <View style={styles.header}>
-      {/* Logo */}
-      <Logotipo width={80} height={28} />
+      {/* Logo Wrapper */}
+      <View style={styles.logoWrapper}>
+        <Logotipo width={100} height={32} />
+      </View>
 
       <View style={styles.headerActions}>
-        {/* Lupa */}
-        <Pressable style={styles.searchIconBtn}>
-          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-            <Circle cx="11" cy="11" r="7" stroke="#FFFFFF" strokeWidth="2" />
-            <Line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
-          </Svg>
-        </Pressable>
-
-        {/* Pill unificada: botão + e saldo */}
-        <Pressable style={styles.balancePill}>
-          <View style={styles.depositCircle}>
-            <View style={styles.plusHorizontal} />
-            <View style={styles.plusVertical} />
+        {/* Container Saldo + Depositar */}
+        <View style={styles.balanceWrapper}>
+          <View style={styles.balanceTextWrapper}>
+            <Text style={styles.balanceLabel}>R$</Text>
+            <Text style={styles.balanceValue}>1.300,50</Text>
           </View>
-          <Text style={styles.balanceValue}>R$ 1.300,50</Text>
-        </Pressable>
+          <Pressable style={styles.depositBtn}>
+            <Text style={styles.depositBtnText}>+ Depositar</Text>
+          </Pressable>
+        </View>
 
-        {/* Sanduiche */}
-        <Pressable style={styles.menuBtn}>
-          <View style={styles.menuBar} />
-          <View style={[styles.menuBar, { width: 16 }]} />
-          <View style={styles.menuBar} />
+        {/* Profile */}
+        <Pressable style={styles.profileBtn}>
+          <Text style={styles.profileText}>YZ</Text>
         </Pressable>
       </View>
+    </View>
+  );
+}
+
+/** Abas secundárias (Cassino, Slots, Ao Vivo, Jackpot) */
+function SubTopBar() {
+  const tabs = ['Cassino', 'Slots', 'Ao Vivo', 'Jackpot'];
+  return (
+    <View style={styles.subTopBar}>
+      {tabs.map((tab, i) => {
+        const isActive = i === 0;
+        return (
+          <View key={tab} style={styles.subTabWrapper}>
+            <Text style={[styles.subTab, isActive && styles.subTabActive]}>{tab}</Text>
+            {isActive && <View style={styles.subTabIndicator} />}
+          </View>
+        );
+      })}
     </View>
   );
 }
@@ -194,23 +206,23 @@ function PromoBanner() {
             {/* Conteúdo */}
             <View style={styles.bannerContent}>
               {/* Badge */}
-              <View style={[styles.bannerBadge, { borderColor: item.accent }]}>
-                <Text style={[styles.bannerBadgeText, { color: item.accent }]}>{item.badge}</Text>
+              <View style={[styles.bannerBadge, { borderColor: '#D4AF37' }]}>
+                <Text style={[styles.bannerBadgeText, { color: '#D4AF37' }]}>{item.badge}</Text>
               </View>
 
               {/* Título */}
-              <Text style={styles.bannerTitle}>{item.game}</Text>
+              <Text style={styles.bannerTitle}>{item.game.replace(' ', '\n')}</Text>
 
               {/* Multiplicador */}
               <Text style={styles.bannerSubtitle}>
                 Multiplicador até{' '}
-                <Text style={[styles.bannerMultiplier, { color: colors.secondary }]}>{item.multiplier}</Text>
+                <Text style={styles.bannerMultiplier}>{item.multiplier}</Text>
               </Text>
 
               {/* Botões */}
               <View style={styles.bannerButtons}>
                 <Pressable style={styles.bannerBtnPlay}>
-                  <Text style={styles.bannerBtnPlayText}>▶  Jogar</Text>
+                  <Text style={styles.bannerBtnPlayText}>▶ Jogar</Text>
                 </Pressable>
                 <Pressable style={styles.bannerBtnInfo}>
                   <Text style={styles.bannerBtnInfoText}>+ Info</Text>
@@ -274,23 +286,32 @@ function CategoryPills() {
 }
 
 /** Card de jogo individual */
-function GameCard({ game }: { game: Game }) {
+function GameCard({ game, showBadge }: { game: Game; showBadge?: string }) {
   return (
     <Pressable style={styles.gameCard}>
       <View style={[styles.gameThumb, { backgroundColor: game.accent }]}>
+        {showBadge && (
+          <View style={[styles.cardBadge, showBadge === 'NOVO' && styles.cardBadgeNew]}>
+            <Text style={styles.cardBadgeText}>{showBadge}</Text>
+          </View>
+        )}
         <Text style={styles.gameEmoji}>{game.emoji}</Text>
         <LinearGradient
-          colors={['transparent', 'rgba(5,60,30,0.45)', 'rgba(5,50,25,0.82)']}
-          locations={[0, 0.55, 1]}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
+          colors={['transparent', 'rgba(0,0,0,0.85)']}
           style={styles.gameTitleOverlay}
         >
-          <Text style={styles.gameTitle} numberOfLines={1}>
-            {game.title}
-          </Text>
+          <View style={styles.cardInfoRow}>
+            <View style={styles.cardPercentRow}>
+              <Text style={styles.cardPercentText}>96.5%</Text>
+            </View>
+            <View style={styles.cardPlayersRow}>
+              <Text style={styles.cardPlayersText}>5.2k+</Text>
+            </View>
+          </View>
         </LinearGradient>
       </View>
+      <Text style={styles.cardTitleBelow} numberOfLines={1}>{game.title}</Text>
+      <Text style={styles.cardProviderBelow} numberOfLines={1}>{game.provider}</Text>
     </Pressable>
   );
 }
@@ -306,9 +327,17 @@ function GameSection({
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>{title}</Text>
+        <View style={styles.sectionTitleRow}>
+          <View style={styles.sectionTitleBar} />
+          <Text style={styles.sectionTitle}>{title}</Text>
+          {title.includes('Mais Jogados') && (
+            <View style={styles.sectionBadge}>
+              <Text style={styles.sectionBadgeText}>AO VIVO</Text>
+            </View>
+          )}
+        </View>
         <Pressable>
-          <Text style={styles.sectionLink}>Ver tudo →</Text>
+          <Text style={styles.sectionLink}>Ver todos ›</Text>
         </Pressable>
       </View>
 
@@ -318,7 +347,7 @@ function GameSection({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.gameList}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <GameCard game={item} />}
+        renderItem={({ item, index }) => <GameCard game={item} showBadge={index === 0 ? 'HOT' : index === 2 ? 'NOVO' : undefined} />}
       />
     </View>
   );
@@ -358,11 +387,12 @@ export default function SlotScreen() {
         contentContainerStyle={styles.scroll}
       >
         <Header />
+        <SubTopBar />
         <PromoBanner />
         <CategoryPills />
-        <GameSection title="🔥  Populares" games={POPULAR_GAMES} />
-        <GameSection title="⭐  Novos Jogos" games={NEW_GAMES} />
-        <GameSection title="🚀  Crash Games" games={CRASH_GAMES} />
+        <GameSection title="Mais Jogados" games={POPULAR_GAMES} />
+        <GameSection title="Novidades" games={NEW_GAMES} />
+        <GameSection title="Crash Games" games={CRASH_GAMES} />
         <ProvidersSection />
         <View style={{ height: 24 }} />
       </ScrollView>
@@ -388,77 +418,114 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 10,
+    paddingTop: 10,
+    paddingBottom: 6,
+  },
+  logoWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  logoIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 8,
+    backgroundColor: colors.secondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoIconText: {
+    color: colors.primaryDark,
+    fontWeight: '900',
+    fontSize: 20,
   },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
-  balancePill: {
+  balanceWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.card,
-    borderRadius: 50,
-    paddingVertical: 6,
-    paddingRight: 18,
-    paddingLeft: 6,
-    gap: 10,
+    backgroundColor: 'rgba(56, 230, 125, 0.1)',
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: 'rgba(56, 230, 125, 0.2)',
+    paddingLeft: 12,
+    paddingRight: 4,
+    paddingVertical: 4,
+    gap: 8,
   },
-  depositCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.secondary,
+  balanceTextWrapper: {
+    flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: colors.secondary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.7,
-    shadowRadius: 8,
-    elevation: 6,
   },
-  depositCircleText: {
-    color: colors.primaryDark,
-    fontSize: 26,
-    fontWeight: '400',
-    lineHeight: 30,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    includeFontPadding: false,
-  },
-  plusHorizontal: {
-    position: 'absolute',
-    width: 16,
-    height: 2.5,
-    borderRadius: 2,
-    backgroundColor: colors.primaryDark,
-  },
-  plusVertical: {
-    position: 'absolute',
-    width: 2.5,
-    height: 16,
-    borderRadius: 2,
-    backgroundColor: colors.primaryDark,
+  balanceLabel: {
+    color: colors.secondary,
+    fontSize: 10,
+    fontWeight: '600',
+    lineHeight: 12,
   },
   balanceValue: {
     color: colors.secondary,
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: '800',
-    letterSpacing: 0.3,
+    lineHeight: 14,
   },
-  menuBtn: {
-    gap: 5,
+  depositBtn: {
+    backgroundColor: colors.secondary,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  depositBtnText: {
+    color: colors.primaryDark,
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  profileBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.cardLight,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'flex-end',
-    padding: 4,
   },
-  menuBar: {
-    width: 22,
-    height: 2.5,
+  profileText: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  /* ── SubTopBar ── */
+  subTopBar: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    marginTop: 12,
+    gap: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.05)',
+  },
+  subTabWrapper: {
+    paddingBottom: 8,
+    alignItems: 'center',
+  },
+  subTab: {
+    color: colors.grey,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  subTabActive: {
+    color: colors.white,
+    fontWeight: '700',
+  },
+  subTabIndicator: {
+    position: 'absolute',
+    bottom: -1,
+    width: '100%',
+    height: 3,
+    backgroundColor: colors.secondary,
     borderRadius: 2,
-    backgroundColor: colors.white,
   },
 
   searchIconBtn: {
@@ -506,47 +573,42 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     borderWidth: 1,
     borderRadius: 6,
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
     paddingVertical: 4,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
   },
   bannerBadgeText: {
-    fontSize: 11,
-    fontWeight: '700',
+    fontSize: 10,
+    fontWeight: '800',
     letterSpacing: 0.5,
   },
   bannerTitle: {
     color: colors.white,
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: '900',
     letterSpacing: 0.2,
-    lineHeight: 30,
+    lineHeight: 32,
   },
   bannerSubtitle: {
-    color: colors.white,
+    color: 'rgba(255,255,255,0.7)',
     fontSize: 13,
     fontWeight: '400',
-    opacity: 0.9,
   },
   bannerMultiplier: {
+    color: colors.secondary,
     fontWeight: '800',
     fontSize: 14,
   },
   bannerButtons: {
     flexDirection: 'row',
     gap: 10,
-    marginTop: 6,
+    marginTop: 8,
   },
   bannerBtnPlay: {
     backgroundColor: colors.secondary,
-    paddingHorizontal: 22,
-    paddingVertical: 11,
-    borderRadius: 12,
-    shadowColor: colors.secondary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 8,
-    elevation: 6,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
   },
   bannerBtnPlayText: {
     color: colors.primaryDark,
@@ -554,12 +616,12 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   bannerBtnInfo: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    paddingHorizontal: 22,
-    paddingVertical: 11,
-    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
+    borderColor: 'rgba(255,255,255,0.2)',
   },
   bannerBtnInfoText: {
     color: colors.white,
@@ -618,23 +680,47 @@ const styles = StyleSheet.create({
 
   /* ── Section ── */
   section: {
-    marginTop: 22,
+    marginTop: 24,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginBottom: 12,
+    marginBottom: 14,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  sectionTitleBar: {
+    width: 3,
+    height: 16,
+    backgroundColor: '#D4AF37', // Dourado
+    borderRadius: 2,
   },
   sectionTitle: {
     color: colors.white,
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  sectionBadge: {
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  sectionBadgeText: {
+    color: '#D4AF37',
+    fontSize: 9,
+    fontWeight: '800',
   },
   sectionLink: {
-    color: colors.secondary,
-    fontSize: 13,
+    color: colors.grey,
+    fontSize: 12,
     fontWeight: '600',
   },
 
@@ -647,6 +733,7 @@ const styles = StyleSheet.create({
   /* ── Game card ── */
   gameCard: {
     width: CARD_W,
+    gap: 6,
   },
   gameThumb: {
     width: CARD_W,
@@ -655,26 +742,79 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  cardBadge: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    backgroundColor: '#E63946',
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 4,
+    zIndex: 2,
+  },
+  cardBadgeNew: {
+    backgroundColor: '#FFB703',
+  },
+  cardBadgeText: {
+    color: colors.white,
+    fontSize: 9,
+    fontWeight: '800',
   },
   gameEmoji: {
-    fontSize: 44,
+    fontSize: 50,
   },
   gameTitleOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: '60%',
-    paddingBottom: 7,
-    paddingHorizontal: 6,
+    height: '40%',
+    paddingBottom: 8,
+    paddingHorizontal: 8,
     justifyContent: 'flex-end',
+  },
+  cardInfoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
-  gameTitle: {
-    color: colors.white,
-    fontSize: 11,
+  cardPercentRow: {
+    backgroundColor: 'rgba(56, 230, 125, 0.2)',
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(56, 230, 125, 0.4)',
+  },
+  cardPercentText: {
+    color: colors.secondary,
+    fontSize: 9,
     fontWeight: '700',
-    textAlign: 'center',
+  },
+  cardPlayersRow: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  cardPlayersText: {
+    color: colors.white,
+    fontSize: 9,
+    fontWeight: '700',
+  },
+  cardTitleBelow: {
+    color: colors.white,
+    fontSize: 13,
+    fontWeight: '800',
+    marginTop: 2,
+  },
+  cardProviderBelow: {
+    color: colors.grey,
+    fontSize: 11,
+    fontWeight: '500',
   },
 
   /* ── Providers ── */

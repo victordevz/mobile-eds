@@ -38,32 +38,32 @@ export default function CustomTabBar({
   const activeIndex = useSharedValue(state.index);
 
   useEffect(() => {
-    activeIndex.value = withSpring(state.index, SPRING_CONFIG);
+    // Valor instantâneo para que a onda "apareça" e não "passe" de um para o outro
+    activeIndex.value = state.index;
   }, [state.index, activeIndex]);
 
   const animatedPathProps = useAnimatedProps(() => {
     const xPos = (activeIndex.value + 0.5) * tabWidth;
-    const waveWidth = 150; // largura da onda
-    const waveHeight = 45; // profundidade da onda
+    const waveWidth = 130;  // Mais larga para suavizar
+    const waveHeight = 50;  // Mais funda ("cavada")
 
+    // Curva muito mais suave
     const p1x = xPos - waveWidth / 2;
-    const p2x = xPos - waveWidth / 4;
-    const p3x = xPos - waveWidth / 4;
+    const p2x = xPos - waveWidth / 3;
+    const p3x = xPos - waveWidth / 6;
     const p4x = xPos;
-    const p5x = xPos + waveWidth / 4;
-    const p6x = xPos + waveWidth / 4;
+    const p5x = xPos + waveWidth / 6;
+    const p6x = xPos + waveWidth / 3;
     const p7x = xPos + waveWidth / 2;
 
     const d = `
-      M 0 20
-      Q 0 0 20 0
+      M -1000 0
       L ${p1x} 0
       C ${p2x} 0, ${p3x} ${waveHeight}, ${p4x} ${waveHeight}
       C ${p5x} ${waveHeight}, ${p6x} 0, ${p7x} 0
-      L ${width - 20} 0
-      Q ${width} 0 ${width} 20
-      L ${width} 200
-      L 0 200
+      L 3000 0
+      L 3000 100
+      L -1000 100
       Z
     `;
 
@@ -75,7 +75,8 @@ export default function CustomTabBar({
     return {
       cx: String(xPos),
       cy: '15',
-      r: '80',
+      // Raio gigante evita o bug visual de clipping do Android nos cantos (ex: Suporte)
+      r: '800',
     };
   });
 
@@ -87,14 +88,15 @@ export default function CustomTabBar({
       ]}
     >
       <View style={StyleSheet.absoluteFill}>
-        <Svg width={width} height={200}>
+        <Svg width={width} height={100}>
           <Defs>
             <AnimatedRadialGradient
               id="waveGradient"
               gradientUnits="userSpaceOnUse"
               animatedProps={animatedGradientProps as any}
             >
-              <Stop offset="0%" stopColor="#4B7BFF" stopOpacity="1" />
+              <Stop offset="0%" stopColor="#0B4EC2" stopOpacity="1" />
+              <Stop offset="10%" stopColor={colors.primary} stopOpacity="1" />
               <Stop offset="100%" stopColor={colors.primary} stopOpacity="1" />
             </AnimatedRadialGradient>
           </Defs>
@@ -148,58 +150,52 @@ interface TabBarItemProps {
   onPress: () => void;
 }
 
-function TabBarItem({ isFocused, label, showLabel, Icon, onPress }: TabBarItemProps) {
-  const animatedCircle = useAnimatedStyle(() => ({
-    width: withSpring(isFocused ? ACTIVE_CIRCLE : INACTIVE_CIRCLE, SPRING_CONFIG),
-    height: withSpring(isFocused ? ACTIVE_CIRCLE : INACTIVE_CIRCLE, SPRING_CONFIG),
+function TabBarItem({ isFocused, label, Icon, onPress }: TabBarItemProps) {
+  const animatedWrapper = useAnimatedStyle(() => ({
+    width: withSpring(isFocused ? 70 : INACTIVE_CIRCLE, SPRING_CONFIG),
+    height: withSpring(isFocused ? 70 : INACTIVE_CIRCLE, SPRING_CONFIG),
     borderRadius: withSpring(
-      isFocused ? ACTIVE_CIRCLE / 2 : INACTIVE_CIRCLE / 2,
+      isFocused ? 35 : INACTIVE_CIRCLE / 2,
       SPRING_CONFIG
     ),
     transform: [
-      { translateY: withSpring(isFocused ? -30 : 0, SPRING_CONFIG) },
-    ],
-  }));
+      { translateY: withSpring(isFocused ? -16 : 0, SPRING_CONFIG) },
+      { scale: withSpring(isFocused ? 1 : 1, SPRING_CONFIG) }
+    ]
+  }), [isFocused]);
 
   const animatedLabel = useAnimatedStyle(() => ({
     opacity: withSpring(isFocused ? 0 : 1, SPRING_CONFIG),
     transform: [
       { translateY: withSpring(isFocused ? 10 : 0, SPRING_CONFIG) },
     ],
-  }));
+  }), [isFocused]);
 
-  if (showLabel) {
-    // Suporte & Histórico: plain white SVG, no circle background
-    return (
-      <Pressable style={styles.tab} onPress={onPress}>
-        <View style={styles.plainIconWrapper}>
-          <Icon
-            width={ICON_SIZE_PLAIN}
-            height={ICON_SIZE_PLAIN}
-            color={colors.white}
-            fill={colors.white}
-          />
-        </View>
-        <Animated.Text
-          style={[styles.label, animatedLabel]}
-          numberOfLines={2}
-        >
-          {label}
-        </Animated.Text>
-      </Pressable>
-    );
-  }
-
-  // Roleta, Futebol, Slot: animated circle with colored icon
   return (
-    <Pressable style={styles.tab} onPress={onPress}>
-      <Animated.View style={[styles.circle, animatedCircle]}>
+    <Pressable style={[styles.tab, { zIndex: isFocused ? 10 : 1 }]} onPress={onPress}>
+      <Animated.View style={[
+        styles.circle, 
+        animatedWrapper, 
+        { 
+          backgroundColor: isFocused ? '#02143D' : 'transparent',
+          borderWidth: isFocused ? 2 : 0,
+          borderColor: colors.secondary
+        }
+      ]}>
         <Icon
           width={ICON_SIZE}
           height={ICON_SIZE}
-          fill={colors.primary}
+          fill={colors.white}
+          color={colors.white}
         />
       </Animated.View>
+      
+      <Animated.Text
+        style={[styles.label, animatedLabel]}
+        numberOfLines={1}
+      >
+        {label}
+      </Animated.Text>
     </Pressable>
   );
 }
@@ -207,7 +203,7 @@ function TabBarItem({ isFocused, label, showLabel, Icon, onPress }: TabBarItemPr
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: 'transparent',
+    backgroundColor: colors.primaryDark,
     alignItems: 'center',
     justifyContent: 'space-around',
     paddingTop: 10,
@@ -225,26 +221,14 @@ const styles = StyleSheet.create({
   circle: {
     position: 'absolute',
     top: 4,
-    backgroundColor: colors.white,
-    borderWidth: 3,
-    borderColor: colors.primary,
+    borderWidth: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.black,
+    shadowColor: colors.secondary,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
     elevation: 8,
-  },
-  iconWrapper: {
-    zIndex: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  plainIconWrapper: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 4,
   },
   label: {
     color: colors.white,

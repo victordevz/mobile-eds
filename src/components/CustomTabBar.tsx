@@ -34,17 +34,17 @@ export default function CustomTabBar({
   const tabWidth = width / 5;
 
   const xPos = (state.index + 0.5) * tabWidth;
-  const waveWidth = 130;  // Mais larga para suavizar
-  const waveHeight = 50;  // Mais funda ("cavada")
+  const waveWidth = 140;  
+  const waveHeight = 42;  
 
-  // Curva muito mais suave
-  const p1x = xPos - waveWidth / 2;
-  const p2x = xPos - waveWidth / 3;
-  const p3x = xPos - waveWidth / 6;
+  // Curva S de Bezier perfeita (Easing In-Out simétrico). Zera quinas e quadrados.
+  const p1x = xPos - 70;
+  const p2x = xPos - 35; 
+  const p3x = xPos - 35; 
   const p4x = xPos;
-  const p5x = xPos + waveWidth / 6;
-  const p6x = xPos + waveWidth / 3;
-  const p7x = xPos + waveWidth / 2;
+  const p5x = xPos + 35;
+  const p6x = xPos + 35;
+  const p7x = xPos + 70;
 
   const d = `
     M -1000 0
@@ -64,11 +64,12 @@ export default function CustomTabBar({
     <View
       style={[
         styles.container,
-        { paddingBottom: Math.max(insets.bottom, 8) },
+        { paddingBottom: insets.bottom || 10 },
       ]}
     >
+      {/* Background SVG wave */}
       <View style={StyleSheet.absoluteFill}>
-        <Svg width={width} height={100}>
+        <Svg width={width} height={100} key={`svg-${state.index}`}>
           <Defs>
             <RadialGradient
               id={gradientId}
@@ -141,15 +142,15 @@ function TabBarItem({ isFocused, label, Icon, onPress }: TabBarItemProps) {
       SPRING_CONFIG
     ),
     transform: [
-      { translateY: withSpring(isFocused ? -16 : 0, SPRING_CONFIG) },
+      { translateY: withSpring(isFocused ? -54 : 0, SPRING_CONFIG) },
       { scale: withSpring(isFocused ? 1 : 1, SPRING_CONFIG) }
     ]
   }), [isFocused]);
 
   const animatedLabel = useAnimatedStyle(() => ({
-    opacity: withSpring(isFocused ? 0 : 1, SPRING_CONFIG),
+    opacity: 1,
     transform: [
-      { translateY: withSpring(isFocused ? 10 : 0, SPRING_CONFIG) },
+      { translateY: 0 },
     ],
   }), [isFocused]);
 
@@ -173,7 +174,23 @@ function TabBarItem({ isFocused, label, Icon, onPress }: TabBarItemProps) {
       </Animated.View>
       
       <Animated.Text
-        style={[styles.label, animatedLabel]}
+        style={[
+          styles.label, 
+          { position: 'absolute', bottom: 6 },
+          animatedLabel,
+          isFocused ? {
+            backgroundColor: colors.secondary,
+            color: colors.primaryDark,
+            borderWidth: 1,
+            borderColor: colors.secondary,
+            paddingHorizontal: 12,
+            paddingVertical: 3,
+            borderRadius: 12,
+            overflow: 'hidden',
+          } : {
+            color: 'rgba(255,255,255,0.6)'
+          }
+        ]}
         numberOfLines={1}
       >
         {label}
@@ -185,10 +202,14 @@ function TabBarItem({ isFocused, label, Icon, onPress }: TabBarItemProps) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: colors.primaryDark,
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    elevation: 0,
+    paddingTop: 15,
     alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingTop: 10,
     height: 88,
     overflow: 'visible',
   },

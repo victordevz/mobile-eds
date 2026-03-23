@@ -296,22 +296,7 @@ function GameCard({ game, showBadge }: { game: Game; showBadge?: string }) {
           </View>
         )}
         <Text style={styles.gameEmoji}>{game.emoji}</Text>
-        <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.85)']}
-          style={styles.gameTitleOverlay}
-        >
-          <View style={styles.cardInfoRow}>
-            <View style={styles.cardPercentRow}>
-              <Text style={styles.cardPercentText}>96.5%</Text>
-            </View>
-            <View style={styles.cardPlayersRow}>
-              <Text style={styles.cardPlayersText}>5.2k+</Text>
-            </View>
-          </View>
-        </LinearGradient>
       </View>
-      <Text style={styles.cardTitleBelow} numberOfLines={1}>{game.title}</Text>
-      <Text style={styles.cardProviderBelow} numberOfLines={1}>{game.provider}</Text>
     </Pressable>
   );
 }
@@ -409,7 +394,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryDark,
   },
   scroll: {
-    paddingBottom: 16,
+    paddingBottom: 120,
   },
 
   /* ── Header ── */

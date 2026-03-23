@@ -72,7 +72,7 @@ const BANNERS = [
 ];
 
 const POPULAR_GAMES: Game[] = [
-  { id: 'p1', title: 'Fortune Tiger', provider: 'PG Soft', accent: '#FF6B35', emoji: 'Tigrin'/*fazer esse get aqui*/ },
+  { id: 'p1', title: 'Fortune Tiger', provider: 'PG Soft', accent: '#FF6B35', emoji: '🐯'/*fazer esse get aqui*/ },
   { id: 'p2', title: 'Fortune Ox', provider: 'PG Soft', accent: '#D62828', emoji: '🐂' },
   { id: 'p3', title: 'Fortune Mouse', provider: 'PG Soft', accent: '#E8A317', emoji: '🐭' },
   { id: 'p4', title: 'Fortune Rabbit', provider: 'PG Soft', accent: '#FF85A1', emoji: '🐇' },

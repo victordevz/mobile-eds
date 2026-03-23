@@ -18,12 +18,15 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { colors } from '../theme';
 import { tabConfig } from '../navigation/tabConfig';
 
+const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 const ICON_SIZE = 35;
 const ICON_SIZE_PLAIN = 30;
 const ACTIVE_CIRCLE = 75;
 const INACTIVE_CIRCLE = 60;
 const SPRING_CONFIG = { damping: 30, stiffness: 200, overshootClamping: true };
+const BOUNCE_SPRING = { damping: 18, stiffness: 160, mass: 1 };
+const WAVE_SPRING = { damping: 22, stiffness: 180, mass: 1 };
 
 export default function CustomTabBar({
   state,
@@ -33,32 +36,21 @@ export default function CustomTabBar({
   const { width } = useWindowDimensions();
   const tabWidth = width / 5;
 
+  const waveHeight = 40;
+  const xShared = useSharedValue((state.index + 0.5) * tabWidth);
+
+  useEffect(() => {
+    xShared.value = withSpring((state.index + 0.5) * tabWidth, WAVE_SPRING);
+  }, [state.index, tabWidth]);
+
+  const animatedPathProps = useAnimatedProps(() => {
+    const x = xShared.value;
+    return {
+      d: `M -1000 0 L ${x - 70} 0 C ${x - 35} 0, ${x - 35} ${waveHeight}, ${x} ${waveHeight} C ${x + 35} ${waveHeight}, ${x + 35} 0, ${x + 70} 0 L 3000 0 L 3000 100 L -1000 100 Z`,
+    };
+  });
+
   const xPos = (state.index + 0.5) * tabWidth;
-  const waveWidth = 140;  
-  const waveHeight = 40;  
-
-  // Suavizando os "ombros" da onda: p2x e p6x mais próximos ao centro criam transição mais redonda nas pontas
-  const p1x = xPos - 70;
-  const p2x = xPos - 35; 
-  const p3x = xPos - 35; 
-  const p4x = xPos;
-  const p5x = xPos + 35;
-  const p6x = xPos + 35;
-  const p7x = xPos + 70;
-
-  const d = `
-    M -1000 0
-    L ${p1x} 0
-    C ${p2x} 0, ${p3x} ${waveHeight}, ${p4x} ${waveHeight}
-    C ${p5x} ${waveHeight}, ${p6x} 0, ${p7x} 0
-    L 3000 0
-    L 3000 100
-    L -1000 100
-    Z
-  `;
-
-  // Um ID exclusivo força o SVG a reconstruir o brilho no canto exato, sem bugar o cache!
-  const gradientId = `waveGradient-${state.index}`;
 
   return (
     <View
@@ -69,10 +61,10 @@ export default function CustomTabBar({
     >
       {/* Background SVG wave */}
       <View style={StyleSheet.absoluteFill}>
-        <Svg width={width} height={100} key={`svg-${state.index}`}>
+        <Svg width={width} height={100}>
           <Defs>
             <RadialGradient
-              id={gradientId}
+              id="waveGradient"
               gradientUnits="userSpaceOnUse"
               cx={xPos}
               cy={15}
@@ -83,9 +75,9 @@ export default function CustomTabBar({
               <Stop offset="100%" stopColor={colors.primary} stopOpacity="1" />
             </RadialGradient>
           </Defs>
-          <Path
-            d={d}
-            fill={`url(#${gradientId})`}
+          <AnimatedPath
+            animatedProps={animatedPathProps}
+            fill="url(#waveGradient)"
           />
         </Svg>
       </View>
@@ -142,9 +134,8 @@ function TabBarItem({ isFocused, label, Icon, onPress }: TabBarItemProps) {
       SPRING_CONFIG
     ),
     transform: [
-      { translateY: withSpring(isFocused ? -54 : 0, SPRING_CONFIG) },
-      { scale: withSpring(isFocused ? 1 : 1, SPRING_CONFIG) }
-    ]
+      { translateY: withSpring(isFocused ? -54 : 0, BOUNCE_SPRING) },
+    ],
   }), [isFocused]);
 
   const animatedLabel = useAnimatedStyle(() => ({

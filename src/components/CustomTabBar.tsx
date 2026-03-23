@@ -18,8 +18,6 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { colors } from '../theme';
 import { tabConfig } from '../navigation/tabConfig';
 
-const AnimatedPath = Animated.createAnimatedComponent(Path);
-const AnimatedRadialGradient = Animated.createAnimatedComponent(RadialGradient);
 
 const ICON_SIZE = 35;
 const ICON_SIZE_PLAIN = 30;
@@ -35,50 +33,32 @@ export default function CustomTabBar({
   const { width } = useWindowDimensions();
   const tabWidth = width / 5;
 
-  const activeIndex = useSharedValue(state.index);
+  const xPos = (state.index + 0.5) * tabWidth;
+  const waveWidth = 130;  // Mais larga para suavizar
+  const waveHeight = 50;  // Mais funda ("cavada")
 
-  useEffect(() => {
-    // Valor instantâneo para que a onda "apareça" e não "passe" de um para o outro
-    activeIndex.value = state.index;
-  }, [state.index, activeIndex]);
+  // Curva muito mais suave
+  const p1x = xPos - waveWidth / 2;
+  const p2x = xPos - waveWidth / 3;
+  const p3x = xPos - waveWidth / 6;
+  const p4x = xPos;
+  const p5x = xPos + waveWidth / 6;
+  const p6x = xPos + waveWidth / 3;
+  const p7x = xPos + waveWidth / 2;
 
-  const animatedPathProps = useAnimatedProps(() => {
-    const xPos = (activeIndex.value + 0.5) * tabWidth;
-    const waveWidth = 130;  // Mais larga para suavizar
-    const waveHeight = 50;  // Mais funda ("cavada")
+  const d = `
+    M -1000 0
+    L ${p1x} 0
+    C ${p2x} 0, ${p3x} ${waveHeight}, ${p4x} ${waveHeight}
+    C ${p5x} ${waveHeight}, ${p6x} 0, ${p7x} 0
+    L 3000 0
+    L 3000 100
+    L -1000 100
+    Z
+  `;
 
-    // Curva muito mais suave
-    const p1x = xPos - waveWidth / 2;
-    const p2x = xPos - waveWidth / 3;
-    const p3x = xPos - waveWidth / 6;
-    const p4x = xPos;
-    const p5x = xPos + waveWidth / 6;
-    const p6x = xPos + waveWidth / 3;
-    const p7x = xPos + waveWidth / 2;
-
-    const d = `
-      M -1000 0
-      L ${p1x} 0
-      C ${p2x} 0, ${p3x} ${waveHeight}, ${p4x} ${waveHeight}
-      C ${p5x} ${waveHeight}, ${p6x} 0, ${p7x} 0
-      L 3000 0
-      L 3000 100
-      L -1000 100
-      Z
-    `;
-
-    return { d };
-  });
-
-  const animatedGradientProps = useAnimatedProps(() => {
-    const xPos = (activeIndex.value + 0.5) * tabWidth;
-    return {
-      cx: String(xPos),
-      cy: '15',
-      // Raio gigante evita o bug visual de clipping do Android nos cantos (ex: Suporte)
-      r: '800',
-    };
-  });
+  // Um ID exclusivo força o SVG a reconstruir o brilho no canto exato, sem bugar o cache!
+  const gradientId = `waveGradient-${state.index}`;
 
   return (
     <View
@@ -90,19 +70,21 @@ export default function CustomTabBar({
       <View style={StyleSheet.absoluteFill}>
         <Svg width={width} height={100}>
           <Defs>
-            <AnimatedRadialGradient
-              id="waveGradient"
+            <RadialGradient
+              id={gradientId}
               gradientUnits="userSpaceOnUse"
-              animatedProps={animatedGradientProps as any}
+              cx={xPos}
+              cy={15}
+              r={800}
             >
               <Stop offset="0%" stopColor="#0B4EC2" stopOpacity="1" />
               <Stop offset="10%" stopColor={colors.primary} stopOpacity="1" />
               <Stop offset="100%" stopColor={colors.primary} stopOpacity="1" />
-            </AnimatedRadialGradient>
+            </RadialGradient>
           </Defs>
-          <AnimatedPath
-            animatedProps={animatedPathProps}
-            fill="url(#waveGradient)"
+          <Path
+            d={d}
+            fill={`url(#${gradientId})`}
           />
         </Svg>
       </View>

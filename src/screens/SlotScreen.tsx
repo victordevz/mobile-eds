@@ -121,26 +121,32 @@ const PROVIDERS = [
 function Header() {
   return (
     <View style={styles.header}>
-      {/* Logo Wrapper */}
-      <View style={styles.logoWrapper}>
-        <Logotipo width={100} height={32} />
-      </View>
+      {/* Logo */}
+      <Logotipo width={80} height={28} />
 
       <View style={styles.headerActions}>
-        {/* Container Saldo + Depositar */}
-        <View style={styles.balanceWrapper}>
-          <View style={styles.balanceTextWrapper}>
-            <Text style={styles.balanceLabel}>R$</Text>
-            <Text style={styles.balanceValue}>1.300,50</Text>
-          </View>
-          <Pressable style={styles.depositBtn}>
-            <Text style={styles.depositBtnText}>+ Depositar</Text>
-          </Pressable>
-        </View>
+        {/* Lupa */}
+        <Pressable style={styles.searchIconBtn}>
+          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+            <Circle cx="11" cy="11" r="7" stroke="#FFFFFF" strokeWidth="2" />
+            <Line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+          </Svg>
+        </Pressable>
 
-        {/* Profile */}
-        <Pressable style={styles.profileBtn}>
-          <Text style={styles.profileText}>YZ</Text>
+        {/* Pill unificada: botão + e saldo */}
+        <Pressable style={styles.balancePill}>
+          <View style={styles.depositCircle}>
+            <View style={styles.plusHorizontal} />
+            <View style={styles.plusVertical} />
+          </View>
+          <Text style={styles.balanceValue}>R$ 1.300,50</Text>
+        </Pressable>
+
+        {/* Sanduiche */}
+        <Pressable style={styles.menuBtn}>
+          <View style={styles.menuBar} />
+          <View style={[styles.menuBar, { width: 16 }]} />
+          <View style={styles.menuBar} />
         </Pressable>
       </View>
     </View>
@@ -372,7 +378,6 @@ export default function SlotScreen() {
         contentContainerStyle={styles.scroll}
       >
         <Header />
-        <SubTopBar />
         <PromoBanner />
         <CategoryPills />
         <GameSection title="Mais Jogados" games={POPULAR_GAMES} />
@@ -403,83 +408,71 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 6,
-  },
-  logoWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  logoIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 8,
-    backgroundColor: colors.secondary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoIconText: {
-    color: colors.primaryDark,
-    fontWeight: '900',
-    fontSize: 20,
+    paddingTop: 14,
+    paddingBottom: 10,
   },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
-  balanceWrapper: {
+  balancePill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(56, 230, 125, 0.1)',
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: 'rgba(56, 230, 125, 0.2)',
-    paddingLeft: 12,
-    paddingRight: 4,
-    paddingVertical: 4,
-    gap: 8,
+    backgroundColor: colors.card,
+    borderRadius: 50,
+    paddingVertical: 6,
+    paddingRight: 18,
+    paddingLeft: 6,
+    gap: 10,
   },
-  balanceTextWrapper: {
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  balanceLabel: {
-    color: colors.secondary,
-    fontSize: 10,
-    fontWeight: '600',
-    lineHeight: 12,
-  },
-  balanceValue: {
-    color: colors.secondary,
-    fontSize: 13,
-    fontWeight: '800',
-    lineHeight: 14,
-  },
-  depositBtn: {
-    backgroundColor: colors.secondary,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  depositBtnText: {
-    color: colors.primaryDark,
-    fontSize: 13,
-    fontWeight: '800',
-  },
-  profileBtn: {
+  depositCircle: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: colors.cardLight,
+    backgroundColor: colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.7,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  profileText: {
-    color: colors.white,
-    fontSize: 14,
-    fontWeight: '600',
+  plusHorizontal: {
+    position: 'absolute',
+    width: 16,
+    height: 2.5,
+    borderRadius: 2,
+    backgroundColor: colors.primaryDark,
+  },
+  plusVertical: {
+    position: 'absolute',
+    width: 2.5,
+    height: 16,
+    borderRadius: 2,
+    backgroundColor: colors.primaryDark,
+  },
+  balanceValue: {
+    color: colors.secondary,
+    fontSize: 15,
+    fontWeight: '800',
+    letterSpacing: 0.3,
+  },
+  menuBtn: {
+    gap: 5,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    padding: 4,
+  },
+  menuBar: {
+    width: 22,
+    height: 2.5,
+    borderRadius: 2,
+    backgroundColor: colors.white,
+  },
+  searchIconBtn: {
+    padding: 6,
   },
 
   /* ── SubTopBar ── */
@@ -511,10 +504,6 @@ const styles = StyleSheet.create({
     height: 3,
     backgroundColor: colors.secondary,
     borderRadius: 2,
-  },
-
-  searchIconBtn: {
-    padding: 6,
   },
 
   /* ── Banner ── */

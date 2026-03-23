@@ -35,9 +35,9 @@ export default function CustomTabBar({
 
   const xPos = (state.index + 0.5) * tabWidth;
   const waveWidth = 140;  
-  const waveHeight = 42;  
+  const waveHeight = 40;  
 
-  // Curva S de Bezier perfeita (Easing In-Out simétrico). Zera quinas e quadrados.
+  // Suavizando os "ombros" da onda: p2x e p6x mais próximos ao centro criam transição mais redonda nas pontas
   const p1x = xPos - 70;
   const p2x = xPos - 35; 
   const p3x = xPos - 35; 

@@ -22,8 +22,8 @@ export default function App() {
       >
         <Tab.Screen name="Suporte" component={SuporteStack} />
         <Tab.Screen name="Roleta" component={RoletaStack} />
-        <Tab.Screen name="Slot" component={SlotStack} />
         <Tab.Screen name="Futebol" component={FutebolStack} />
+        <Tab.Screen name="Slot" component={SlotStack} />
         <Tab.Screen name="Historico" component={HistoricoStack} />
       </Tab.Navigator>
       <StatusBar style="dark" />

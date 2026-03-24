@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Line } from 'react-native-svg';
 import { colors } from '../theme';
 import Logotipo from '../../assets/logotipo.svg';
+import { useAuth } from '../context/AuthContext';
 
 /* ───────────────────── Constantes ───────────────────── */
 
@@ -119,6 +120,12 @@ const PROVIDERS = [
 
 /** Cabeçalho com saudação e saldo */
 function Header() {
+  const { openMenu, openDepositModal, balance, isAuthenticated } = useAuth();
+
+  const balanceLabel = isAuthenticated && balance !== null
+    ? `R$ ${balance.toFixed(2).replace('.', ',')}`
+    : 'R$ --';
+
   return (
     <View style={styles.header}>
       {/* Logo */}
@@ -133,17 +140,17 @@ function Header() {
           </Svg>
         </Pressable>
 
-        {/* Pill unificada: botão + e saldo */}
-        <Pressable style={styles.balancePill}>
+        {/* Pill unificada: botão + */}
+        <Pressable style={styles.balancePill} onPress={openDepositModal}>
           <View style={styles.depositCircle}>
             <View style={styles.plusHorizontal} />
             <View style={styles.plusVertical} />
           </View>
-          <Text style={styles.balanceValue}>R$ 1.300,50</Text>
+          <Text style={styles.balanceValue}>{balanceLabel}</Text>
         </Pressable>
 
         {/* Sanduiche */}
-        <Pressable style={styles.menuBtn}>
+        <Pressable style={styles.menuBtn} onPress={openMenu}>
           <View style={styles.menuBar} />
           <View style={[styles.menuBar, { width: 16 }]} />
           <View style={styles.menuBar} />
@@ -292,9 +299,9 @@ function CategoryPills() {
 }
 
 /** Card de jogo individual */
-function GameCard({ game, showBadge }: { game: Game; showBadge?: string }) {
+function GameCard({ game, showBadge, onPress }: { game: Game; showBadge?: string; onPress?: () => void }) {
   return (
-    <Pressable style={styles.gameCard}>
+    <Pressable style={styles.gameCard} onPress={onPress}>
       <View style={[styles.gameThumb, { backgroundColor: game.accent }]}>
         {showBadge && (
           <View style={[styles.cardBadge, showBadge === 'NOVO' && styles.cardBadgeNew]}>
@@ -311,9 +318,11 @@ function GameCard({ game, showBadge }: { game: Game; showBadge?: string }) {
 function GameSection({
   title,
   games,
+  onGamePress,
 }: {
   title: string;
   games: Game[];
+  onGamePress?: () => void;
 }) {
   return (
     <View style={styles.section}>
@@ -338,7 +347,7 @@ function GameSection({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.gameList}
         keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => <GameCard game={item} showBadge={index === 0 ? 'HOT' : index === 2 ? 'NOVO' : undefined} />}
+        renderItem={({ item, index }) => <GameCard game={item} showBadge={index === 0 ? 'HOT' : index === 2 ? 'NOVO' : undefined} onPress={onGamePress} />}
       />
     </View>
   );
@@ -370,6 +379,11 @@ function ProvidersSection() {
 
 export default function SlotScreen() {
   const insets = useSafeAreaInsets();
+  const { isAuthenticated, openAuthModal } = useAuth();
+
+  function handleGamePress() {
+    if (!isAuthenticated) openAuthModal('login');
+  }
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -380,9 +394,9 @@ export default function SlotScreen() {
         <Header />
         <PromoBanner />
         <CategoryPills />
-        <GameSection title="Mais Jogados" games={POPULAR_GAMES} />
-        <GameSection title="Novidades" games={NEW_GAMES} />
-        <GameSection title="Crash Games" games={CRASH_GAMES} />
+        <GameSection title="Mais Jogados" games={POPULAR_GAMES} onGamePress={handleGamePress} />
+        <GameSection title="Novidades" games={NEW_GAMES} onGamePress={handleGamePress} />
+        <GameSection title="Crash Games" games={CRASH_GAMES} onGamePress={handleGamePress} />
         <ProvidersSection />
         <View style={{ height: 24 }} />
       </ScrollView>

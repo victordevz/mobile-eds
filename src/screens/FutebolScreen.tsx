@@ -17,6 +17,7 @@ import Svg, { Circle, Line } from 'react-native-svg';
 import { colors } from '../theme';
 import Logotipo from '../../assets/logotipo.svg';
 import OddsTurbinadas from '../components/OddsTurbinadas';
+import { useAuth } from '../context/AuthContext';
 
 /* ───────────────────── Constantes ───────────────────── */
 
@@ -74,6 +75,12 @@ const STORIES: Story[] = [
 
 /** Cabeçalho com saudação e saldo */
 function Header() {
+  const { openMenu, openDepositModal, balance, isAuthenticated } = useAuth();
+
+  const balanceLabel = isAuthenticated && balance !== null
+    ? `R$ ${balance.toFixed(2).replace('.', ',')}`
+    : 'R$ --';
+
   return (
     <View style={styles.header}>
       {/* Logo */}
@@ -88,17 +95,17 @@ function Header() {
           </Svg>
         </Pressable>
 
-        {/* Pill unificada: botão + e saldo */}
-        <Pressable style={styles.balancePill}>
+        {/* Pill unificada: botão + */}
+        <Pressable style={styles.balancePill} onPress={openDepositModal}>
           <View style={styles.depositCircle}>
             <View style={styles.plusHorizontal} />
             <View style={styles.plusVertical} />
           </View>
-          <Text style={styles.balanceValue}>R$ 1.300,50</Text>
+          <Text style={styles.balanceValue}>{balanceLabel}</Text>
         </Pressable>
 
         {/* Sanduiche */}
-        <Pressable style={styles.menuBtn}>
+        <Pressable style={styles.menuBtn} onPress={openMenu}>
           <View style={styles.menuBar} />
           <View style={[styles.menuBar, { width: 16 }]} />
           <View style={styles.menuBar} />
@@ -237,6 +244,11 @@ function StoriesBar() {
 
 export default function FutebolScreen() {
   const insets = useSafeAreaInsets();
+  const { isAuthenticated, openAuthModal } = useAuth();
+
+  function handleGamePress() {
+    if (!isAuthenticated) openAuthModal('login');
+  }
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -247,7 +259,7 @@ export default function FutebolScreen() {
         <Header />
         <StoriesBar />
         <PromoBanner />
-        <OddsTurbinadas />
+        <OddsTurbinadas onGamePress={handleGamePress} />
         <View style={{ height: 24 }} />
       </ScrollView>
     </View>

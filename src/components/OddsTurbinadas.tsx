@@ -161,7 +161,11 @@ type TabKey = 'super' | 'normal';
 
 /* ───────────────── Componente principal ───────────────── */
 
-export default function OddsTurbinadas() {
+interface OddsturbinadasProps {
+  onGamePress?: () => void;
+}
+
+export default function OddsTurbinadas({ onGamePress }: OddsturbinadasProps) {
   const [activeSport, setActiveSport] = useState('sp1');
   const [activeTab, setActiveTab] = useState<TabKey>('super');
 
@@ -259,7 +263,7 @@ export default function OddsTurbinadas() {
         contentContainerStyle={styles.cardsRow}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <MatchCard match={item} isSuper={isSuperTab} />
+          <MatchCard match={item} isSuper={isSuperTab} onPress={onGamePress} />
         )}
       />
     </View>
@@ -268,11 +272,11 @@ export default function OddsTurbinadas() {
 
 /* ───────────────── Card de partida ───────────────── */
 
-function MatchCard({ match, isSuper }: { match: OddMatch; isSuper: boolean }) {
+function MatchCard({ match, isSuper, onPress }: { match: OddMatch; isSuper: boolean; onPress?: () => void }) {
   const accentColor = isSuper ? colors.secondary : '#FFB703';
 
   return (
-    <View style={styles.matchCard}>
+    <Pressable style={styles.matchCard} onPress={onPress}>
       {/* Gradiente sutil no topo */}
       <LinearGradient
         colors={[
@@ -315,7 +319,7 @@ function MatchCard({ match, isSuper }: { match: OddMatch; isSuper: boolean }) {
           </Text>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 

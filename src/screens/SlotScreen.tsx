@@ -124,7 +124,7 @@ function Header() {
 
   const balanceLabel = isAuthenticated && balance !== null
     ? `R$ ${balance.toFixed(2).replace('.', ',')}`
-    : 'R$ --';
+    : 'R$ 0,00';
 
   return (
     <View style={styles.header}>

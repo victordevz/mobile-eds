@@ -79,7 +79,7 @@ function Header() {
 
   const balanceLabel = isAuthenticated && balance !== null
     ? `R$ ${balance.toFixed(2).replace('.', ',')}`
-    : 'R$ --';
+    : 'R$ 0,00';
 
   return (
     <View style={styles.header}>
@@ -254,13 +254,12 @@ export default function FutebolScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={[styles.scroll, { paddingBottom: 88 + (insets.bottom || 10) + 24 }]}
       >
         <Header />
         <StoriesBar />
         <PromoBanner />
         <OddsTurbinadas onGamePress={handleGamePress} />
-        <View style={{ height: 24 }} />
       </ScrollView>
     </View>
   );
@@ -275,7 +274,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryDark,
   },
   scroll: {
-    paddingBottom: 16,
+    paddingBottom: 0,
   },
 
   /* ── Header ── */

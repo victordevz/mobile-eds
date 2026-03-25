@@ -77,6 +77,25 @@ interface Championship {
   emoji: string;
 }
 
+interface MegaCotacaoMatch {
+  id: string;
+  date: string;
+  time: string;
+  homeTeam: string;
+  homeEmoji: string;
+  awayTeam: string;
+  awayEmoji: string;
+  league: string;
+  odd: number;
+}
+
+const MEGA_COTACAO: MegaCotacaoMatch[] = [
+  { id: 'm1', date: 'Hoje',   time: '15:30', homeTeam: 'Flamengo',   homeEmoji: '🔴', awayTeam: 'Palmeiras',  awayEmoji: '🟢', league: 'Brasileirão',     odd: 4.20 },
+  { id: 'm2', date: 'Hoje',   time: '18:00', homeTeam: 'Barcelona',  homeEmoji: '🔵', awayTeam: 'Real Madrid', awayEmoji: '⚪', league: 'La Liga',         odd: 3.80 },
+  { id: 'm3', date: 'Amanhã', time: '20:45', homeTeam: 'PSG',        homeEmoji: '🔷', awayTeam: 'Man City',   awayEmoji: '🩵', league: 'Champions League', odd: 5.50 },
+  { id: 'm4', date: 'Amanhã', time: '22:00', homeTeam: 'Brasil',     homeEmoji: '🇧🇷', awayTeam: 'Argentina',  awayEmoji: '🇦🇷', league: 'Copa América',    odd: 2.90 },
+];
+
 const CHAMPIONSHIPS: Championship[] = [
   { id: 'c1', label: 'Copa do\nNordeste',  emoji: '🏆' },
   { id: 'c2', label: 'Brasileirão',         emoji: '🇧🇷' },
@@ -89,6 +108,55 @@ const CHAMPIONSHIPS: Championship[] = [
 ];
 
 /* ───────────────────── Componentes auxiliares ──────────── */
+
+/** Seção Mega Cotação */
+function MegaCotacaoSection({ onPress }: { onPress: () => void }) {
+  return (
+    <>
+      <View style={styles.sectionHeader}>
+        <View style={styles.sectionTitleBar} />
+        <Text style={styles.sectionTitle}>Mega cotação</Text>
+      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.megaContainer}
+      >
+        {MEGA_COTACAO.map((match) => (
+          <Pressable key={match.id} style={styles.megaCard} onPress={onPress}>
+            <View style={styles.megaDateRow}>
+              <View style={styles.megaAccentBar} />
+              <Text style={styles.megaDate}>{match.date}</Text>
+              <Text style={styles.megaTime}>{match.time}</Text>
+            </View>
+
+            <View style={styles.megaMatchArea}>
+              <View style={styles.megaTeam}>
+                <Text style={styles.megaEmoji}>{match.homeEmoji}</Text>
+                <Text style={styles.megaTeamName} numberOfLines={1}>{match.homeTeam}</Text>
+              </View>
+              <Text style={styles.megaVs}>VS</Text>
+              <View style={styles.megaTeam}>
+                <Text style={styles.megaEmoji}>{match.awayEmoji}</Text>
+                <Text style={styles.megaTeamName} numberOfLines={1}>{match.awayTeam}</Text>
+              </View>
+            </View>
+
+            <Text style={styles.megaLeague} numberOfLines={1}>{match.league}</Text>
+
+            <View style={styles.megaOddsRow}>
+              <View style={styles.megaAccentBar} />
+              <Text style={styles.megaOddsLabel}>Odds</Text>
+              <View style={styles.megaOddBadge}>
+                <Text style={styles.megaOddValue}>{match.odd.toFixed(2)}</Text>
+              </View>
+            </View>
+          </Pressable>
+        ))}
+      </ScrollView>
+    </>
+  );
+}
 
 /** Barra de campeonatos */
 function ChampionshipsBar() {
@@ -306,7 +374,12 @@ export default function FutebolScreen() {
         <StoriesBar />
         <PromoBanner />
         <ChampionshipsBar />
+        <View style={styles.sectionHeader}>
+          <View style={styles.sectionTitleBar} />
+          <Text style={styles.sectionTitle}>Ao Vivo</Text>
+        </View>
         <LiveMatchCard onBetPress={handleGamePress} />
+        <MegaCotacaoSection onPress={handleGamePress} />
       </ScrollView>
     </View>
   );
@@ -315,6 +388,28 @@ export default function FutebolScreen() {
 /* ───────────────────── Estilos ───────────────────── */
 
 const styles = StyleSheet.create({
+  /* ── Section header ── */
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginTop: 24,
+    marginBottom: 4,
+    gap: 10,
+  },
+  sectionTitleBar: {
+    width: 4,
+    height: 18,
+    borderRadius: 2,
+    backgroundColor: colors.secondary,
+  },
+  sectionTitle: {
+    color: colors.white,
+    fontSize: 17,
+    fontWeight: '800',
+    letterSpacing: 0.3,
+  },
+
   /* ── Layout raiz ── */
   container: {
     flex: 1,
@@ -677,6 +772,106 @@ const styles = StyleSheet.create({
   },
   storyLabelInactive: {
     color: colors.grey,
+  },
+
+  /* ── Mega Cotação ── */
+  megaContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 8,
+    gap: 12,
+  },
+  megaCard: {
+    width: 160,
+    borderRadius: 14,
+    backgroundColor: colors.card,
+    padding: 12,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
+  },
+  megaDateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  megaAccentBar: {
+    width: 3,
+    height: 13,
+    borderRadius: 2,
+    backgroundColor: colors.secondary,
+  },
+  megaDate: {
+    color: colors.white,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  megaTime: {
+    color: colors.grey,
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  megaMatchArea: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
+  },
+  megaTeam: {
+    alignItems: 'center',
+    gap: 4,
+    flex: 1,
+  },
+  megaEmoji: {
+    fontSize: 28,
+  },
+  megaTeamName: {
+    color: colors.white,
+    fontSize: 10,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  megaVs: {
+    color: colors.grey,
+    fontSize: 12,
+    fontWeight: '800',
+    paddingHorizontal: 6,
+  },
+  megaLeague: {
+    color: colors.grey,
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 0.3,
+  },
+  megaOddsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  megaOddsLabel: {
+    color: colors.grey,
+    fontSize: 11,
+    fontWeight: '600',
+    flex: 1,
+  },
+  megaOddBadge: {
+    backgroundColor: colors.secondary,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    shadowColor: colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.45,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  megaOddValue: {
+    color: colors.primaryDark,
+    fontSize: 12,
+    fontWeight: '900',
   },
 
 });

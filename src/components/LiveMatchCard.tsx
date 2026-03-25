@@ -1,73 +1,94 @@
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import {
-  Dimensions,
   Pressable,
   StyleSheet,
   Text,
   View,
+  ViewStyle,
 } from 'react-native';
 import { colors } from '../theme';
 import BragatinoLogo from '../../assets/bragatino.svg';
 import BotafogoLogo from '../../assets/botafogo.svg';
 import Foguinho from '../../assets/foguinho.svg';
 
-const { width: SCREEN_W } = Dimensions.get('window');
-
-const FIRE = String.fromCodePoint(0x1F525);
-const BALL = String.fromCodePoint(0x26BD);
-
-interface OddOption {
-  key: 'home' | 'draw' | 'away';
+export interface LiveMatchOdd {
+  key: string;
   label: string;
   percentage: number;
   odd: number;
 }
 
-const ODDS: OddOption[] = [
-  { key: 'home', label: 'Bragantino', percentage: 60, odd: 1.50 },
-  { key: 'draw', label: 'Empate',     percentage: 10, odd: 3.30 },
-  { key: 'away', label: 'Botafogo',   percentage: 30, odd: 2.20 },
-];
-
-interface LiveMatchCardProps {
-  onBetPress?: () => void;
+export interface LiveMatchData {
+  league: string;
+  isLive?: boolean;
+  minute?: string;
+  homeScore: number;
+  awayScore: number;
+  homeIcon: ReactNode;
+  awayIcon: ReactNode;
+  odds: LiveMatchOdd[];
+  suggestionTeam: string;
+  suggestionDetail: string;
+  defaultSelected?: string;
 }
 
-export default function LiveMatchCard({ onBetPress }: LiveMatchCardProps) {
-  const [selected, setSelected] = useState<string | null>('draw');
+interface LiveMatchCardProps {
+  data?: LiveMatchData;
+  onBetPress?: () => void;
+  style?: ViewStyle;
+}
+
+const DEFAULT_DATA: LiveMatchData = {
+  league: 'Brasileirão',
+  isLive: true,
+  minute: "90'4",
+  homeScore: 1,
+  awayScore: 1,
+  homeIcon: <BragatinoLogo width={52} height={52} />,
+  awayIcon: <BotafogoLogo width={52} height={52} />,
+  odds: [
+    { key: 'home', label: 'Bragantino', percentage: 60, odd: 1.50 },
+    { key: 'draw', label: 'Empate', percentage: 10, odd: 3.30 },
+    { key: 'away', label: 'Botafogo', percentage: 30, odd: 2.20 },
+  ],
+  suggestionTeam: 'Botafogo',
+  suggestionDetail: 'vence + 2 gols',
+  defaultSelected: 'draw',
+};
+
+export default function LiveMatchCard({ data, onBetPress, style }: LiveMatchCardProps) {
+  const d = data ?? DEFAULT_DATA;
+  const [selected, setSelected] = useState<string>(
+    d.defaultSelected ?? d.odds.find((o) => o.key === 'draw')?.key ?? d.odds[0]?.key ?? '',
+  );
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, style]}>
       <View style={styles.card}>
-        {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.leagueText}>Brasileirão</Text>
-            <View style={styles.liveRow}>
-              <View style={styles.liveDot} />
-              <Text style={styles.liveText}>AO VIVO</Text>
-              <Text style={styles.liveTime}>90'4</Text>
-            </View>
+            <Text style={styles.leagueText}>{d.league}</Text>
+            {d.isLive && (
+              <View style={styles.liveRow}>
+                <View style={styles.liveDot} />
+                <Text style={styles.liveText}>AO VIVO</Text>
+                {d.minute && <Text style={styles.liveTime}>{d.minute}</Text>}
+              </View>
+            )}
           </View>
           <Pressable style={styles.betButton} onPress={onBetPress}>
             <Text style={styles.betButtonText}>Criar aposta &gt;</Text>
           </Pressable>
         </View>
 
-        {/* Match row */}
         <View style={styles.matchRow}>
-          <View style={styles.teamBlock}>
-            <BragatinoLogo width={52} height={52} />
-          </View>
-          <Text style={styles.scoreText}>1 x 1</Text>
-          <View style={styles.teamBlock}>
-            <BotafogoLogo width={52} height={52} />
-          </View>
+          <View style={styles.teamBlock}>{d.homeIcon}</View>
+          <Text style={styles.scoreText}>{d.homeScore} x {d.awayScore}</Text>
+          <View style={styles.teamBlock}>{d.awayIcon}</View>
         </View>
 
-        {/* Odds */}
         <View style={styles.oddsRow}>
-          {ODDS.map((opt) => {
+          {d.odds.map((opt) => {
             const isSelected = selected === opt.key;
             return (
               <Pressable
@@ -91,13 +112,12 @@ export default function LiveMatchCard({ onBetPress }: LiveMatchCardProps) {
           })}
         </View>
 
-        {/* Suggestion bar */}
         <View style={styles.suggestion}>
           <View style={styles.rectangle57} />
           <View style={styles.suggestionRow}>
             <Foguinho width={16} height={16} />
             <Text style={styles.suggestionText}>
-              Botafogo <Text style={styles.bold}>vence</Text> + 2 gols
+              {d.suggestionTeam} <Text style={styles.bold}>{d.suggestionDetail}</Text>
             </Text>
           </View>
           <Pressable style={styles.goButton} onPress={onBetPress}>
@@ -115,6 +135,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   card: {
+    flex: 1,
+    width: '100%',
     backgroundColor: '#0D1E50',
     borderRadius: 16,
     overflow: 'hidden',
@@ -161,8 +183,10 @@ const styles = StyleSheet.create({
   },
   betButton: {
     backgroundColor: '#E63946',
-    borderTopRightRadius: 16,
+    borderTopLeftRadius: 16,
     borderBottomLeftRadius: 16,
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
@@ -281,10 +305,6 @@ const styles = StyleSheet.create({
   },
   bold: {
     fontWeight: '800',
-  },
-  emoji: {
-    fontWeight: 'normal',
-    fontFamily: undefined,
   },
   goButton: {
     backgroundColor: '#0AF43D',

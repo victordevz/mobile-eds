@@ -8,12 +8,12 @@ import {
   Text,
   View,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { colors } from '../theme';
+import LiveMatchCard, { LiveMatchData } from './LiveMatchCard';
 
 const { width: SCREEN_W } = Dimensions.get('window');
-const CARD_WIDTH = SCREEN_W * 0.72;
+const CARD_WIDTH = SCREEN_W * 0.88;
 
 /* ───────────────── Ícone turbo (raio + gráfico) ───────────────── */
 
@@ -52,14 +52,17 @@ interface SportCategory {
   emoji: string;
 }
 
-interface OddMatch {
+interface MatchEntry {
   id: string;
-  teamA: string;
-  teamB: string;
-  league: string;
-  description: string;
-  originalOdd: number;
-  boostedOdd: number;
+  data: LiveMatchData;
+}
+
+function TeamCircle({ abbr, color }: { abbr: string; color: string }) {
+  return (
+    <View style={[localStyles.teamCircle, { backgroundColor: color }]}>
+      <Text style={localStyles.teamAbbr}>{abbr}</Text>
+    </View>
+  );
 }
 
 const SPORT_CATEGORIES: SportCategory[] = [
@@ -70,90 +73,180 @@ const SPORT_CATEGORIES: SportCategory[] = [
   { id: 'sp5', label: 'E-Sports', emoji: '🎮' },
 ];
 
-const SUPER_TURBO_MATCHES: OddMatch[] = [
+const SUPER_TURBO_MATCHES: MatchEntry[] = [
   {
     id: 'st1',
-    teamA: 'Vasco da Gama',
-    teamB: 'Grêmio',
-    league: 'Brasileirão Série A',
-    description: 'Total de Gols Mais/Menos - Mais de 1.5 • Chutes no gol Carlos Vinícius - Mais de 0.5',
-    originalOdd: 2.75,
-    boostedOdd: 3.45,
+    data: {
+      league: 'Brasileirão Série A',
+      isLive: true,
+      minute: "78'",
+      homeScore: 2,
+      awayScore: 1,
+      homeIcon: <TeamCircle abbr="VAS" color="#1F1F1F" />,
+      awayIcon: <TeamCircle abbr="GRE" color="#0B6AB0" />,
+      odds: [
+        { key: 'home', label: 'Vasco', percentage: 55, odd: 1.65 },
+        { key: 'draw', label: 'Empate', percentage: 20, odd: 3.10 },
+        { key: 'away', label: 'Grêmio', percentage: 25, odd: 2.80 },
+      ],
+      suggestionTeam: 'Vasco',
+      suggestionDetail: 'vence + 1 gol',
+    },
   },
   {
     id: 'st2',
-    teamA: 'Remo',
-    teamB: 'Bahia',
-    league: 'Copa do Brasil',
-    description: 'Resultado Final - Bahia • Total de Gols Mais/Menos - Mais de 2.5',
-    originalOdd: 4.00,
-    boostedOdd: 5.00,
+    data: {
+      league: 'Copa do Brasil',
+      isLive: true,
+      minute: "45'",
+      homeScore: 0,
+      awayScore: 2,
+      homeIcon: <TeamCircle abbr="REM" color="#003DA5" />,
+      awayIcon: <TeamCircle abbr="BAH" color="#004A99" />,
+      odds: [
+        { key: 'home', label: 'Remo', percentage: 15, odd: 5.00 },
+        { key: 'draw', label: 'Empate', percentage: 20, odd: 3.80 },
+        { key: 'away', label: 'Bahia', percentage: 65, odd: 1.40 },
+      ],
+      suggestionTeam: 'Bahia',
+      suggestionDetail: 'vence + 3 gols',
+    },
   },
   {
     id: 'st3',
-    teamA: 'Cruzeiro',
-    teamB: 'Santos',
-    league: 'Brasileirão Série A',
-    description: 'Chutes no gol - Neymar Mais de 0.5 e Rony Mais de 0.5',
-    originalOdd: 3.40,
-    boostedOdd: 4.25,
+    data: {
+      league: 'Brasileirão Série A',
+      isLive: true,
+      minute: "62'",
+      homeScore: 1,
+      awayScore: 1,
+      homeIcon: <TeamCircle abbr="CRU" color="#003DA5" />,
+      awayIcon: <TeamCircle abbr="SAN" color="#1F1F1F" />,
+      odds: [
+        { key: 'home', label: 'Cruzeiro', percentage: 40, odd: 2.10 },
+        { key: 'draw', label: 'Empate', percentage: 25, odd: 2.90 },
+        { key: 'away', label: 'Santos', percentage: 35, odd: 2.40 },
+      ],
+      suggestionTeam: 'Cruzeiro',
+      suggestionDetail: 'vence + 2 gols',
+    },
   },
   {
     id: 'st4',
-    teamA: 'Flamengo',
-    teamB: 'Palmeiras',
-    league: 'Brasileirão Série A',
-    description: 'Ambas Marcam - Sim • Total de Gols Mais de 2.5',
-    originalOdd: 2.90,
-    boostedOdd: 3.80,
+    data: {
+      league: 'Brasileirão Série A',
+      isLive: true,
+      minute: "33'",
+      homeScore: 0,
+      awayScore: 0,
+      homeIcon: <TeamCircle abbr="FLA" color="#C4161C" />,
+      awayIcon: <TeamCircle abbr="PAL" color="#006437" />,
+      odds: [
+        { key: 'home', label: 'Flamengo', percentage: 45, odd: 1.90 },
+        { key: 'draw', label: 'Empate', percentage: 25, odd: 2.90 },
+        { key: 'away', label: 'Palmeiras', percentage: 30, odd: 2.50 },
+      ],
+      suggestionTeam: 'Flamengo',
+      suggestionDetail: 'vence',
+    },
   },
   {
     id: 'st5',
-    teamA: 'Corinthians',
-    teamB: 'São Paulo',
-    league: 'Brasileirão Série A',
-    description: 'Resultado Final - Corinthians • Total de Escanteios Mais de 8.5',
-    originalOdd: 3.10,
-    boostedOdd: 4.10,
+    data: {
+      league: 'Brasileirão Série A',
+      isLive: true,
+      minute: "15'",
+      homeScore: 1,
+      awayScore: 0,
+      homeIcon: <TeamCircle abbr="COR" color="#1F1F1F" />,
+      awayIcon: <TeamCircle abbr="SAO" color="#C4161C" />,
+      odds: [
+        { key: 'home', label: 'Corinthians', percentage: 50, odd: 1.75 },
+        { key: 'draw', label: 'Empate', percentage: 22, odd: 3.00 },
+        { key: 'away', label: 'São Paulo', percentage: 28, odd: 2.60 },
+      ],
+      suggestionTeam: 'Corinthians',
+      suggestionDetail: 'vence + 2 gols',
+    },
   },
 ];
 
-const TURBO_MATCHES: OddMatch[] = [
+const TURBO_MATCHES: MatchEntry[] = [
   {
     id: 'tb1',
-    teamA: 'Fluminense',
-    teamB: 'Botafogo',
-    league: 'Brasileirão Série A',
-    description: 'Resultado Final - Fluminense • Ambas Marcam - Sim',
-    originalOdd: 1.80,
-    boostedOdd: 2.35,
+    data: {
+      league: 'Brasileirão Série A',
+      isLive: true,
+      minute: "88'",
+      homeScore: 2,
+      awayScore: 2,
+      homeIcon: <TeamCircle abbr="FLU" color="#8B0000" />,
+      awayIcon: <TeamCircle abbr="BOT" color="#1F1F1F" />,
+      odds: [
+        { key: 'home', label: 'Fluminense', percentage: 30, odd: 2.35 },
+        { key: 'draw', label: 'Empate', percentage: 35, odd: 2.10 },
+        { key: 'away', label: 'Botafogo', percentage: 35, odd: 2.35 },
+      ],
+      suggestionTeam: 'Botafogo',
+      suggestionDetail: 'vence',
+    },
   },
   {
     id: 'tb2',
-    teamA: 'Athletico-PR',
-    teamB: 'Coritiba',
-    league: 'Brasileirão Série A',
-    description: 'Handicap Asiático - Athletico -1.5 Gols',
-    originalOdd: 2.10,
-    boostedOdd: 2.75,
+    data: {
+      league: 'Brasileirão Série A',
+      isLive: true,
+      minute: "55'",
+      homeScore: 1,
+      awayScore: 0,
+      homeIcon: <TeamCircle abbr="CAP" color="#C4161C" />,
+      awayIcon: <TeamCircle abbr="CFC" color="#006437" />,
+      odds: [
+        { key: 'home', label: 'Athletico', percentage: 55, odd: 1.60 },
+        { key: 'draw', label: 'Empate', percentage: 20, odd: 3.20 },
+        { key: 'away', label: 'Coritiba', percentage: 25, odd: 2.75 },
+      ],
+      suggestionTeam: 'Athletico',
+      suggestionDetail: 'vence + 2 gols',
+    },
   },
   {
     id: 'tb3',
-    teamA: 'Internacional',
-    teamB: 'Juventude',
-    league: 'Brasileirão Série A',
-    description: 'Total de Gols Mais/Menos - Mais de 1.5 • Resultado Final - Internacional',
-    originalOdd: 1.90,
-    boostedOdd: 2.50,
+    data: {
+      league: 'Brasileirão Série A',
+      isLive: true,
+      minute: "70'",
+      homeScore: 3,
+      awayScore: 1,
+      homeIcon: <TeamCircle abbr="INT" color="#C4161C" />,
+      awayIcon: <TeamCircle abbr="JUV" color="#006437" />,
+      odds: [
+        { key: 'home', label: 'Inter', percentage: 70, odd: 1.30 },
+        { key: 'draw', label: 'Empate', percentage: 12, odd: 4.00 },
+        { key: 'away', label: 'Juventude', percentage: 18, odd: 3.50 },
+      ],
+      suggestionTeam: 'Inter',
+      suggestionDetail: 'vence + 3 gols',
+    },
   },
   {
     id: 'tb4',
-    teamA: 'Fortaleza',
-    teamB: 'Ceará',
-    league: 'Copa do Nordeste',
-    description: 'Resultado Intervalo - Fortaleza • Resultado Final - Fortaleza',
-    originalOdd: 2.30,
-    boostedOdd: 2.99,
+    data: {
+      league: 'Copa do Nordeste',
+      isLive: true,
+      minute: "40'",
+      homeScore: 1,
+      awayScore: 1,
+      homeIcon: <TeamCircle abbr="FOR" color="#003DA5" />,
+      awayIcon: <TeamCircle abbr="CEA" color="#1F1F1F" />,
+      odds: [
+        { key: 'home', label: 'Fortaleza', percentage: 45, odd: 1.85 },
+        { key: 'draw', label: 'Empate', percentage: 25, odd: 2.90 },
+        { key: 'away', label: 'Ceará', percentage: 30, odd: 2.50 },
+      ],
+      suggestionTeam: 'Fortaleza',
+      suggestionDetail: 'vence',
+    },
   },
 ];
 
@@ -170,11 +263,9 @@ export default function OddsTurbinadas({ onGamePress }: OddsturbinadasProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('super');
 
   const matches = activeTab === 'super' ? SUPER_TURBO_MATCHES : TURBO_MATCHES;
-  const isSuperTab = activeTab === 'super';
 
   return (
     <View style={styles.root}>
-      {/* ── Título da seção ── */}
       <View style={styles.sectionHeader}>
         <View style={styles.sectionTitleRow}>
           <TurboIcon size={20} color={colors.secondary} />
@@ -185,7 +276,6 @@ export default function OddsTurbinadas({ onGamePress }: OddsturbinadasProps) {
         </Pressable>
       </View>
 
-      {/* ── Categorias de esportes ── */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -216,7 +306,6 @@ export default function OddsTurbinadas({ onGamePress }: OddsturbinadasProps) {
         })}
       </ScrollView>
 
-      {/* ── Tabs Super / Normal ── */}
       <View style={styles.tabsRow}>
         <Pressable
           onPress={() => setActiveTab('super')}
@@ -255,7 +344,6 @@ export default function OddsTurbinadas({ onGamePress }: OddsturbinadasProps) {
         </Pressable>
       </View>
 
-      {/* ── Cards de jogos ── */}
       <FlatList
         data={matches}
         horizontal
@@ -263,74 +351,40 @@ export default function OddsTurbinadas({ onGamePress }: OddsturbinadasProps) {
         contentContainerStyle={styles.cardsRow}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <MatchCard match={item} isSuper={isSuperTab} onPress={onGamePress} />
+          <LiveMatchCard
+            data={item.data}
+            onBetPress={onGamePress}
+            style={{ width: CARD_WIDTH, paddingHorizontal: 0, marginTop: 0, alignSelf: 'stretch' }}
+          />
         )}
       />
     </View>
   );
 }
 
-/* ───────────────── Card de partida ───────────────── */
-
-function MatchCard({ match, isSuper, onPress }: { match: OddMatch; isSuper: boolean; onPress?: () => void }) {
-  const accentColor = isSuper ? colors.secondary : '#FFB703';
-
-  return (
-    <Pressable style={styles.matchCard} onPress={onPress}>
-      {/* Gradiente sutil no topo */}
-      <LinearGradient
-        colors={[
-          isSuper ? 'rgba(56,230,125,0.08)' : 'rgba(255,183,3,0.08)',
-          'transparent',
-        ]}
-        style={styles.cardGradient}
-      />
-
-      {/* Header do card: ícone turbo + times */}
-      <View style={styles.cardHeader}>
-        <View style={[styles.turboIconCircle, { backgroundColor: isSuper ? 'rgba(56,230,125,0.15)' : 'rgba(255,183,3,0.15)' }]}>
-          <TurboIcon size={16} color={accentColor} />
-        </View>
-        <View style={styles.cardTeams}>
-          <Text style={[styles.cardTeamText, { color: accentColor }]} numberOfLines={1}>
-            {match.teamA} - {match.teamB}
-          </Text>
-          <Text style={styles.cardLeague} numberOfLines={1}>{match.league}</Text>
-        </View>
-      </View>
-
-      {/* Descrição da aposta */}
-      <Text style={styles.cardDescription} numberOfLines={3}>
-        {match.description}
-      </Text>
-
-      {/* Odds */}
-      <View style={styles.cardOddsRow}>
-        <View style={[styles.oddsBox, { borderColor: isSuper ? 'rgba(56,230,125,0.25)' : 'rgba(255,183,3,0.25)' }]}>
-          <Text style={styles.originalOdd}>{match.originalOdd.toFixed(2)}</Text>
-          <Text style={[styles.boostedOdd, { color: accentColor }]}>
-            {match.boostedOdd.toFixed(2)}
-          </Text>
-        </View>
-        <View style={[styles.turboTag, { backgroundColor: isSuper ? 'rgba(56,230,125,0.12)' : 'rgba(255,183,3,0.12)' }]}>
-          <TurboIcon size={12} color={accentColor} />
-          <Text style={[styles.turboTagText, { color: accentColor }]}>
-            {isSuper ? 'SUPER' : 'TURBO'}
-          </Text>
-        </View>
-      </View>
-    </Pressable>
-  );
-}
-
 /* ───────────────── Estilos ───────────────── */
+
+const localStyles = StyleSheet.create({
+  teamCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  teamAbbr: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+});
 
 const styles = StyleSheet.create({
   root: {
     marginTop: 24,
   },
 
-  /* Seção título */
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -355,7 +409,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  /* Categorias de esportes */
   sportCatsRow: {
     paddingHorizontal: 16,
     gap: 8,
@@ -398,7 +451,6 @@ const styles = StyleSheet.create({
     color: colors.grey,
   },
 
-  /* Tabs */
   tabsRow: {
     flexDirection: 'row',
     paddingHorizontal: 16,
@@ -444,109 +496,8 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 
-  /* Cards row */
   cardsRow: {
     paddingHorizontal: 16,
     gap: 12,
-  },
-
-  /* Match card */
-  matchCard: {
-    width: CARD_WIDTH,
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: colors.surfaceMid,
-    overflow: 'hidden',
-  },
-  cardGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 60,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-  },
-
-  /* Card header */
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 10,
-  },
-  turboIconCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardTeams: {
-    flex: 1,
-  },
-  cardTeamText: {
-    fontSize: 14,
-    fontWeight: '800',
-    letterSpacing: 0.2,
-  },
-  cardLeague: {
-    color: colors.grey,
-    fontSize: 11,
-    fontWeight: '500',
-    marginTop: 2,
-  },
-
-  /* Descrição */
-  cardDescription: {
-    color: 'rgba(255,255,255,0.75)',
-    fontSize: 12,
-    fontWeight: '400',
-    lineHeight: 17,
-    marginBottom: 14,
-    minHeight: 51,
-  },
-
-  /* Odds */
-  cardOddsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  oddsBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-  },
-  originalOdd: {
-    color: colors.grey,
-    fontSize: 14,
-    fontWeight: '600',
-    textDecorationLine: 'line-through',
-  },
-  boostedOdd: {
-    fontSize: 18,
-    fontWeight: '900',
-    letterSpacing: 0.3,
-  },
-  turboTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  turboTagText: {
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 0.5,
   },
 });

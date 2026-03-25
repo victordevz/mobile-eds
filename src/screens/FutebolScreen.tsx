@@ -16,7 +16,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Line } from 'react-native-svg';
 import { colors } from '../theme';
 import Logotipo from '../../assets/logotipo.svg';
-import OddsTurbinadas from '../components/OddsTurbinadas';
 import LiveMatchCard from '../components/LiveMatchCard';
 import { useAuth } from '../context/AuthContext';
 
@@ -72,9 +71,55 @@ const STORIES: Story[] = [
   { id: 's6', label: 'LIGAS',       emoji: '🏅', active: false, bg: '#01184F' },
 ];
 
+interface Championship {
+  id: string;
+  label: string;
+  emoji: string;
+}
+
+const CHAMPIONSHIPS: Championship[] = [
+  { id: 'c1', label: 'Copa do\nNordeste',  emoji: '🏆' },
+  { id: 'c2', label: 'Brasileirão',         emoji: '🇧🇷' },
+  { id: 'c3', label: 'Copa do\nBrasil',     emoji: '🏅' },
+  { id: 'c4', label: 'Libertadores',        emoji: '⭐' },
+  { id: 'c5', label: 'Champions\nLeague',   emoji: '🌟' },
+  { id: 'c6', label: 'Premier\nLeague',     emoji: '🦁' },
+  { id: 'c7', label: 'La Liga',             emoji: '🔴' },
+  { id: 'c8', label: 'Serie A',             emoji: '🇮🇹' },
+];
+
 /* ───────────────────── Componentes auxiliares ──────────── */
 
-/** Cabeçalho com saudação e saldo */
+/** Barra de campeonatos */
+function ChampionshipsBar() {
+  const [active, setActive] = useState<string>('c1');
+
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.champContainer}
+    >
+      {CHAMPIONSHIPS.map((item) => {
+        const isActive = active === item.id;
+        return (
+          <Pressable key={item.id} style={styles.champItem} onPress={() => setActive(item.id)}>
+            <View style={[styles.champCard, isActive && styles.champCardActive]}>
+              <View style={[styles.champCircle, isActive && styles.champCircleActive]}>
+                <Text style={styles.champEmoji}>{item.emoji}</Text>
+              </View>
+              <Text style={[styles.champLabel, isActive && styles.champLabelActive]} numberOfLines={2}>
+                {item.label}
+              </Text>
+            </View>
+          </Pressable>
+        );
+      })}
+    </ScrollView>
+  );
+}
+
+
 function Header() {
   const { openMenu, openDepositModal, balance, isAuthenticated } = useAuth();
 
@@ -260,7 +305,7 @@ export default function FutebolScreen() {
         <Header />
         <StoriesBar />
         <PromoBanner />
-        <OddsTurbinadas />
+        <ChampionshipsBar />
         <LiveMatchCard onBetPress={handleGamePress} />
       </ScrollView>
     </View>
@@ -510,6 +555,69 @@ const styles = StyleSheet.create({
     color: colors.primaryDark,
   },
   pillTextInactive: {
+    color: colors.white,
+  },
+
+  /* ── Championships ── */
+  champContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 8,
+    gap: 10,
+  },
+  champItem: {
+    alignItems: 'center',
+  },
+  champCard: {
+    width: 76,
+    height: 96,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingHorizontal: 6,
+    borderRadius: 16,
+    backgroundColor: colors.card,
+    gap: 8,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+  },
+  champCardActive: {
+    borderColor: colors.secondary,
+    shadowColor: colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  champCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.cardLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  champCircleActive: {
+    borderColor: colors.secondary,
+    backgroundColor: 'rgba(56,230,125,0.12)',
+  },
+  champEmoji: {
+    fontSize: 22,
+  },
+  champLabel: {
+    color: colors.grey,
+    fontSize: 10.5,
+    fontWeight: '600',
+    textAlign: 'center',
+    letterSpacing: 0.2,
+    lineHeight: 14,
+    minHeight: 28,
+    textAlignVertical: 'top',
+  },
+  champLabelActive: {
     color: colors.white,
   },
 

@@ -23,7 +23,7 @@ export default function App() {
       <AuthProvider>
         <NavigationContainer>
           <Tab.Navigator
-            initialRouteName="Slot"
+            initialRouteName="Futebol"
             tabBar={(props) => <CustomTabBar {...props} />}
             screenOptions={{ headerShown: false }}
           >

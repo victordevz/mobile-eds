@@ -259,9 +259,9 @@ export default function FutebolScreen() {
       >
         <Header />
         <StoriesBar />
-        <LiveMatchCard onBetPress={handleGamePress} />
         <PromoBanner />
-        <OddsTurbinadas onGamePress={handleGamePress} />
+        <OddsTurbinadas />
+        <LiveMatchCard onBetPress={handleGamePress} />
       </ScrollView>
     </View>
   );

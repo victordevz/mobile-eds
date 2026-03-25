@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Circle, Line } from 'react-native-svg';
+import Svg, { Circle, Line, Path, Rect } from 'react-native-svg';
 import { colors } from '../theme';
 import Logotipo from '../../assets/logotipo.svg';
 import LiveMatchCard from '../components/LiveMatchCard';
@@ -107,6 +107,80 @@ const CHAMPIONSHIPS: Championship[] = [
   { id: 'c8', label: 'Serie A',             emoji: '🇮🇹' },
 ];
 
+interface SportCategory {
+  id: string;
+  label: string;
+  Icon: React.FC<{ size?: number; color?: string }>;
+}
+
+function SoccerIcon({ size = 16, color = '#fff' }: { size?: number; color?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth="1.8" />
+      <Path d="M12 2C12 2 9 6 9 12s3 10 3 10" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+      <Path d="M12 2C12 2 15 6 15 12s-3 10-3 10" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+      <Path d="M2 12h20" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+      <Path d="M3.5 7h17M3.5 17h17" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+function TennisIcon({ size = 16, color = '#fff' }: { size?: number; color?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth="1.8" />
+      <Path d="M5 5.5C7 8 7 16 5 18.5" stroke={color} strokeWidth="1.6" strokeLinecap="round" />
+      <Path d="M19 5.5C17 8 17 16 19 18.5" stroke={color} strokeWidth="1.6" strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+function BasketballIcon({ size = 16, color = '#fff' }: { size?: number; color?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth="1.8" />
+      <Path d="M12 2v20M2 12h20" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+      <Path d="M5 4.5C8 8 8 16 5 19.5" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+      <Path d="M19 4.5C16 8 16 16 19 19.5" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+function GloveIcon({ size = 16, color = '#fff' }: { size?: number; color?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path d="M6 20v-8L4 9a2 2 0 0 1 4 0V8a2 2 0 0 1 4 0V7a2 2 0 0 1 4 0v5h1a2 2 0 0 1 0 4H6z" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M6 13h11" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+function ControllerIcon({ size = 16, color = '#fff' }: { size?: number; color?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Rect x="2" y="7" width="20" height="11" rx="4" stroke={color} strokeWidth="1.7" />
+      <Path d="M7 11v4M5 13h4" stroke={color} strokeWidth="1.6" strokeLinecap="round" />
+      <Circle cx="16" cy="11.5" r="1" fill={color} />
+      <Circle cx="19" cy="13.5" r="1" fill={color} />
+    </Svg>
+  );
+}
+
+const SPORT_CATEGORIES: SportCategory[] = [
+  { id: 'sp1', label: 'Futebol',  Icon: SoccerIcon },
+  { id: 'sp2', label: 'Tênis',    Icon: TennisIcon },
+  { id: 'sp3', label: 'Basquete', Icon: BasketballIcon },
+  { id: 'sp4', label: 'MMA',      Icon: GloveIcon },
+  { id: 'sp5', label: 'E-Sports', Icon: ControllerIcon },
+];
+
+const POPULARES_MATCHES: MegaCotacaoMatch[] = [
+  { id: 'p1', date: 'Hoje',   time: '16:00', homeTeam: 'Botafogo',   homeEmoji: '⭐', awayTeam: 'Vasco',      awayEmoji: '⚫', league: 'Brasileirão',       odd: 2.10 },
+  { id: 'p2', date: 'Hoje',   time: '19:00', homeTeam: 'São Paulo', homeEmoji: '🔴', awayTeam: 'Corinthians', awayEmoji: '⚪', league: 'Brasileirão',       odd: 3.50 },
+  { id: 'p3', date: 'Amanhã', time: '21:00', homeTeam: 'Man Utd',   homeEmoji: '🔴', awayTeam: 'Arsenal',    awayEmoji: '🔴', league: 'Premier League',     odd: 2.80 },
+  { id: 'p4', date: 'Amanhã', time: '17:30', homeTeam: 'Juve',      homeEmoji: '⚫', awayTeam: 'Inter',      awayEmoji: '🐍', league: 'Serie A',            odd: 3.10 },
+];
+
 /* ───────────────────── Componentes auxiliares ──────────── */
 
 /** Seção Mega Cotação */
@@ -129,7 +203,6 @@ function MegaCotacaoSection({ onPress }: { onPress: () => void }) {
               <Text style={styles.megaDate}>{match.date}</Text>
               <Text style={styles.megaTime}>{match.time}</Text>
             </View>
-
             <View style={styles.megaMatchArea}>
               <View style={styles.megaTeam}>
                 <Text style={styles.megaEmoji}>{match.homeEmoji}</Text>
@@ -141,9 +214,99 @@ function MegaCotacaoSection({ onPress }: { onPress: () => void }) {
                 <Text style={styles.megaTeamName} numberOfLines={1}>{match.awayTeam}</Text>
               </View>
             </View>
-
             <Text style={styles.megaLeague} numberOfLines={1}>{match.league}</Text>
+            <View style={styles.megaOddsRow}>
+              <View style={styles.megaAccentBar} />
+              <Text style={styles.megaOddsLabel}>Odds</Text>
+              <View style={styles.megaOddBadge}>
+                <Text style={styles.megaOddValue}>{match.odd.toFixed(2)}</Text>
+              </View>
+            </View>
+          </Pressable>
+        ))}
+      </ScrollView>
+    </>
+  );
+}
 
+/** Seção Populares */
+function PopularesSection({ onPress }: { onPress: () => void }) {
+  const [tab, setTab] = useState<'live' | 'next'>('live');
+  const [activeSport, setActiveSport] = useState('sp0');
+
+  return (
+    <>
+      <View style={styles.popHeader}>
+        <View style={styles.sectionHeader}>
+          <View style={styles.sectionTitleBar} />
+          <Text style={styles.sectionTitle}>Populares</Text>
+        </View>
+        <View style={styles.popToggles}>
+          <Pressable
+            style={[styles.popToggleBtn, tab === 'live' && styles.popToggleBtnActive]}
+            onPress={() => setTab('live')}
+          >
+            <Text style={[styles.popToggleText, tab === 'live' && styles.popToggleTextActive]}>AO VIVO</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.popToggleBtn, tab === 'next' && styles.popToggleBtnActive]}
+            onPress={() => setTab('next')}
+          >
+            <Text style={[styles.popToggleText, tab === 'next' && styles.popToggleTextActive]}>Próximos</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.sportCatsRow}
+      >
+        <Pressable
+          style={[styles.sportPill, activeSport === 'sp0' ? styles.sportPillActive : styles.sportPillInactive]}
+          onPress={() => setActiveSport('sp0')}
+        >
+          <Text style={[styles.sportPillText, activeSport === 'sp0' ? styles.sportPillTextActive : styles.sportPillTextInactive]}>Em alta</Text>
+        </Pressable>
+        {SPORT_CATEGORIES.map((cat) => {
+          const isActive = activeSport === cat.id;
+          return (
+            <Pressable
+              key={cat.id}
+              style={[styles.sportPill, isActive ? styles.sportPillActive : styles.sportPillInactive]}
+              onPress={() => setActiveSport(cat.id)}
+            >
+              <cat.Icon size={14} color={isActive ? colors.white : colors.grey} />
+              <Text style={[styles.sportPillText, isActive ? styles.sportPillTextActive : styles.sportPillTextInactive]}>{cat.label}</Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.megaContainer}
+      >
+        {POPULARES_MATCHES.map((match) => (
+          <Pressable key={match.id} style={styles.megaCard} onPress={onPress}>
+            <View style={styles.megaDateRow}>
+              <View style={styles.megaAccentBar} />
+              <Text style={styles.megaDate}>{match.date}</Text>
+              <Text style={styles.megaTime}>{match.time}</Text>
+            </View>
+            <View style={styles.megaMatchArea}>
+              <View style={styles.megaTeam}>
+                <Text style={styles.megaEmoji}>{match.homeEmoji}</Text>
+                <Text style={styles.megaTeamName} numberOfLines={1}>{match.homeTeam}</Text>
+              </View>
+              <Text style={styles.megaVs}>VS</Text>
+              <View style={styles.megaTeam}>
+                <Text style={styles.megaEmoji}>{match.awayEmoji}</Text>
+                <Text style={styles.megaTeamName} numberOfLines={1}>{match.awayTeam}</Text>
+              </View>
+            </View>
+            <Text style={styles.megaLeague} numberOfLines={1}>{match.league}</Text>
             <View style={styles.megaOddsRow}>
               <View style={styles.megaAccentBar} />
               <Text style={styles.megaOddsLabel}>Odds</Text>
@@ -380,6 +543,7 @@ export default function FutebolScreen() {
         </View>
         <LiveMatchCard onBetPress={handleGamePress} />
         <MegaCotacaoSection onPress={handleGamePress} />
+        <PopularesSection onPress={handleGamePress} />
       </ScrollView>
     </View>
   );
@@ -771,6 +935,73 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   storyLabelInactive: {
+    color: colors.grey,
+  },
+
+  /* ── Populares ── */
+  popHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingRight: 16,
+    marginTop: 24,
+  },
+  popToggles: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  popToggleBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  popToggleBtnActive: {
+    borderColor: colors.secondary,
+    backgroundColor: 'rgba(56,230,125,0.12)',
+  },
+  popToggleText: {
+    color: colors.grey,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+  popToggleTextActive: {
+    color: colors.secondary,
+  },
+  sportCatsRow: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+    gap: 8,
+  },
+  sportPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 13,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  sportPillActive: {
+    backgroundColor: colors.card,
+    borderColor: colors.secondary,
+  },
+  sportPillInactive: {
+    backgroundColor: colors.card,
+    borderColor: 'transparent',
+  },
+  sportPillText: {
+    fontSize: 12.5,
+    fontWeight: '600',
+  },
+  sportPillTextActive: {
+    color: colors.white,
+  },
+  sportPillTextInactive: {
     color: colors.grey,
   },
 

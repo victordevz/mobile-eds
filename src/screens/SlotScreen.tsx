@@ -1,4 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
+import { useCatalog } from '../hooks/useCatalog';
+import { CatalogItem } from '../services/api';
 import {
   Dimensions,
   FlatList,
@@ -27,22 +29,14 @@ const CARD_GAP = 12;
 const BANNER_W = SCREEN_W - 32;
 const BANNER_H = 160;
 
-/* ───────────────────── Dados mock ───────────────────── */
-
-interface Game {
-  id: string;
-  title: string;
-  provider: string;
-  accent: string;
-  emoji: string;
-}
+/* ───────────────────── Constantes estáticas ───────────────────── */
 
 const CATEGORIES = [
-  { id: 'c1', label: 'Todos' },
-  { id: 'c2', label: 'Slots' },
-  { id: 'c3', label: 'Crash' },
-  { id: 'c4', label: 'Roleta' },
-  { id: 'c5', label: 'Blackjack' },
+  { id: 'all', label: 'Todos', apiCategory: undefined as 'slots' | 'crash' | 'roulette' | 'blackjack' | undefined },
+  { id: 'slots', label: 'Slots', apiCategory: 'slots' as const },
+  { id: 'crash', label: 'Crash', apiCategory: 'crash' as const },
+  { id: 'roulette', label: 'Roleta', apiCategory: 'roulette' as const },
+  { id: 'blackjack', label: 'Blackjack', apiCategory: 'blackjack' as const },
 ];
 
 const BANNERS = [
@@ -70,50 +64,6 @@ const BANNERS = [
     image: require('../../assets/aviator.jpeg'),
     accent: '#E63946',
   },
-];
-
-const POPULAR_GAMES: Game[] = [
-  { id: 'p1', title: 'Fortune Tiger', provider: 'PG Soft', accent: '#FF6B35', emoji: '🐯' },
-  { id: 'p2', title: 'Fortune Ox', provider: 'PG Soft', accent: '#D62828', emoji: '🐂' },
-  { id: 'p3', title: 'Fortune Mouse', provider: 'PG Soft', accent: '#E8A317', emoji: '🐭' },
-  { id: 'p4', title: 'Fortune Rabbit', provider: 'PG Soft', accent: '#FF85A1', emoji: '🐇' },
-  { id: 'p5', title: 'Gates of Olympus', provider: 'Pragmatic', accent: '#3A86FF', emoji: '⚡' },
-  { id: 'p6', title: 'Sweet Bonanza', provider: 'Pragmatic', accent: '#FB5607', emoji: '🍬' },
-  { id: 'p7', title: 'Big Bass Splash', provider: 'Pragmatic', accent: '#118AB2', emoji: '🐟' },
-  { id: 'p8', title: 'Dog House', provider: 'Pragmatic', accent: '#6A4C93', emoji: '🐶' },
-];
-
-const NEW_GAMES: Game[] = [
-  { id: 'n1', title: 'Starlight Princess', provider: 'Pragmatic', accent: '#9B5DE5', emoji: '✨' },
-  { id: 'n2', title: 'Sugar Rush', provider: 'Pragmatic', accent: '#FF006E', emoji: '🍭' },
-  { id: 'n3', title: 'Zeus vs Hades', provider: 'Pragmatic', accent: '#023E8A', emoji: '🔱' },
-  { id: 'n4', title: 'Wisdom of Athena', provider: 'Pragmatic', accent: '#FFB703', emoji: '🦉' },
-  { id: 'n5', title: 'Wild West Gold', provider: 'Pragmatic', accent: '#B5651D', emoji: '🤠' },
-  { id: 'n6', title: 'Gems Bonanza', provider: 'Pragmatic', accent: '#06D6A0', emoji: '💎' },
-  { id: 'n7', title: 'Might of Ra', provider: 'Pragmatic', accent: '#DDA15E', emoji: '☀️' },
-  { id: 'n8', title: 'Chilli Heat', provider: 'Pragmatic', accent: '#E63946', emoji: '🌶️' },
-];
-
-const CRASH_GAMES: Game[] = [
-  { id: 'cr1', title: 'Aviator', provider: 'Spribe', accent: '#E63946', emoji: '✈️' },
-  { id: 'cr2', title: 'Spaceman', provider: 'Pragmatic', accent: '#7209B7', emoji: '🧑‍🚀' },
-  { id: 'cr3', title: 'Mines', provider: 'Spribe', accent: '#2EC4B6', emoji: '💣' },
-  { id: 'cr4', title: 'Plinko', provider: 'Spribe', accent: '#FF9F1C', emoji: '🔴' },
-  { id: 'cr5', title: 'Goal', provider: 'Spribe', accent: '#38B000', emoji: '⚽' },
-  { id: 'cr6', title: 'Dice', provider: 'EvoPlay', accent: '#3F37C9', emoji: '🎲' },
-  { id: 'cr7', title: 'Hi-Lo', provider: 'EvoPlay', accent: '#F72585', emoji: '🃏' },
-  { id: 'cr8', title: 'Keno', provider: 'Spribe', accent: '#4361EE', emoji: '🎯' },
-];
-
-const PROVIDERS = [
-  'PG Soft',
-  'Pragmatic Play',
-  'Spribe',
-  'Evolution',
-  'EvoPlay',
-  'Hacksaw',
-  "Play'n GO",
-  'NetEnt',
 ];
 
 /* ───────────────────── Componentes auxiliares ──────────── */
@@ -263,9 +213,13 @@ function PromoBanner() {
 }
 
 /** Pills de categorias */
-function CategoryPills() {
-  const [active, setActive] = useState('c1');
-
+function CategoryPills({
+  active,
+  onChange,
+}: {
+  active: string;
+  onChange: (id: string) => void;
+}) {
   return (
     <ScrollView
       horizontal
@@ -277,7 +231,7 @@ function CategoryPills() {
         return (
           <Pressable
             key={cat.id}
-            onPress={() => setActive(cat.id)}
+            onPress={() => onChange(cat.id)}
             style={[
               styles.pill,
               isActive ? styles.pillActive : styles.pillInactive,
@@ -299,16 +253,23 @@ function CategoryPills() {
 }
 
 /** Card de jogo individual */
-function GameCard({ game, showBadge, onPress }: { game: Game; showBadge?: string; onPress?: () => void }) {
+function GameCard({ game, showBadge, onPress }: { game: CatalogItem; showBadge?: string; onPress?: () => void }) {
+  const bg = game.accent ?? '#1A2235';
   return (
     <Pressable style={styles.gameCard} onPress={onPress}>
-      <View style={[styles.gameThumb, { backgroundColor: game.accent }]}>
+      <View style={[styles.gameThumb, { backgroundColor: bg }]}>
+        {game.thumbnail ? (
+          <Image source={{ uri: game.thumbnail }} style={styles.gameThumbImage} />
+        ) : (
+          <Text style={styles.gameThumbInitial}>
+            {game.title.charAt(0).toUpperCase()}
+          </Text>
+        )}
         {showBadge && (
           <View style={[styles.cardBadge, showBadge === 'NOVO' && styles.cardBadgeNew]}>
             <Text style={styles.cardBadgeText}>{showBadge}</Text>
           </View>
         )}
-        <Text style={styles.gameEmoji}>{game.emoji}</Text>
       </View>
     </Pressable>
   );
@@ -318,10 +279,12 @@ function GameCard({ game, showBadge, onPress }: { game: Game; showBadge?: string
 function GameSection({
   title,
   games,
+  loading,
   onGamePress,
 }: {
   title: string;
-  games: Game[];
+  games: CatalogItem[];
+  loading?: boolean;
   onGamePress?: () => void;
 }) {
   return (
@@ -341,20 +304,34 @@ function GameSection({
         </Pressable>
       </View>
 
-      <FlatList
-        data={games}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.gameList}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => <GameCard game={item} showBadge={index === 0 ? 'HOT' : index === 2 ? 'NOVO' : undefined} onPress={onGamePress} />}
-      />
+      {loading ? (
+        <View style={styles.gameListSkeleton}>
+          {[0, 1, 2, 3].map((i) => (
+            <View key={i} style={[styles.gameCard, styles.skeletonCard]} />
+          ))}
+        </View>
+      ) : (
+        <FlatList
+          data={games}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.gameList}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item, index }) => (
+            <GameCard
+              game={item}
+              showBadge={item.badge ?? (index === 0 ? 'HOT' : undefined)}
+              onPress={onGamePress}
+            />
+          )}
+        />
+      )}
     </View>
   );
 }
 
 /** Seção de provedores */
-function ProvidersSection() {
+function ProvidersSection({ providers }: { providers: string[] }) {
   return (
     <View style={styles.section}>
       <Text style={[styles.sectionTitle, { paddingHorizontal: 16 }]}>
@@ -365,7 +342,7 @@ function ProvidersSection() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.providersRow}
       >
-        {PROVIDERS.map((p) => (
+        {providers.map((p) => (
           <View key={p} style={styles.providerChip}>
             <Text style={styles.providerText}>{p}</Text>
           </View>
@@ -380,6 +357,19 @@ function ProvidersSection() {
 export default function SlotScreen() {
   const insets = useSafeAreaInsets();
   const { isAuthenticated, openAuthModal } = useAuth();
+  const [activeCategory, setActiveCategory] = useState('all');
+
+  const selectedCategory = CATEGORIES.find(c => c.id === activeCategory)?.apiCategory;
+
+  const popular = useCatalog({ section: 'popular', category: selectedCategory, limit: 20 });
+  const newGames = useCatalog({ section: 'new', category: selectedCategory, limit: 20 });
+  const crash = useCatalog({ category: 'crash', limit: 20 });
+
+  const providers = [...new Set([
+    ...popular.data.map(g => g.provider),
+    ...newGames.data.map(g => g.provider),
+    ...crash.data.map(g => g.provider),
+  ])];
 
   function handleGamePress() {
     if (!isAuthenticated) openAuthModal('login');
@@ -393,11 +383,26 @@ export default function SlotScreen() {
       >
         <Header />
         <PromoBanner />
-        <CategoryPills />
-        <GameSection title="Mais Jogados" games={POPULAR_GAMES} onGamePress={handleGamePress} />
-        <GameSection title="Novidades" games={NEW_GAMES} onGamePress={handleGamePress} />
-        <GameSection title="Crash Games" games={CRASH_GAMES} onGamePress={handleGamePress} />
-        <ProvidersSection />
+        <CategoryPills active={activeCategory} onChange={setActiveCategory} />
+        <GameSection
+          title="Mais Jogados"
+          games={popular.data}
+          loading={popular.loading}
+          onGamePress={handleGamePress}
+        />
+        <GameSection
+          title="Novidades"
+          games={newGames.data}
+          loading={newGames.loading}
+          onGamePress={handleGamePress}
+        />
+        <GameSection
+          title="Crash Games"
+          games={crash.data}
+          loading={crash.loading}
+          onGamePress={handleGamePress}
+        />
+        <ProvidersSection providers={providers} />
         <View style={{ height: 24 }} />
       </ScrollView>
     </View>
@@ -751,8 +756,25 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: '800',
   },
-  gameEmoji: {
-    fontSize: 50,
+  gameThumbImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  gameThumbInitial: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 40,
+    fontWeight: '800',
+  },
+  gameListSkeleton: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    gap: CARD_GAP,
+  },
+  skeletonCard: {
+    height: CARD_H,
+    backgroundColor: 'rgba(255,255,255,0.07)',
+    borderRadius: 12,
   },
   gameTitleOverlay: {
     position: 'absolute',

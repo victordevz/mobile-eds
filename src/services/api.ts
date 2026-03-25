@@ -104,3 +104,45 @@ export const walletApi = {
       headers: { Authorization: `Bearer ${token}` },
     }),
 };
+
+export interface CatalogItem {
+  id: string;
+  title: string;
+  provider: string;
+  category: 'SLOTS' | 'CRASH' | 'ROULETTE' | 'BLACKJACK';
+  sections: string[];
+  badge: string | null;
+  multiplier: string | null;
+  accent: string | null;
+  thumbnail: string | null;
+  active: boolean;
+  createdAt: string;
+}
+
+export interface CatalogResponse {
+  data: CatalogItem[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface CatalogParams {
+  category?: 'slots' | 'crash' | 'roulette' | 'blackjack';
+  provider?: string;
+  section?: 'featured' | 'popular' | 'new';
+  page?: number;
+  limit?: number;
+}
+
+export const catalogApi = {
+  list: (params: CatalogParams = {}) => {
+    const query = new URLSearchParams();
+    if (params.category) query.append('category', params.category);
+    if (params.provider) query.append('provider', params.provider);
+    if (params.section) query.append('section', params.section);
+    if (params.page !== undefined) query.append('page', String(params.page));
+    if (params.limit !== undefined) query.append('limit', String(params.limit));
+    const qs = query.toString();
+    return apiRequest<CatalogResponse>(`/catalog/${qs ? `?${qs}` : ''}`);
+  },
+};

@@ -17,6 +17,7 @@ import Svg, { Circle, Line } from 'react-native-svg';
 import { colors } from '../theme';
 import Logotipo from '../../assets/logotipo.svg';
 import OddsTurbinadas from '../components/OddsTurbinadas';
+import LiveMatchCard from '../components/LiveMatchCard';
 import { useAuth } from '../context/AuthContext';
 
 /* ───────────────────── Constantes ───────────────────── */
@@ -258,6 +259,7 @@ export default function FutebolScreen() {
       >
         <Header />
         <StoriesBar />
+        <LiveMatchCard onBetPress={handleGamePress} />
         <PromoBanner />
         <OddsTurbinadas onGamePress={handleGamePress} />
       </ScrollView>

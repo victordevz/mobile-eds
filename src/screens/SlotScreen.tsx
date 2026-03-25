@@ -340,7 +340,16 @@ function GameSection({
 }
 
 /** Seção de provedores */
-function ProvidersSection({ providers }: { providers: string[] }) {
+function ProvidersSection({
+  providers,
+  active,
+  onChange,
+}: {
+  providers: string[];
+  active: string | null;
+  onChange: (p: string | null) => void;
+}) {
+  if (providers.length === 0) return null;
   return (
     <View style={styles.section}>
       <Text style={[styles.sectionTitle, { paddingHorizontal: 16 }]}>
@@ -351,11 +360,23 @@ function ProvidersSection({ providers }: { providers: string[] }) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.providersRow}
       >
-        {providers.map((p) => (
-          <View key={p} style={styles.providerChip}>
-            <Text style={styles.providerText}>{p}</Text>
-          </View>
-        ))}
+        {providers.map((p) => {
+          const isActive = active === p;
+          return (
+            <Pressable
+              key={p}
+              onPress={() => onChange(isActive ? null : p)}
+              style={[
+                styles.providerChip,
+                isActive && styles.providerChipActive,
+              ]}
+            >
+              <Text style={[styles.providerText, isActive && styles.providerTextActive]}>
+                {p}
+              </Text>
+            </Pressable>
+          );
+        })}
       </ScrollView>
     </View>
   );
@@ -367,22 +388,25 @@ export default function SlotScreen() {
   const insets = useSafeAreaInsets();
   const { isAuthenticated, openAuthModal } = useAuth();
   const [activeCategory, setActiveCategory] = useState('all');
+  const [activeProvider, setActiveProvider] = useState<string | null>(null);
 
   const selectedCategory = CATEGORIES.find(c => c.id === activeCategory)?.apiCategory;
   const showCrashSection = activeCategory === 'all';
 
-  const popular = useCatalog({ section: 'popular', category: selectedCategory, limit: 20 });
-  const newGames = useCatalog({ section: 'new', category: selectedCategory, limit: 20 });
-  const crash = useCatalog(showCrashSection ? { category: 'crash', limit: 20 } : { limit: 0 });
+  const popular = useCatalog({ section: 'popular', category: selectedCategory, provider: activeProvider ?? undefined, limit: 20 });
+  const newGames = useCatalog({ section: 'new', category: selectedCategory, provider: activeProvider ?? undefined, limit: 20 });
+  const crash = useCatalog(showCrashSection ? { category: 'crash', provider: activeProvider ?? undefined, limit: 20 } : { limit: 0 });
 
-  const providers = [...new Set([
-    ...popular.data.map(g => g.provider),
-    ...newGames.data.map(g => g.provider),
-    ...(showCrashSection ? crash.data.map(g => g.provider) : []),
-  ])];
+  const allProviders = useCatalog({ category: selectedCategory, limit: 100 });
+  const providers = [...new Set(allProviders.data.map(g => g.provider))];
 
   function handleGamePress() {
     if (!isAuthenticated) openAuthModal('login');
+  }
+
+  function handleCategoryChange(id: string) {
+    setActiveCategory(id);
+    setActiveProvider(null);
   }
 
   return (
@@ -393,7 +417,7 @@ export default function SlotScreen() {
       >
         <Header />
         <PromoBanner />
-        <CategoryPills active={activeCategory} onChange={setActiveCategory} />
+        <CategoryPills active={activeCategory} onChange={handleCategoryChange} />
         <GameSection
           title="Mais Jogados"
           games={popular.data}
@@ -414,7 +438,7 @@ export default function SlotScreen() {
             onGamePress={handleGamePress}
           />
         )}
-        <ProvidersSection providers={providers} />
+        <ProvidersSection providers={providers} active={activeProvider} onChange={setActiveProvider} />
         <View style={{ height: 24 }} />
       </ScrollView>
     </View>
@@ -877,9 +901,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.surfaceMid,
   },
+  providerChipActive: {
+    backgroundColor: colors.secondary,
+    borderColor: colors.secondary,
+  },
   providerText: {
     color: colors.white,
     fontSize: 12,
     fontWeight: '600',
+  },
+  providerTextActive: {
+    color: colors.primaryDark,
   },
 });

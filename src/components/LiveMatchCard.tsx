@@ -81,9 +81,11 @@ export default function LiveMatchCard({ onBetPress }: LiveMatchCardProps) {
                 <Text style={[styles.oddLabel, isSelected && styles.oddLabelSelected]}>
                   {opt.label}
                 </Text>
-                <Text style={[styles.oddValue, isSelected && styles.oddValueSelected]}>
-                  {opt.odd.toFixed(2)}
-                </Text>
+                <View style={[styles.oddValueBox, isSelected && styles.oddValueBoxSelected]}>
+                  <Text style={[styles.oddValue, isSelected && styles.oddValueSelected]}>
+                    {opt.odd.toFixed(2)}
+                  </Text>
+                </View>
               </Pressable>
             );
           })}
@@ -125,7 +127,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingHorizontal: 14,
+    paddingLeft: 14,
     paddingTop: 12,
     paddingBottom: 8,
   },
@@ -159,7 +161,8 @@ const styles = StyleSheet.create({
   },
   betButton: {
     backgroundColor: '#E63946',
-    borderRadius: 20,
+    borderTopRightRadius: 16,
+    borderBottomLeftRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
@@ -201,10 +204,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     paddingVertical: 12,
+    paddingHorizontal: 6,
     gap: 4,
   },
   oddBoxSelected: {
-    backgroundColor: colors.white,
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.3)',
   },
   oddPct: {
     color: colors.white,
@@ -212,7 +218,7 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   oddPctSelected: {
-    color: '#023397',
+    color: colors.white,
   },
   oddLabel: {
     color: colors.grey,
@@ -220,7 +226,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   oddLabelSelected: {
-    color: '#023397',
+    color: colors.white,
   },
   oddValue: {
     color: colors.white,
@@ -229,6 +235,15 @@ const styles = StyleSheet.create({
   },
   oddValueSelected: {
     color: '#023397',
+  },
+  oddValueBox: {
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginTop: 2,
+  },
+  oddValueBoxSelected: {
+    backgroundColor: colors.white,
   },
 
   /* Suggestion */

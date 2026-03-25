@@ -270,7 +270,14 @@ function GameCard({ game, showBadge, onPress }: { game: CatalogItem; showBadge?:
             <Text style={styles.cardBadgeText}>{showBadge}</Text>
           </View>
         )}
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.72)']}
+          style={styles.cardTitleGradient}
+        >
+          <Text style={styles.cardTitleText} numberOfLines={2}>{game.title}</Text>
+        </LinearGradient>
       </View>
+      <Text style={styles.cardProviderText} numberOfLines={1}>{game.provider}</Text>
     </Pressable>
   );
 }
@@ -287,6 +294,8 @@ function GameSection({
   loading?: boolean;
   onGamePress?: () => void;
 }) {
+  if (!loading && games.length === 0) return null;
+
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
@@ -360,15 +369,16 @@ export default function SlotScreen() {
   const [activeCategory, setActiveCategory] = useState('all');
 
   const selectedCategory = CATEGORIES.find(c => c.id === activeCategory)?.apiCategory;
+  const showCrashSection = activeCategory === 'all';
 
   const popular = useCatalog({ section: 'popular', category: selectedCategory, limit: 20 });
   const newGames = useCatalog({ section: 'new', category: selectedCategory, limit: 20 });
-  const crash = useCatalog({ category: 'crash', limit: 20 });
+  const crash = useCatalog(showCrashSection ? { category: 'crash', limit: 20 } : { limit: 0 });
 
   const providers = [...new Set([
     ...popular.data.map(g => g.provider),
     ...newGames.data.map(g => g.provider),
-    ...crash.data.map(g => g.provider),
+    ...(showCrashSection ? crash.data.map(g => g.provider) : []),
   ])];
 
   function handleGamePress() {
@@ -396,12 +406,14 @@ export default function SlotScreen() {
           loading={newGames.loading}
           onGamePress={handleGamePress}
         />
-        <GameSection
-          title="Crash Games"
-          games={crash.data}
-          loading={crash.loading}
-          onGamePress={handleGamePress}
-        />
+        {showCrashSection && (
+          <GameSection
+            title="Crash Games"
+            games={crash.data}
+            loading={crash.loading}
+            onGamePress={handleGamePress}
+          />
+        )}
         <ProvidersSection providers={providers} />
         <View style={{ height: 24 }} />
       </ScrollView>
@@ -765,6 +777,30 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.8)',
     fontSize: 40,
     fontWeight: '800',
+  },
+  cardTitleGradient: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 8,
+    paddingBottom: 8,
+    paddingTop: 24,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  cardTitleText: {
+    color: colors.white,
+    fontSize: 11,
+    fontWeight: '700',
+    lineHeight: 14,
+  },
+  cardProviderText: {
+    color: colors.grey,
+    fontSize: 10,
+    fontWeight: '500',
+    marginTop: 4,
+    paddingHorizontal: 2,
   },
   gameListSkeleton: {
     flexDirection: 'row',

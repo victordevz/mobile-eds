@@ -17,6 +17,11 @@ export function useCatalog(params: CatalogParams = {}): UseCatalogState {
   const { category, section, provider, page, limit } = params;
 
   useEffect(() => {
+    if (limit === 0) {
+      setState({ data: [], loading: false, error: null });
+      return;
+    }
+
     let cancelled = false;
     setState(prev => ({ ...prev, loading: true, error: null }));
 

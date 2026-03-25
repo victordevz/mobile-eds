@@ -9,8 +9,12 @@ import {
 import { colors } from '../theme';
 import BragatinoLogo from '../../assets/bragatino.svg';
 import BotafogoLogo from '../../assets/botafogo.svg';
+import Foguinho from '../../assets/foguinho.svg';
 
 const { width: SCREEN_W } = Dimensions.get('window');
+
+const FIRE = String.fromCodePoint(0x1F525);
+const BALL = String.fromCodePoint(0x26BD);
 
 interface OddOption {
   key: 'home' | 'draw' | 'away';
@@ -87,12 +91,15 @@ export default function LiveMatchCard({ onBetPress }: LiveMatchCardProps) {
 
         {/* Suggestion bar */}
         <View style={styles.suggestion}>
-          <Text style={styles.suggestionText}>
-            🔥 Bragantino <Text style={styles.bold}>vence</Text> + ambos{' '}
-            <Text style={styles.bold}>marcam</Text>
-          </Text>
+          <View style={styles.rectangle57} />
+          <View style={styles.suggestionRow}>
+            <Foguinho width={16} height={16} />
+            <Text style={styles.suggestionText}>
+              Botafogo <Text style={styles.bold}>vence</Text> + 2 gols
+            </Text>
+          </View>
           <Pressable style={styles.goButton} onPress={onBetPress}>
-            <Text style={styles.goButtonText}>VAMO LÁ 🎯</Text>
+            <Text style={styles.goButtonText}>VAMO LÁ</Text>
           </Pressable>
         </View>
       </View>
@@ -233,24 +240,43 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 11,
   },
+  rectangle57: {
+    position: 'absolute',
+    height: 44,
+    left: 8,
+    right: 8,
+    alignSelf: 'center',
+    backgroundColor: '#FFFFFF',
+    opacity: 0.12,
+    borderRadius: 10,
+  },
+  suggestionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 6,
+    marginRight: 10,
+  },
   suggestionText: {
     color: colors.white,
     fontSize: 13,
-    flex: 1,
-    marginRight: 10,
   },
   bold: {
     fontWeight: '800',
   },
+  emoji: {
+    fontWeight: 'normal',
+    fontFamily: undefined,
+  },
   goButton: {
-    backgroundColor: '#22D366',
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    backgroundColor: '#0AF43D',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
   goButtonText: {
-    color: colors.black,
-    fontSize: 13,
-    fontWeight: '800',
+    color: '#023397',
+    fontSize: 11,
+    fontWeight: '700',
   },
 });

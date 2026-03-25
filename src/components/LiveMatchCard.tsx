@@ -1,5 +1,6 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import {
+  Animated,
   Pressable,
   StyleSheet,
   Text,
@@ -58,6 +59,20 @@ const DEFAULT_DATA: LiveMatchData = {
 
 export default function LiveMatchCard({ data, onBetPress, style }: LiveMatchCardProps) {
   const d = data ?? DEFAULT_DATA;
+  const blink = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (!d.isLive) return;
+    const anim = Animated.loop(
+      Animated.sequence([
+        Animated.timing(blink, { toValue: 0.2, duration: 800, useNativeDriver: true }),
+        Animated.timing(blink, { toValue: 1, duration: 800, useNativeDriver: true }),
+      ]),
+    );
+    anim.start();
+    return () => anim.stop();
+  }, [d.isLive]);
+
   const [selected, setSelected] = useState<string>(
     d.defaultSelected ?? d.odds.find((o) => o.key === 'draw')?.key ?? d.odds[0]?.key ?? '',
   );
@@ -70,7 +85,7 @@ export default function LiveMatchCard({ data, onBetPress, style }: LiveMatchCard
             <Text style={styles.leagueText}>{d.league}</Text>
             {d.isLive && (
               <View style={styles.liveRow}>
-                <View style={styles.liveDot} />
+                <Animated.View style={[styles.liveDot, { opacity: blink }]} />
                 <Text style={styles.liveText}>AO VIVO</Text>
                 {d.minute && <Text style={styles.liveTime}>{d.minute}</Text>}
               </View>

@@ -40,6 +40,7 @@ export default function ChatScreen() {
   const initSession = useCallback(async () => {
     if (!token) {
       openAuthModal('login');
+      setInitializing(false);
       return;
     }
     try {
@@ -70,15 +71,25 @@ export default function ChatScreen() {
       openAuthModal('login');
       return;
     }
-    if (!sessionId) return;
+
+    let sid = sessionId;
+    if (!sid) {
+      try {
+        const session = await supportApi.createSession(token);
+        sid = session.id;
+        setSessionId(sid);
+      } catch {
+        return;
+      }
+    }
 
     const content = input.trim();
     setInput('');
     setSending(true);
 
     try {
-      await supportApi.sendMessage(sessionId, content, token);
-      const updated = await supportApi.getMessages(sessionId, token);
+      await supportApi.sendMessage(sid, content, token);
+      const updated = await supportApi.getMessages(sid, token);
       setMessages(updated);
     } catch {
     } finally {

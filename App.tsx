@@ -14,6 +14,7 @@ import RoletaStack from './src/navigation/stacks/RoletaStack';
 import SlotStack from './src/navigation/stacks/SlotStack';
 import FutebolStack from './src/navigation/stacks/FutebolStack';
 import HistoricoStack from './src/navigation/stacks/HistoricoStack';
+import { navigationRef } from './src/navigation/navigationRef';
 
 const Tab = createBottomTabNavigator();
 
@@ -21,7 +22,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
           <Tab.Navigator
             initialRouteName="Futebol"
             tabBar={(props) => <CustomTabBar {...props} />}

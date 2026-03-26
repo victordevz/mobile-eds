@@ -32,6 +32,14 @@ const CARD_GAP = 12;
 const BANNER_W = SCREEN_W - 32;
 const BANNER_H = 160;
 
+const LOCAL_GAME_THUMBS: Record<string, ReturnType<typeof require>> = {
+  'Gates of Olympus': require('../../assets/gates_of_olympus_1000_game_thumbnail-v2.avif'),
+  'Sweet Bonanza': require('../../assets/sweet_bonanza_thumbnail_game.webp'),
+  'Sugar Rush': require('../../assets/gb_sweet-land_420x560_1803.avif'),
+  'Big Bass Bonanza': require('../../assets/big_bass_bonanza_3_reeler_thumbnail_game_logo-v2.webp'),
+  'Starlight Princess': require('../../assets/ZU_Thumb-HoodH51vs-Wolf.webp'),
+};
+
 /* ───────────────────── Constantes estáticas ───────────────────── */
 
 const CATEGORIES = [
@@ -257,12 +265,15 @@ function CategoryPills({
 
 function GameCard({ game, showBadge, onPress }: { game: CatalogItem; showBadge?: string; onPress?: (game: CatalogItem) => void }) {
   const bg = game.accent ?? '#1A2235';
-  const imageSource = game.imageUrl ?? game.thumbnail;
+  const remoteSource = game.imageUrl ?? game.thumbnail;
+  const localThumb = LOCAL_GAME_THUMBS[game.title];
   return (
     <Pressable style={styles.gameCard} onPress={() => onPress?.(game)}>
       <View style={[styles.gameThumb, { backgroundColor: bg }]}>
-        {imageSource ? (
-          <Image source={{ uri: imageSource }} style={styles.gameThumbImage} />
+        {remoteSource ? (
+          <Image source={{ uri: remoteSource }} style={styles.gameThumbImage} />
+        ) : localThumb ? (
+          <Image source={localThumb} style={styles.gameThumbImage} />
         ) : (
           <Text style={styles.gameThumbInitial}>
             {game.title.charAt(0).toUpperCase()}

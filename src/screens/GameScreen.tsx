@@ -50,12 +50,15 @@ export default function GameScreen() {
 
   useEffect(() => {
     ScreenOrientation.unlockAsync();
+    const parent = navigation.getParent();
+    parent?.setOptions({ tabBarStyle: { display: 'none' } });
     return () => {
       ScreenOrientation.lockAsync(
         ScreenOrientation.OrientationLock.PORTRAIT_UP,
       );
+      parent?.setOptions({ tabBarStyle: undefined });
     };
-  }, []);
+  }, [navigation]);
 
   const handleShouldStartLoad = useCallback(
     (event: WebViewNavigation) => {

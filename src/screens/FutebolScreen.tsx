@@ -15,6 +15,7 @@ import {
   View,
 } from 'react-native';
 import { useVideoPlayer, VideoView } from 'expo-video';
+import * as VideoThumbnails from 'expo-video-thumbnails';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -624,13 +625,38 @@ function StoriesBar() {
   const { token, isAuthenticated } = useAuth();
   const [stories, setStories] = useState<StoryItem[]>(STORIES_FALLBACK);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [thumbs, setThumbs] = useState<Record<string, string>>({});
+
+  async function generateThumbs(items: StoryItem[]) {
+    const entries = await Promise.all(
+      items.map(async (s) => {
+        if (!s.videoUrl) return null;
+        try {
+          const { uri } = await VideoThumbnails.getThumbnailAsync(s.videoUrl, { time: 0 });
+          return [s.id, uri] as [string, string];
+        } catch {
+          return null;
+        }
+      }),
+    );
+    const map: Record<string, string> = {};
+    for (const entry of entries) {
+      if (entry) map[entry[0]] = entry[1];
+    }
+    setThumbs(map);
+  }
 
   useFocusEffect(
     useCallback(() => {
       if (!isAuthenticated || !token) return;
       storiesApi
         .list(token)
-        .then((data) => { if (data.length > 0) setStories(data); })
+        .then((data) => {
+          if (data.length > 0) {
+            setStories(data);
+            generateThumbs(data);
+          }
+        })
         .catch(() => {});
     }, [isAuthenticated, token]),
   );
@@ -686,8 +712,8 @@ function StoriesBar() {
             >
               <View style={styles.storyRingGap}>
                 <View style={styles.storyCircle}>
-                  {story.thumbnailUrl ? (
-                    <Image source={{ uri: story.thumbnailUrl }} style={styles.storyThumb} />
+                  {thumbs[story.id] || story.thumbnailUrl ? (
+                    <Image source={{ uri: thumbs[story.id] ?? story.thumbnailUrl! }} style={styles.storyThumb} />
                   ) : (
                     <Text style={styles.storyInitial}>{story.title.charAt(0).toUpperCase()}</Text>
                   )}

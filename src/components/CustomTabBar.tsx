@@ -36,6 +36,12 @@ export default function CustomTabBar({
   const { width } = useWindowDimensions();
   const tabWidth = width / 5;
 
+  const currentTab = state.routes[state.index];
+  const nestedState = currentTab.state;
+  const activeNestedRoute =
+    nestedState?.routes?.[nestedState.index ?? 0]?.name;
+  if (activeNestedRoute === 'Game') return null;
+
   const waveHeight = 40;
   const xShared = useSharedValue((state.index + 0.5) * tabWidth);
 

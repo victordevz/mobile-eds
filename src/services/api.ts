@@ -146,3 +146,27 @@ export const catalogApi = {
     return apiRequest<CatalogResponse>(`/catalog/${qs ? `?${qs}` : ''}`);
   },
 };
+
+export interface StoryItem {
+  id: string;
+  title: string;
+  videoUrl: string;
+  thumbnailUrl: string | null;
+  order: number;
+  active: boolean;
+  createdAt: string;
+  viewed: boolean;
+}
+
+export const storiesApi = {
+  list: (token: string) =>
+    apiRequest<StoryItem[]>('/stories/', {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+
+  markViewed: (id: string, token: string) =>
+    apiRequest<void>(`/stories/${id}/view`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+};

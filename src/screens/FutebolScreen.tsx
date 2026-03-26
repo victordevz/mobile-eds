@@ -1,23 +1,29 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  Animated,
   Dimensions,
   FlatList,
   Image,
+  Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Pressable,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Line, Path, Rect } from 'react-native-svg';
 import { colors } from '../theme';
 import Logotipo from '../../assets/logotipo.svg';
 import LiveMatchCard from '../components/LiveMatchCard';
 import { useAuth } from '../context/AuthContext';
+import { storiesApi, StoryItem } from '../services/api';
 
 /* ───────────────────── Constantes ───────────────────── */
 
@@ -26,6 +32,14 @@ const BANNER_W = SCREEN_W - 32;
 const BANNER_H = 160;
 
 /* ───────────────────── Dados mock ───────────────────── */
+
+const STORIES_FALLBACK: StoryItem[] = [
+  { id: 's1', title: '1 MILHÃO',      videoUrl: '', thumbnailUrl: null, order: 1, active: true,  createdAt: '', viewed: false },
+  { id: 's2', title: 'COTAÇÕES',      videoUrl: '', thumbnailUrl: null, order: 2, active: true,  createdAt: '', viewed: false },
+  { id: 's3', title: 'PRÊMIOS',       videoUrl: '', thumbnailUrl: null, order: 3, active: false, createdAt: '', viewed: false },
+  { id: 's4', title: 'CASHBACK',      videoUrl: '', thumbnailUrl: null, order: 4, active: false, createdAt: '', viewed: false },
+  { id: 's5', title: 'GRÁTIS',        videoUrl: '', thumbnailUrl: null, order: 5, active: false, createdAt: '', viewed: false },
+];
 
 const BANNERS = [
   {
@@ -54,22 +68,7 @@ const BANNERS = [
   },
 ];
 
-interface Story {
-  id: string;
-  label: string;
-  emoji: string;
-  active: boolean;
-  bg: string;
-}
 
-const STORIES: Story[] = [
-  { id: 's1', label: 'WORLD CUP',   emoji: '🏆', active: true,  bg: '#01184F' },
-  { id: 's2', label: 'FLASH ODDS',  emoji: '⚡', active: true,  bg: '#01184F' },
-  { id: 's3', label: 'PROMOÇÕES',   emoji: '🇧🇷', active: false, bg: '#01184F' },
-  { id: 's4', label: 'FAVORITOS',   emoji: '⭐', active: false, bg: '#01184F' },
-  { id: 's5', label: 'AO VIVO',     emoji: '🔴', active: false, bg: '#01184F' },
-  { id: 's6', label: 'LIGAS',       emoji: '🏅', active: false, bg: '#01184F' },
-];
 
 interface Championship {
   id: string;
@@ -476,44 +475,238 @@ function PromoBanner() {
   );
 }
 
-/** Barra de stories estilo Instagram */
-function StoriesBar() {
+const STORY_DURATION = 10000;
+
+function StoryViewerModal({
+  story,
+  stories,
+  onClose,
+  onViewed,
+  onNext,
+  onPrev,
+}: {
+  story: StoryItem;
+  stories: StoryItem[];
+  onClose: () => void;
+  onViewed: (id: string) => void;
+  onNext: () => void;
+  onPrev: () => void;
+}) {
+  const currentIndex = stories.findIndex((s) => s.id === story.id);
+  const progress = useRef(new Animated.Value(0)).current;
+  const animRef = useRef<Animated.CompositeAnimation | null>(null);
+
+  const player = useVideoPlayer(
+    story.videoUrl ? { uri: story.videoUrl } : null,
+    (p) => {
+      if (story.videoUrl) {
+        p.loop = false;
+        p.play();
+      }
+    },
+  );
+
+  function startProgress(durationMs: number) {
+    animRef.current?.stop();
+    progress.setValue(0);
+    animRef.current = Animated.timing(progress, {
+      toValue: 1,
+      duration: durationMs,
+      useNativeDriver: false,
+    });
+    animRef.current.start(({ finished }) => {
+      if (finished) onNext();
+    });
+  }
+
+  useEffect(() => {
+    onViewed(story.id);
+    progress.setValue(0);
+
+    if (!story.videoUrl) {
+      startProgress(STORY_DURATION);
+      return () => { animRef.current?.stop(); };
+    }
+
+    const sub = player.addListener('statusChange', (status) => {
+      if (status.status === 'readyToPlay' && player.duration > 0) {
+        startProgress(player.duration * 1000);
+        sub.remove();
+      }
+    });
+
+    startProgress(STORY_DURATION);
+
+    return () => {
+      sub.remove();
+      animRef.current?.stop();
+    };
+  }, [story.id]);
+
+  const { width: SW } = Dimensions.get('window');
+  const segmentW = (SW - 32 - (stories.length - 1) * 4) / stories.length;
+
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.storiesContainer}
+    <Modal
+      visible
+      transparent={false}
+      animationType="fade"
+      statusBarTranslucent
+      onRequestClose={onClose}
     >
-      {STORIES.map((story) => (
-        <Pressable key={story.id} style={styles.storyItem}>
-          {/* Anel externo: verde se ativo, cinza se inativo */}
-          <View
-            style={[
-              styles.storyRingOuter,
-              story.active
-                ? styles.storyRingActive
-                : styles.storyRingInactive,
-            ]}
-          >
-            {/* Espaço entre anel e círculo interno */}
-            <View style={styles.storyRingGap}>
-              <View style={styles.storyCircle}>
-                <Text style={styles.storyEmoji}>{story.emoji}</Text>
+      <StatusBar hidden />
+      <View style={styles.storyModalOverlay}>
+        {story.videoUrl ? (
+          <VideoView
+            player={player}
+            style={styles.storyModalBg}
+            contentFit="cover"
+            nativeControls={false}
+          />
+        ) : story.thumbnailUrl ? (
+          <Image source={{ uri: story.thumbnailUrl }} style={styles.storyModalBg} />
+        ) : (
+          <View style={[styles.storyModalBg, { backgroundColor: colors.card }]} />
+        )}
+
+        <View style={styles.storyModalDim} />
+
+        {/* Barras de progresso */}
+        <View style={styles.storyProgressRow}>
+          {stories.map((s, i) => (
+            <View key={s.id} style={[styles.storyProgressSegment, { width: segmentW, backgroundColor: 'rgba(255,255,255,0.35)' }]}>
+              {i < currentIndex && (
+                <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.white }]} />
+              )}
+              {i === currentIndex && (
+                <Animated.View
+                  style={[
+                    StyleSheet.absoluteFill,
+                    {
+                      backgroundColor: colors.white,
+                      width: progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }),
+                    },
+                  ]}
+                />
+              )}
+            </View>
+          ))}
+        </View>
+
+        {/* Header */}
+        <View style={styles.storyModalHeader}>
+          <View style={styles.storyModalUser}>
+            <View style={styles.storyModalAvatar}>
+              {story.thumbnailUrl ? (
+                <Image source={{ uri: story.thumbnailUrl }} style={styles.storyModalAvatarImg} />
+              ) : (
+                <Text style={styles.storyInitial}>{story.title.charAt(0).toUpperCase()}</Text>
+              )}
+            </View>
+            <Text style={styles.storyModalTitle}>{story.title}</Text>
+          </View>
+          <Pressable onPress={onClose} hitSlop={12} style={styles.storyModalClose}>
+            <Text style={styles.storyModalCloseText}>✕</Text>
+          </Pressable>
+        </View>
+
+        {/* Zonas de toque: prev / next */}
+        <View style={styles.storyTouchRow} pointerEvents="box-none">
+          <Pressable style={styles.storyTouchZone} onPress={onPrev} />
+          <Pressable style={styles.storyTouchZone} onPress={onNext} />
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+function StoriesBar() {
+  const { token, isAuthenticated } = useAuth();
+  const [stories, setStories] = useState<StoryItem[]>(STORIES_FALLBACK);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!isAuthenticated || !token) return;
+      storiesApi
+        .list(token)
+        .then((data) => { if (data.length > 0) setStories(data); })
+        .catch(() => {});
+    }, [isAuthenticated, token]),
+  );
+
+  function handleViewed(id: string) {
+    if (!token) return;
+    storiesApi.markViewed(id, token).catch(() => {});
+    setStories(prev => prev.map(s => (s.id === id ? { ...s, viewed: true } : s)));
+  }
+
+  function handleNext() {
+    setActiveIndex(prev => {
+      if (prev === null) return null;
+      const next = prev + 1;
+      return next < stories.length ? next : null;
+    });
+  }
+
+  function handlePrev() {
+    setActiveIndex(prev => {
+      if (prev === null) return null;
+      const p = prev - 1;
+      return p >= 0 ? p : 0;
+    });
+  }
+
+  const activeStory = activeIndex !== null ? stories[activeIndex] : null;
+
+  return (
+    <>
+      {activeStory && (
+        <StoryViewerModal
+          story={activeStory}
+          stories={stories}
+          onClose={() => setActiveIndex(null)}
+          onViewed={handleViewed}
+          onNext={handleNext}
+          onPrev={handlePrev}
+        />
+      )}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.storiesContainer}
+      >
+        {stories.map((story, index) => (
+          <Pressable key={story.id} style={styles.storyItem} onPress={() => setActiveIndex(index)}>
+            <View
+              style={[
+                styles.storyRingOuter,
+                !story.viewed ? styles.storyRingActive : styles.storyRingInactive,
+              ]}
+            >
+              <View style={styles.storyRingGap}>
+                <View style={styles.storyCircle}>
+                  {story.thumbnailUrl ? (
+                    <Image source={{ uri: story.thumbnailUrl }} style={styles.storyThumb} />
+                  ) : (
+                    <Text style={styles.storyInitial}>{story.title.charAt(0).toUpperCase()}</Text>
+                  )}
+                </View>
               </View>
             </View>
-          </View>
-          <Text
-            style={[
-              styles.storyLabel,
-              story.active ? styles.storyLabelActive : styles.storyLabelInactive,
-            ]}
-            numberOfLines={1}
-          >
-            {story.label}
-          </Text>
-        </Pressable>
-      ))}
-    </ScrollView>
+            <Text
+              style={[
+                styles.storyLabel,
+                !story.viewed ? styles.storyLabelActive : styles.storyLabelInactive,
+              ]}
+              numberOfLines={1}
+            >
+              {story.title}
+            </Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+    </>
   );
 }
 
@@ -925,6 +1118,16 @@ const styles = StyleSheet.create({
   storyEmoji: {
     fontSize: 26,
   },
+  storyThumb: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 28,
+  },
+  storyInitial: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: colors.white,
+  },
   storyLabel: {
     fontSize: 10,
     fontWeight: '700',
@@ -936,6 +1139,78 @@ const styles = StyleSheet.create({
   },
   storyLabelInactive: {
     color: colors.grey,
+  },
+
+  /* ── Story Modal ── */
+  storyModalOverlay: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  storyModalBg: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  storyModalDim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+  },
+  storyProgressRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingTop: 52,
+    gap: 4,
+  },
+  storyProgressSegment: {
+    height: 3,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  storyModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    marginTop: 14,
+  },
+  storyModalUser: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  storyModalAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: colors.secondary,
+  },
+  storyModalAvatarImg: {
+    width: '100%',
+    height: '100%',
+  },
+  storyModalTitle: {
+    color: colors.white,
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  storyModalClose: {
+    padding: 6,
+  },
+  storyModalCloseText: {
+    color: colors.white,
+    fontSize: 22,
+    fontWeight: '300',
+  },
+  storyTouchRow: {
+    ...StyleSheet.absoluteFillObject,
+    flexDirection: 'row',
+    top: 120,
+  },
+  storyTouchZone: {
+    flex: 1,
   },
 
   /* ── Populares ── */

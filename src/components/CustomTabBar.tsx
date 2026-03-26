@@ -36,12 +36,6 @@ export default function CustomTabBar({
   const { width } = useWindowDimensions();
   const tabWidth = width / 5;
 
-  const currentTab = state.routes[state.index];
-  const nestedState = currentTab.state;
-  const activeNestedRoute =
-    nestedState?.routes?.[nestedState.index ?? 0]?.name;
-  if (activeNestedRoute === 'Game') return null;
-
   const waveHeight = 40;
   const xShared = useSharedValue((state.index + 0.5) * tabWidth);
 
@@ -55,6 +49,12 @@ export default function CustomTabBar({
       d: `M -1000 0 L ${x - 70} 0 C ${x - 35} 0, ${x - 35} ${waveHeight}, ${x} ${waveHeight} C ${x + 35} ${waveHeight}, ${x + 35} 0, ${x + 70} 0 L 3000 0 L 3000 100 L -1000 100 Z`,
     };
   });
+
+  const currentTab = state.routes[state.index];
+  const nestedState = currentTab.state;
+  const activeNestedRoute =
+    nestedState?.routes?.[nestedState.index ?? 0]?.name;
+  if (activeNestedRoute === 'Game') return null;
 
   const xPos = (state.index + 0.5) * tabWidth;
 

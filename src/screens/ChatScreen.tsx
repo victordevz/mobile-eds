@@ -9,10 +9,41 @@ import {
   Platform,
   StyleSheet,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { colors } from '../theme';
 import { supportApi, SupportMessage } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+
+function TypingBubble() {
+  const dots = [useRef(new Animated.Value(0)).current, useRef(new Animated.Value(0)).current, useRef(new Animated.Value(0)).current];
+
+  useEffect(() => {
+    const animations = dots.map((dot, i) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.delay(i * 150),
+          Animated.timing(dot, { toValue: -7, duration: 250, useNativeDriver: true }),
+          Animated.timing(dot, { toValue: 0, duration: 250, useNativeDriver: true }),
+          Animated.delay((2 - i) * 150),
+        ])
+      )
+    );
+    animations.forEach((a) => a.start());
+    return () => animations.forEach((a) => a.stop());
+  }, []);
+
+  return (
+    <View style={styles.typingBubbleContainer}>
+      {dots.map((dot, i) => (
+        <Animated.View
+          key={i}
+          style={[styles.dot, { transform: [{ translateY: dot }] }]}
+        />
+      ))}
+    </View>
+  );
+}
 
 export default function ChatScreen() {
   const { token, openAuthModal } = useAuth();
@@ -21,17 +52,8 @@ export default function ChatScreen() {
   const [input, setInput] = useState('');
   const [initializing, setInitializing] = useState(true);
   const [sending, setSending] = useState(false);
-  const [typingDots, setTypingDots] = useState(1);
   const flatListRef = useRef<FlatList>(null);
   const inputRef = useRef<TextInput>(null);
-
-  useEffect(() => {
-    if (!sending) return;
-    const id = setInterval(() => {
-      setTypingDots((prev) => (prev === 3 ? 1 : prev + 1));
-    }, 400);
-    return () => clearInterval(id);
-  }, [sending]);
 
   useEffect(() => {
     flatListRef.current?.scrollToEnd({ animated: true });
@@ -129,11 +151,7 @@ export default function ChatScreen() {
     if (!sending) return null;
     return (
       <View style={[styles.messageContainer, styles.supportMessage]}>
-        <View style={styles.typingDots}>
-          <View style={[styles.dot, typingDots.length >= 1 && styles.dotActive]} />
-          <View style={[styles.dot, typingDots.length >= 2 && styles.dotActive]} />
-          <View style={[styles.dot, typingDots.length >= 3 && styles.dotActive]} />
-        </View>
+        <TypingBubble />
       </View>
     );
   };
@@ -249,19 +267,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary,
     alignSelf: 'flex-start',
   },
-  typingDots: {
+  typingBubbleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 5,
     paddingVertical: 2,
   },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(2, 51, 151, 0.25)',
-  },
-  dotActive: {
     backgroundColor: colors.primary,
   },
   userText: {

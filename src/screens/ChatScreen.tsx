@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 12,
     borderTopWidth: 1,
-    borderColor: colors.surfaceMid,
+    borderColor: '#E0E4ED',
     backgroundColor: colors.white,
   },
   input: {

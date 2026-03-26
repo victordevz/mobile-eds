@@ -44,12 +44,22 @@ const STORIES_FALLBACK: StoryItem[] = [
 
 const BANNERS = [
   {
+    id: 'b0',
+    badge: '',
+    game: '',
+    multiplier: '',
+    image: require('../../assets/rumo-ao-hexa.png'),
+    accent: '#38E67D',
+    hideOverlay: true,
+  },
+  {
     id: 'b1',
     badge: '● EM DESTAQUE',
     game: 'Gates of Olympus',
     multiplier: '5000x',
     image: require('../../assets/gatesof.jpg'),
     accent: '#3A86FF',
+    hideOverlay: false,
   },
   {
     id: 'b2',
@@ -58,6 +68,7 @@ const BANNERS = [
     multiplier: '21100x',
     image: require('../../assets/sweetbonanza.webp'),
     accent: '#FB5607',
+    hideOverlay: false,
   },
   {
     id: 'b3',
@@ -66,6 +77,7 @@ const BANNERS = [
     multiplier: '1000000x',
     image: require('../../assets/aviator.jpeg'),
     accent: '#E63946',
+    hideOverlay: false,
   },
 ];
 
@@ -421,41 +433,33 @@ function PromoBanner() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.bannerCard}>
-            {/* Imagem de fundo */}
             <Image source={item.image} style={styles.bannerImage} />
-
-            {/* Gradiente sobre o conteúdo */}
-            <LinearGradient
-              colors={['transparent', 'rgba(0,0,0,0.82)']}
-              style={styles.bannerGradient}
-            />
-
-            {/* Conteúdo */}
-            <View style={styles.bannerContent}>
-              {/* Badge */}
-              <View style={[styles.bannerBadge, { borderColor: item.accent }]}>
-                <Text style={[styles.bannerBadgeText, { color: item.accent }]}>{item.badge}</Text>
-              </View>
-
-              {/* Título */}
-              <Text style={styles.bannerTitle}>{item.game}</Text>
-
-              {/* Multiplicador */}
-              <Text style={styles.bannerSubtitle}>
-                Multiplicador até{' '}
-                <Text style={[styles.bannerMultiplier, { color: colors.secondary }]}>{item.multiplier}</Text>
-              </Text>
-
-              {/* Botões */}
-              <View style={styles.bannerButtons}>
-                <Pressable style={styles.bannerBtnPlay}>
-                  <Text style={styles.bannerBtnPlayText}>▶  Jogar</Text>
-                </Pressable>
-                <Pressable style={styles.bannerBtnInfo}>
-                  <Text style={styles.bannerBtnInfoText}>+ Info</Text>
-                </Pressable>
-              </View>
-            </View>
+            {!item.hideOverlay && (
+              <>
+                <LinearGradient
+                  colors={['transparent', 'rgba(0,0,0,0.82)']}
+                  style={styles.bannerGradient}
+                />
+                <View style={styles.bannerContent}>
+                  <View style={[styles.bannerBadge, { borderColor: item.accent }]}>
+                    <Text style={[styles.bannerBadgeText, { color: item.accent }]}>{item.badge}</Text>
+                  </View>
+                  <Text style={styles.bannerTitle}>{item.game}</Text>
+                  <Text style={styles.bannerSubtitle}>
+                    Multiplicador até{' '}
+                    <Text style={[styles.bannerMultiplier, { color: colors.secondary }]}>{item.multiplier}</Text>
+                  </Text>
+                  <View style={styles.bannerButtons}>
+                    <Pressable style={styles.bannerBtnPlay}>
+                      <Text style={styles.bannerBtnPlayText}>▶  Jogar</Text>
+                    </Pressable>
+                    <Pressable style={styles.bannerBtnInfo}>
+                      <Text style={styles.bannerBtnInfoText}>+ Info</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </>
+            )}
           </View>
         )}
       />

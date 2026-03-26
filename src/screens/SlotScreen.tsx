@@ -1,6 +1,9 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { useCatalog } from '../hooks/useCatalog';
 import { CatalogItem } from '../services/api';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { SlotStackParamList } from '../navigation/stacks/SlotStack';
 import {
   Dimensions,
   FlatList,
@@ -252,14 +255,14 @@ function CategoryPills({
   );
 }
 
-/** Card de jogo individual */
-function GameCard({ game, showBadge, onPress }: { game: CatalogItem; showBadge?: string; onPress?: () => void }) {
+function GameCard({ game, showBadge, onPress }: { game: CatalogItem; showBadge?: string; onPress?: (game: CatalogItem) => void }) {
   const bg = game.accent ?? '#1A2235';
+  const imageSource = game.imageUrl ?? game.thumbnail;
   return (
-    <Pressable style={styles.gameCard} onPress={onPress}>
+    <Pressable style={styles.gameCard} onPress={() => onPress?.(game)}>
       <View style={[styles.gameThumb, { backgroundColor: bg }]}>
-        {game.thumbnail ? (
-          <Image source={{ uri: game.thumbnail }} style={styles.gameThumbImage} />
+        {imageSource ? (
+          <Image source={{ uri: imageSource }} style={styles.gameThumbImage} />
         ) : (
           <Text style={styles.gameThumbInitial}>
             {game.title.charAt(0).toUpperCase()}
@@ -292,7 +295,7 @@ function GameSection({
   title: string;
   games: CatalogItem[];
   loading?: boolean;
-  onGamePress?: () => void;
+  onGamePress?: (game: CatalogItem) => void;
 }) {
   if (!loading && games.length === 0) return null;
 
@@ -330,7 +333,7 @@ function GameSection({
             <GameCard
               game={item}
               showBadge={item.badge ?? (index === 0 ? 'HOT' : undefined)}
-              onPress={onGamePress}
+              onPress={() => onGamePress?.(item)}
             />
           )}
         />
@@ -386,6 +389,7 @@ function ProvidersSection({
 
 export default function SlotScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<NativeStackNavigationProp<SlotStackParamList>>();
   const { isAuthenticated, openAuthModal } = useAuth();
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeProvider, setActiveProvider] = useState<string | null>(null);
@@ -400,8 +404,14 @@ export default function SlotScreen() {
   const allProviders = useCatalog({ category: selectedCategory, limit: 100 });
   const providers = [...new Set(allProviders.data.map(g => g.provider))];
 
-  function handleGamePress() {
-    if (!isAuthenticated) openAuthModal('login');
+  function handleGamePress(game: CatalogItem) {
+    if (!isAuthenticated) {
+      openAuthModal('login');
+      return;
+    }
+    if (game.gameUrl) {
+      navigation.navigate('Game', { gameUrl: game.gameUrl, title: game.title });
+    }
   }
 
   function handleCategoryChange(id: string) {

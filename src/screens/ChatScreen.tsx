@@ -21,14 +21,14 @@ export default function ChatScreen() {
   const [input, setInput] = useState('');
   const [initializing, setInitializing] = useState(true);
   const [sending, setSending] = useState(false);
-  const [typingDots, setTypingDots] = useState('.');
+  const [typingDots, setTypingDots] = useState(1);
   const flatListRef = useRef<FlatList>(null);
   const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     if (!sending) return;
     const id = setInterval(() => {
-      setTypingDots((prev) => (prev === '...' ? '.' : prev + '.'));
+      setTypingDots((prev) => (prev === 3 ? 1 : prev + 1));
     }, 400);
     return () => clearInterval(id);
   }, [sending]);
@@ -87,6 +87,15 @@ export default function ChatScreen() {
     setInput('');
     setSending(true);
 
+    const optimisticMsg: SupportMessage = {
+      id: `optimistic-${Date.now()}`,
+      sessionId: sid,
+      role: 'USER',
+      content,
+      createdAt: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, optimisticMsg]);
+
     try {
       await supportApi.sendMessage(sid, content, token);
       const updated = await supportApi.getMessages(sid, token);
@@ -119,10 +128,12 @@ export default function ChatScreen() {
   const renderTypingBubble = () => {
     if (!sending) return null;
     return (
-      <View style={[styles.messageContainer, styles.supportMessage, styles.typingBubble]}>
-        <Text style={[styles.messageText, styles.supportText]}>
-          Escrevendo{typingDots}
-        </Text>
+      <View style={[styles.messageContainer, styles.supportMessage]}>
+        <View style={styles.typingDots}>
+          <View style={[styles.dot, typingDots.length >= 1 && styles.dotActive]} />
+          <View style={[styles.dot, typingDots.length >= 2 && styles.dotActive]} />
+          <View style={[styles.dot, typingDots.length >= 3 && styles.dotActive]} />
+        </View>
       </View>
     );
   };
@@ -238,8 +249,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary,
     alignSelf: 'flex-start',
   },
-  typingBubble: {
-    opacity: 0.75,
+  typingDots: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 2,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(2, 51, 151, 0.25)',
+  },
+  dotActive: {
+    backgroundColor: colors.primary,
   },
   userText: {
     color: colors.white,

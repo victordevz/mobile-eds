@@ -115,6 +115,8 @@ export interface CatalogItem {
   multiplier: string | null;
   accent: string | null;
   thumbnail: string | null;
+  gameUrl: string;
+  imageUrl: string | null;
   active: boolean;
   createdAt: string;
 }

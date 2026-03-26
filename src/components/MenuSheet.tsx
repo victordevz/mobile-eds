@@ -16,7 +16,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Path, Rect, Line, G } from 'react-native-svg';
 import { useAuth } from '../context/AuthContext';
-import { navigateToTab } from '../navigation/navigationRef';
+import { navigateToTab, navigateTo } from '../navigation/navigationRef';
 import { colors } from '../theme';
 
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -179,7 +179,7 @@ export default function MenuSheet() {
   function handleSuporte() {
     closeMenu();
     setTimeout(() => {
-      navigateToTab('Suporte');
+      navigateTo('Suporte');
     }, 320);
   }
 

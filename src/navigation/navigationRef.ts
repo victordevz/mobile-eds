@@ -7,3 +7,9 @@ export function navigateToTab(tabName: string) {
     navigationRef.navigate(tabName as never);
   }
 }
+
+export function navigateTo(screen: string) {
+  if (navigationRef.isReady()) {
+    navigationRef.navigate(screen as never);
+  }
+}

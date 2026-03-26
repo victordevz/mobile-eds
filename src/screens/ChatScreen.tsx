@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,68 +8,121 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import { colors } from '../theme';
-
-interface Message {
-  id: string;
-  text: string;
-  from: 'user' | 'support';
-}
+import { supportApi, SupportMessage } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 export default function ChatScreen() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: 'Olá! Como posso ajudar você hoje?',
-      from: 'support',
-    },
-  ]);
+  const { token, openAuthModal } = useAuth();
+  const [messages, setMessages] = useState<SupportMessage[]>([]);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [input, setInput] = useState('');
+  const [initializing, setInitializing] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [typingDots, setTypingDots] = useState('.');
   const flatListRef = useRef<FlatList>(null);
   const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
+    if (!sending) return;
+    const id = setInterval(() => {
+      setTypingDots((prev) => (prev === '...' ? '.' : prev + '.'));
+    }, 400);
+    return () => clearInterval(id);
+  }, [sending]);
+
+  useEffect(() => {
     flatListRef.current?.scrollToEnd({ animated: true });
-  }, [messages]);
+  }, [messages, sending]);
 
-  const sendMessage = () => {
+  const initSession = useCallback(async () => {
+    if (!token) {
+      openAuthModal('login');
+      return;
+    }
+    try {
+      const sessions = await supportApi.getSessions(token);
+      let sid: string;
+      if (sessions.length > 0) {
+        sid = sessions[0].id;
+      } else {
+        const session = await supportApi.createSession(token);
+        sid = session.id;
+      }
+      setSessionId(sid);
+      const msgs = await supportApi.getMessages(sid, token);
+      setMessages(msgs);
+    } catch {
+    } finally {
+      setInitializing(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    initSession();
+  }, [initSession]);
+
+  const sendMessage = useCallback(async () => {
     if (!input.trim()) return;
-    setMessages((prev) => [
-      ...prev,
-      { id: Date.now().toString(), text: input, from: 'user' },
-    ]);
-    setInput('');
-    // Simulação de resposta do suporte
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          text: 'Recebido! Em breve retornaremos.',
-          from: 'support',
-        },
-      ]);
-    }, 1200);
-  };
+    if (!token) {
+      openAuthModal('login');
+      return;
+    }
+    if (!sessionId) return;
 
-  const renderItem = ({ item }: { item: Message }) => (
+    const content = input.trim();
+    setInput('');
+    setSending(true);
+
+    try {
+      await supportApi.sendMessage(sessionId, content, token);
+      const updated = await supportApi.getMessages(sessionId, token);
+      setMessages(updated);
+    } catch {
+    } finally {
+      setSending(false);
+      inputRef.current?.focus();
+    }
+  }, [input, token, sessionId, openAuthModal]);
+
+  const renderItem = ({ item }: { item: SupportMessage }) => (
     <View
       style={[
         styles.messageContainer,
-        item.from === 'user' ? styles.userMessage : styles.supportMessage,
+        item.role === 'USER' ? styles.userMessage : styles.supportMessage,
       ]}
     >
       <Text
         style={[
           styles.messageText,
-          item.from === 'user' ? styles.userText : styles.supportText,
+          item.role === 'USER' ? styles.userText : styles.supportText,
         ]}
       >
-        {item.text}
+        {item.content}
       </Text>
     </View>
   );
+
+  const renderTypingBubble = () => {
+    if (!sending) return null;
+    return (
+      <View style={[styles.messageContainer, styles.supportMessage, styles.typingBubble]}>
+        <Text style={[styles.messageText, styles.supportText]}>
+          Escrevendo{typingDots}
+        </Text>
+      </View>
+    );
+  };
+
+  if (initializing || !token) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -85,6 +138,13 @@ export default function ChatScreen() {
         contentContainerStyle={styles.messagesList}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        style={styles.list}
+        ListFooterComponent={renderTypingBubble}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>Olá! Como posso ajudar você hoje?</Text>
+          </View>
+        }
       />
       <View style={styles.inputContainer}>
         <TextInput
@@ -97,6 +157,7 @@ export default function ChatScreen() {
           onSubmitEditing={sendMessage}
           returnKeyType="send"
           blurOnSubmit={false}
+          editable={!sending}
           onFocus={() => {
             setTimeout(() => {
               flatListRef.current?.scrollToEnd({ animated: true });
@@ -104,11 +165,12 @@ export default function ChatScreen() {
           }}
         />
         <TouchableOpacity
-          style={styles.sendButton}
+          style={[styles.sendButton, sending && styles.sendButtonDisabled]}
           onPress={() => {
             sendMessage();
             inputRef.current?.focus();
           }}
+          disabled={sending}
         >
           <Text style={styles.sendButtonText}>Enviar</Text>
         </TouchableOpacity>
@@ -122,9 +184,32 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.white,
   },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyContainer: {
+    alignItems: 'flex-start',
+    paddingTop: 4,
+  },
+  emptyText: {
+    backgroundColor: colors.secondary,
+    color: colors.primary,
+    fontSize: 15,
+    borderRadius: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    maxWidth: '80%',
+    overflow: 'hidden',
+  },
   messagesList: {
     padding: 16,
     paddingBottom: 8,
+  },
+  list: {
+    flex: 1,
   },
   messageContainer: {
     maxWidth: '80%',
@@ -142,12 +227,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary,
     alignSelf: 'flex-start',
   },
+  typingBubble: {
+    opacity: 0.75,
+  },
   userText: {
     color: colors.white,
     fontSize: 15,
   },
   supportText: {
     color: colors.primary,
+    fontSize: 15,
+  },
+  messageText: {
     fontSize: 15,
   },
   inputContainer: {
@@ -173,6 +264,9 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     paddingVertical: 10,
     paddingHorizontal: 18,
+  },
+  sendButtonDisabled: {
+    opacity: 0.5,
   },
   sendButtonText: {
     color: colors.white,

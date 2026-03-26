@@ -170,3 +170,42 @@ export const storiesApi = {
       headers: { Authorization: `Bearer ${token}` },
     }),
 };
+
+export interface SupportSession {
+  id: string;
+  userId: string;
+  createdAt: string;
+}
+
+export interface SupportMessage {
+  id: string;
+  sessionId: string;
+  role: 'USER' | 'ASSISTANT';
+  content: string;
+  createdAt: string;
+}
+
+export const supportApi = {
+  createSession: (token: string) =>
+    apiRequest<SupportSession>('/support/sessions', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+
+  getSessions: (token: string) =>
+    apiRequest<SupportSession[]>('/support/sessions', {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+
+  sendMessage: (sessionId: string, content: string, token: string) =>
+    apiRequest<SupportMessage>(`/support/sessions/${sessionId}/messages`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ content }),
+    }),
+
+  getMessages: (sessionId: string, token: string) =>
+    apiRequest<SupportMessage[]>(`/support/sessions/${sessionId}/messages`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+};

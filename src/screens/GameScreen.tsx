@@ -18,24 +18,10 @@ type GameRouteParams = {
   Game: { gameUrl: string; title: string };
 };
 
-const ALLOWED_DOMAINS = [
-  'demogamesfree.pragmaticplay.net',
-  'public.pg-demo.com',
-  'betsoft.com',
-  'www.betsoft.com',
-  'cdn.betsoft.com',
-  'pragmaticplay.net',
-];
+const BLOCKED_SCHEMES = ['itms-apps:', 'market:', 'tel:', 'mailto:'];
 
-function isDomainAllowed(url: string): boolean {
-  try {
-    const { hostname } = new URL(url);
-    return ALLOWED_DOMAINS.some(
-      (d) => hostname === d || hostname.endsWith(`.${d}`),
-    );
-  } catch {
-    return false;
-  }
+function shouldBlockNavigation(url: string): boolean {
+  return BLOCKED_SCHEMES.some((scheme) => url.startsWith(scheme));
 }
 
 export default function GameScreen() {
@@ -59,8 +45,7 @@ export default function GameScreen() {
 
   const handleShouldStartLoad = useCallback(
     (event: WebViewNavigation) => {
-      if (event.url === 'about:blank') return true;
-      return isDomainAllowed(event.url);
+      return !shouldBlockNavigation(event.url);
     },
     [],
   );
@@ -122,6 +107,9 @@ export default function GameScreen() {
             javaScriptEnabled
             domStorageEnabled
             startInLoadingState={false}
+            allowsBackForwardNavigationGestures={false}
+            mixedContentMode="always"
+            userAgent="Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
           />
           {loading && (
             <View style={styles.loadingOverlay}>

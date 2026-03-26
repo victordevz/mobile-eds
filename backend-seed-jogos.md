@@ -1,69 +1,35 @@
-# Backend Tasks — Suporte a Jogos de Cassino (WebView)
+# Seed — Catálogo de Jogos (CatalogItem)
 
-## 1. Schema — Novos campos no CatalogItem
+## Contexto
 
-Adicionar dois campos ao model `CatalogItem`:
-
-| Campo      | Tipo              | Obrigatório | Descrição                                   |
-|------------|-------------------|-------------|---------------------------------------------|
-| `gameUrl`  | `string`          | Sim         | URL do iframe/demo do jogo                  |
-| `imageUrl` | `string \| null`  | Não         | URL do ícone/thumbnail externo do jogo      |
-
-### Prisma (se aplicável)
-
-```prisma
-model CatalogItem {
-  // campos existentes ...
-  gameUrl  String
-  imageUrl String?
-}
-```
-
-### Migration
-
-```bash
-npx prisma migrate dev --name add-game-url-image-url
-```
+O app mobile consome a rota `GET /catalog` com os parâmetros `section`, `category` e `provider`.  
+Cada item precisa dos campos `gameUrl` (URL do iframe) e `imageUrl` (thumbnail externa, opcional) além dos campos já existentes.
 
 ---
 
-## 2. Seed — Dados de jogos demo reais
+## Campos obrigatórios no model
 
-Usar URLs de demo gratuitas dos provedores para popular o banco com jogos jogáveis.
+| Campo        | Tipo             | Obrigatório | Descrição                              |
+|--------------|------------------|-------------|----------------------------------------|
+| `gameUrl`    | `string`         | Sim         | URL do demo/iframe a ser aberto        |
+| `imageUrl`   | `string \| null` | Não         | URL de thumbnail externa               |
+| `thumbnail`  | `string \| null` | Não         | Alias alternativo aceito pelo app      |
 
-### Pragmatic Play
+> O app tenta `imageUrl ?? thumbnail`. Se ambos forem `null`, exibe a inicial do título.
 
-Demo server: `https://demogamesfree.pragmaticplay.net/gs2c/openGame.do?gameSymbol={code}&lang=pt&cur=BRL&lobbyUrl=about:blank`
+---
 
-| Título              | Code            | Categoria | Seções               |
-|---------------------|-----------------|-----------|----------------------|
-| Gates of Olympus    | vs20olympgate   | SLOTS     | featured, popular    |
-| Sweet Bonanza       | vs20fruitsw     | SLOTS     | featured, popular    |
-| Sugar Rush          | vs20sugarrush   | SLOTS     | popular, new         |
-| Starlight Princess  | vs20starlight   | SLOTS     | popular              |
-| Big Bass Bonanza    | vs10bbbonanza   | SLOTS     | popular              |
+## Provedores ativos no app
 
-**imageUrl pattern:** `https://www.slotcatalog.com/userfiles/image/games/{game-id}/GameIcon/{filename}.png` (buscar manualmente ou usar thumbnails próprios)
+Apenas **Pragmatic Play** e **PG Soft** estão habilitados no filtro do app.
 
-### PG Soft
+---
 
-Demo server: `https://m.pgsoft-games.com/{gid}/index.html?l=pt&ot=98&btt=2&from=https%3A%2F%2Fpgsoft.com&__refer=m.pgsoft-games.com&or=static.pgsoft-games.com`
-
-> `public.pg-demo.com` não funciona em WebView — usar `m.pgsoft-games.com`.
-
-| Título             | Game ID | Categoria | Seções          |
-|--------------------|---------|-----------|-----------------||
-| Fortune Tiger      | 44      | SLOTS     | featured, popular |
-| Mahjong Ways       | 50      | SLOTS     | popular         |
-| Fortune Mouse      | 53      | SLOTS     | featured, new   |
-| Wild Bandito       | 92      | SLOTS     | popular         |
-| Leprechaun Riches  | 45      | SLOTS     | new             |
-| Candy Superwin     | 91      | SLOTS     | new             |
-
-### Exemplo de seed (TypeScript / Prisma)
+## Seed completo
 
 ```typescript
 const games = [
+  // ─── Pragmatic Play ───────────────────────────────────────────────────────
   {
     title: 'Gates of Olympus',
     provider: 'Pragmatic Play',
@@ -124,6 +90,9 @@ const games = [
     imageUrl: null,
     active: true,
   },
+
+  // ─── PG Soft ──────────────────────────────────────────────────────────────
+  // ATENÇÃO: usar m.pgsoft-games.com — public.pg-demo.com não funciona em WebView
   {
     title: 'Fortune Tiger',
     provider: 'PG Soft',
@@ -195,44 +164,23 @@ const games = [
     gameUrl: 'https://m.pgsoft-games.com/91/index.html?l=pt&ot=98&btt=2&from=https%3A%2F%2Fpgsoft.com&__refer=m.pgsoft-games.com&or=static.pgsoft-games.com',
     imageUrl: null,
     active: true,
+  },
 ];
 
 for (const game of games) {
-  await prisma.catalogItem.create({ data: game });
+  await prisma.catalogItem.upsert({
+    where: { title: game.title },
+    update: { gameUrl: game.gameUrl, active: game.active },
+    create: game,
+  });
 }
 ```
 
 ---
 
-## 3. Endpoint existente
+## Observações
 
-O `GET /catalog/` ja retorna `CatalogResponse` com os items. Basta garantir que `gameUrl` e `imageUrl` estejam incluidos na serializacao.
-
-Nenhum endpoint novo e necessario para demos estaticos.
-
----
-
-## 4. (Opcional) Endpoint de launch dinamico
-
-Se no futuro algum provedor exigir URL de sessao autenticada:
-
-```
-GET /catalog/:id/launch
-Authorization: Bearer {token}
-
-Response: { launchUrl: string }
-```
-
-Para demos estaticos, nao e necessario.
-
----
-
-## 5. Dominios permitidos (referencia para frontend)
-
-O frontend restringe navegação do WebView a estes domínios:
-
-- `demogamesfree.pragmaticplay.net`
-- `m.pgsoft-games.com`
-- `pgsoft-games.com`
-
-Novos provedores precisam ter seus domínios adicionados na blacklist do frontend.
+- **PG Soft**: o servidor `public.pg-demo.com` bloqueia carregamento em WebView nativa. Usar obrigatoriamente `m.pgsoft-games.com` com os query params completos conforme exemplo acima.
+- **`sections`**: o app filtra por `featured`, `popular` e `new` — um jogo pode estar em múltiplas seções.
+- **`accent`**: cor de fundo do card quando não há thumbnail. Manter os valores acima para consistência visual.
+- Se já existirem registros, usar `upsert` pelo campo `title` para evitar duplicatas.

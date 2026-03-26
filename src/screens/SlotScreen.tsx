@@ -413,7 +413,7 @@ export default function SlotScreen() {
   const crash = useCatalog(showCrashSection ? { category: 'crash', provider: activeProvider ?? undefined, limit: 20 } : { limit: 0 });
 
   const allProviders = useCatalog({ category: selectedCategory, limit: 100 });
-  const providers = [...new Set(allProviders.data.map(g => g.provider))];
+  const providers = [...new Set(allProviders.data.map(g => g.provider))].filter(p => p === 'Pragmatic Play' || p === 'PG Soft');
 
   function handleGamePress(game: CatalogItem) {
     if (!isAuthenticated) {

@@ -799,6 +799,20 @@ function StoriesBar() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [thumbs, setThumbs] = useState<Record<string, string>>({});
 
+  const groupedStories = React.useMemo(() => {
+    const groups: { title: string; items: StoryItem[] }[] = [];
+    stories.forEach(item => {
+      const prefix = item.title.split(' ')[0].toUpperCase();
+      const existing = groups.find(g => g.items[0].title.split(' ')[0].toUpperCase() === prefix);
+      if (existing) {
+        existing.items.push(item);
+      } else {
+        groups.push({ title: item.title, items: [item] });
+      }
+    });
+    return groups;
+  }, [stories]);
+
   async function generateThumbs(items: StoryItem[]) {
     const entries = await Promise.all(
       items.map(async (s) => {
@@ -874,35 +888,48 @@ function StoriesBar() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.storiesContainer}
       >
-        {stories.map((story, index) => (
-          <Pressable key={story.id} style={styles.storyItem} onPress={() => setActiveIndex(index)}>
-            <View
-              style={[
-                styles.storyRingOuter,
-                !story.viewed ? styles.storyRingActive : styles.storyRingInactive,
-              ]}
+        {groupedStories.map((group) => {
+          const firstItem = group.items[0];
+          const allViewed = group.items.every(s => s.viewed);
+          const firstUnviewed = group.items.findIndex(s => !s.viewed);
+          const startAt = firstUnviewed === -1 ? 0 : firstUnviewed;
+          // Find the flat index for this segment
+          const flatIndex = stories.findIndex(s => s.id === group.items[startAt].id);
+
+          return (
+            <Pressable 
+              key={group.title} 
+              style={styles.storyItem} 
+              onPress={() => setActiveIndex(flatIndex)}
             >
-              <View style={styles.storyRingGap}>
-                <View style={styles.storyCircle}>
-                  {thumbs[story.id] || story.thumbnailUrl ? (
-                    <Image source={{ uri: thumbs[story.id] ?? story.thumbnailUrl! }} style={styles.storyThumb} />
-                  ) : (
-                    <Text style={styles.storyInitial}>{story.title.charAt(0).toUpperCase()}</Text>
-                  )}
+              <View
+                style={[
+                  styles.storyRingOuter,
+                  !allViewed ? styles.storyRingActive : styles.storyRingInactive,
+                ]}
+              >
+                <View style={styles.storyRingGap}>
+                  <View style={styles.storyCircle}>
+                    {thumbs[firstItem.id] || firstItem.thumbnailUrl ? (
+                      <Image source={{ uri: thumbs[firstItem.id] ?? firstItem.thumbnailUrl! }} style={styles.storyThumb} />
+                    ) : (
+                      <Text style={styles.storyInitial}>{group.title.charAt(0).toUpperCase()}</Text>
+                    )}
+                  </View>
                 </View>
               </View>
-            </View>
-            <Text
-              style={[
-                styles.storyLabel,
-                !story.viewed ? styles.storyLabelActive : styles.storyLabelInactive,
-              ]}
-              numberOfLines={1}
-            >
-              {story.title}
-            </Text>
-          </Pressable>
-        ))}
+              <Text
+                style={[
+                  styles.storyLabel,
+                  !allViewed ? styles.storyLabelActive : styles.storyLabelInactive,
+                ]}
+                numberOfLines={1}
+              >
+                {group.title}
+              </Text>
+            </Pressable>
+          );
+        })}
       </ScrollView>
     </>
   );

@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import {
   Dimensions,
   FlatList,
@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -147,6 +148,29 @@ function PlayIcon() {
       <Path d="M19 15l16 9-16 9V15z" fill="white" />
     </Svg>
   );
+}
+
+function AnimatedLiveDot({ style }: { style?: any }) {
+  const anim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(anim, {
+          toValue: 0.3,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(anim, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [anim]);
+
+  return <Animated.View style={[style, { opacity: anim }]} />;
 }
 
 /* ─────────────── Header ─────────────── */
@@ -308,7 +332,7 @@ function LiveDealerSection({ onPress }: { onPress: () => void }) {
         />
         {/* AO VIVO badge */}
         <View style={styles.liveBadge}>
-          <View style={styles.liveDot} />
+          <AnimatedLiveDot style={styles.liveDot} />
           <Text style={styles.liveBadgeText}>AO VIVO</Text>
         </View>
         {/* Play button */}
@@ -328,6 +352,25 @@ function LiveDealerSection({ onPress }: { onPress: () => void }) {
 /* ─────────────── Top 10 ─────────────── */
 
 function Top5Section({ onPress }: { onPress: () => void }) {
+  const [games, setGames] = useState(TOP10_GAMES.slice(0, 5));
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGames((prevGames) =>
+        prevGames.map((game) => {
+          // Change players count by a random amount between -150 and +250
+          const change = Math.floor(Math.random() * 400) - 150;
+          let newPlayers = game.players + change;
+          // Ensure it doesn't drop too low or go way too high
+          if (newPlayers < 1000) newPlayers = 1000;
+          return { ...game, players: newPlayers };
+        })
+      );
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <View style={styles.section}>
       <SectionHeader title="Top 5" subtitle="Mais jogados agora" />
@@ -336,7 +379,7 @@ function Top5Section({ onPress }: { onPress: () => void }) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.top10Row}
       >
-        {TOP10_GAMES.slice(0, 5).map((game, index) => {
+        {games.map((game, index) => {
           const icon = GAME_ICON[game.name] ?? { emoji: '🎰', bg: '#1a3a6e' };
           
           // Mapeando imagens geradas 3D para o Top 10
@@ -370,7 +413,7 @@ function Top5Section({ onPress }: { onPress: () => void }) {
                 )}
                 {/* Live indicator overlay */}
                 <View style={styles.top10LiveBadge}>
-                  <View style={styles.top10LiveDot} />
+                  <AnimatedLiveDot style={styles.top10LiveDot} />
                   <Text style={styles.top10LiveText}>AO VIVO</Text>
                 </View>
               </View>
@@ -472,7 +515,7 @@ function GamesByCategory({ onPress }: { onPress: () => void }) {
                   )}
                   {/* Live tag bottom */}
                   <View style={styles.gameLiveTag}>
-                    <View style={styles.gameLiveDot} />
+                    <AnimatedLiveDot style={styles.gameLiveDot} />
                     <Text style={styles.gameLiveTagText}>AO VIVO</Text>
                   </View>
                 </View>
@@ -513,7 +556,7 @@ function SectionHeader({
           <Text style={styles.sectionTitle}>{title}</Text>
           {badge && (
             <View style={styles.liveBadgeSmall}>
-              <View style={styles.liveDotSmall} />
+              <AnimatedLiveDot style={styles.liveDotSmall} />
               <Text style={styles.liveBadgeSmallText}>{badge}</Text>
             </View>
           )}

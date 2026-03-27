@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { useCatalog } from '../hooks/useCatalog';
 import { CatalogItem } from '../services/api';
 import { useNavigation } from '@react-navigation/native';
@@ -15,6 +15,9 @@ import {
   StyleSheet,
   Text,
   View,
+  LayoutAnimation,
+  UIManager,
+  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -22,6 +25,42 @@ import Svg, { Circle, Line } from 'react-native-svg';
 import { colors } from '../theme';
 import Logotipo from '../../assets/logotipo.svg';
 import { useAuth } from '../context/AuthContext';
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+const WIN_COLS = {
+  col1: 140,
+  col2: 80,
+  col3: 50,
+  col4: 80,
+  col5: 50,
+  col6: 100,
+};
+
+function generateWin() {
+  const games = ['Starlight Princess', 'Gates of Olympus', 'Sweet Bonanza', 'Sugar Rush', 'Aviator', 'Mines'];
+  const users = ['Anônimo', 'joao***', 'maria***', 'carlos***', 'lucas***', 'ana***', 'victor***'];
+  const game = games[Math.floor(Math.random() * games.length)];
+  const user = users[Math.floor(Math.random() * users.length)];
+  const betVal = (Math.random() * 50 + 1).toFixed(2);
+  const multVal = Math.floor(Math.random() * 50) + 2;
+  const winVal = (parseFloat(betVal) * multVal).toFixed(2);
+  
+  const now = new Date();
+  const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+  return {
+    id: Math.random().toString(36).substring(7),
+    game,
+    user,
+    time,
+    bet: `R$ ${betVal.replace('.', ',')}`,
+    mult: `${multVal}x`,
+    win: `R$ ${winVal.replace('.', ',')}`,
+  };
+}
 
 /* ───────────────────── Constantes ───────────────────── */
 
@@ -396,6 +435,70 @@ function ProvidersSection({
   );
 }
 
+/** Tabela de Últimos Ganhos */
+function RecentWins() {
+  const [wins, setWins] = useState(() => 
+    Array.from({ length: 5 }).map(() => generateWin())
+  );
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setWins(prev => [generateWin(), ...prev.slice(0, 4)]);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <View style={styles.recentWinsContainer}>
+      <View style={styles.recentWinsHeader}>
+        <View style={styles.recentWinsTitleRow}>
+          <Text style={styles.recentWinsStar}>★</Text>
+          <Text style={styles.recentWinsTitle}>Últimos ganhos</Text>
+        </View>
+        <View style={styles.recentWinsLiveBadge}>
+          <View style={styles.recentWinsLiveDot} />
+          <Text style={styles.recentWinsLiveText}>AO VIVO</Text>
+        </View>
+      </View>
+
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recentWinsScroll}>
+        <View style={styles.recentWinsTable}>
+          {/* Header Row */}
+          <View style={[styles.recentWinsRow, styles.recentWinsTableHeader]}>
+            <Text style={[styles.recentWinsCellText, styles.recentWinsCol1]}>Jogo</Text>
+            <Text style={[styles.recentWinsCellText, styles.recentWinsCol2]}>Usuário</Text>
+            <Text style={[styles.recentWinsCellText, styles.recentWinsCol3]}>Hora</Text>
+            <Text style={[styles.recentWinsCellText, styles.recentWinsCol4]}>Aposta</Text>
+            <Text style={[styles.recentWinsCellText, styles.recentWinsCol5]}>Mult</Text>
+            <Text style={[styles.recentWinsCellText, styles.recentWinsCol6]}>Valor ganho</Text>
+          </View>
+
+          {/* Data Rows */}
+          {wins.map((item, index) => (
+            <View key={item.id} style={[
+              styles.recentWinsRow, 
+              index % 2 === 0 ? styles.recentWinsRowEven : styles.recentWinsRowOdd,
+              index === 0 && styles.recentWinsRowHighlight
+            ]}>
+              <View style={[styles.recentWinsCol1, styles.recentWinsGameCol]}>
+                <View style={styles.recentWinsGameIcon} />
+                <Text style={styles.recentWinsCellDataText} numberOfLines={1}>{item.game}</Text>
+              </View>
+              <Text style={[styles.recentWinsCellDataText, styles.recentWinsCol2]} numberOfLines={1}>{item.user}</Text>
+              <Text style={[styles.recentWinsCellDataText, styles.recentWinsCol3]}>{item.time}</Text>
+              <Text style={[styles.recentWinsCellDataText, styles.recentWinsCol4]}>{item.bet}</Text>
+              <Text style={[styles.recentWinsCellDataText, styles.recentWinsCol5, { color: colors.secondary }]}>{item.mult}</Text>
+              <Text style={[styles.recentWinsCellDataText, styles.recentWinsCol6, { color: colors.secondary, fontWeight: '700' }]}>{item.win}</Text>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
 /* ───────────────────── Tela principal ───────────────────── */
 
 export default function SlotScreen() {
@@ -439,6 +542,7 @@ export default function SlotScreen() {
         <Header />
         <PromoBanner />
         <CategoryPills active={activeCategory} onChange={handleCategoryChange} />
+        <RecentWins />
         <GameSection
           title="Mais Jogados"
           games={popular.data}
@@ -934,4 +1038,112 @@ const styles = StyleSheet.create({
   providerTextActive: {
     color: colors.primaryDark,
   },
+  
+  /* ── Recent Wins ── */
+  recentWinsContainer: {
+    marginHorizontal: 16,
+    marginTop: 24,
+    backgroundColor: '#1E2536',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+    overflow: 'hidden',
+  },
+  recentWinsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 12,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.05)',
+  },
+  recentWinsTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  recentWinsStar: {
+    color: colors.grey,
+    fontSize: 14,
+  },
+  recentWinsTitle: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  recentWinsLiveBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 6,
+  },
+  recentWinsLiveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#E63946',
+  },
+  recentWinsLiveText: {
+    color: colors.white,
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  recentWinsScroll: {
+    width: '100%',
+  },
+  recentWinsTable: {
+    minWidth: 500,
+  },
+  recentWinsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  recentWinsTableHeader: {
+    backgroundColor: 'rgba(255,255,255,0.02)',
+  },
+  recentWinsRowEven: {
+    backgroundColor: 'rgba(255,255,255,0.01)',
+  },
+  recentWinsRowOdd: {
+    backgroundColor: 'transparent',
+  },
+  recentWinsRowHighlight: {
+    borderColor: '#3A86FF',
+    backgroundColor: 'rgba(58,134,255,0.15)',
+  },
+  recentWinsCellText: {
+    color: colors.grey,
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  recentWinsCellDataText: {
+    color: colors.white,
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  recentWinsGameCol: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  recentWinsGameIcon: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
+  recentWinsCol1: { width: WIN_COLS.col1 },
+  recentWinsCol2: { width: WIN_COLS.col2 },
+  recentWinsCol3: { width: WIN_COLS.col3 },
+  recentWinsCol4: { width: WIN_COLS.col4 },
+  recentWinsCol5: { width: WIN_COLS.col5 },
+  recentWinsCol6: { width: WIN_COLS.col6 },
 });

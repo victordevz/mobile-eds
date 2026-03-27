@@ -228,6 +228,89 @@ const POPULARES_MATCHES: MegaCotacaoMatch[] = [
   { id: 'p4', date: 'Amanhã', time: '17:30', homeTeam: 'Bragantino', HomeIcon: BragatinoIcon, awayTeam: 'Palmeiras', AwayIcon: PalmeirasIcon, league: 'Brasileirão', odd: 3.10 },
 ];
 
+const LIVE_MATCHES = [
+  {
+    id: 'l1',
+    league: 'Brasileirão',
+    isLive: true,
+    minute: "90'4",
+    homeTeam: 'Bragantino',
+    awayTeam: 'Botafogo',
+    homeScore: 1,
+    awayScore: 1,
+    HomeIcon: BragatinoIcon,
+    AwayIcon: BotafogoIcon,
+    odds: [
+      { key: 'home', label: 'Bragantino', percentage: 60, odd: 1.50 },
+      { key: 'draw', label: 'Empate', percentage: 10, odd: 3.30 },
+      { key: 'away', label: 'Botafogo', percentage: 30, odd: 2.20 },
+    ],
+    suggestionTeam: 'Botafogo',
+    suggestionDetail: 'vence + 2 gols',
+    defaultSelected: 'draw',
+  },
+  {
+    id: 'l2',
+    league: 'La Liga',
+    isLive: true,
+    minute: "32'2",
+    homeTeam: 'Barcelona',
+    awayTeam: 'Real Madrid',
+    homeScore: 0,
+    awayScore: 2,
+    HomeIcon: BarcelonaIcon,
+    AwayIcon: RealMadridIcon,
+    odds: [
+      { key: 'home', label: 'Barcelona', percentage: 20, odd: 4.50 },
+      { key: 'draw', label: 'Empate', percentage: 15, odd: 3.80 },
+      { key: 'away', label: 'Real Madrid', percentage: 65, odd: 1.45 },
+    ],
+    suggestionTeam: 'Real Madrid',
+    suggestionDetail: 'vence + 1 gol',
+    defaultSelected: 'away',
+  },
+  {
+    id: 'l3',
+    league: 'Brasileirão',
+    isLive: true,
+    minute: "15'0",
+    homeTeam: 'Flamengo',
+    awayTeam: 'Vasco',
+    homeScore: 0,
+    awayScore: 0,
+    HomeIcon: FlamengoIcon,
+    AwayIcon: VascoIcon,
+    odds: [
+      { key: 'home', label: 'Flamengo', percentage: 55, odd: 1.80 },
+      { key: 'draw', label: 'Empate', percentage: 25, odd: 3.20 },
+      { key: 'away', label: 'Vasco', percentage: 20, odd: 4.20 },
+    ],
+    suggestionTeam: 'Flamengo',
+    suggestionDetail: 'vence o 1º tempo',
+    defaultSelected: 'home',
+  },
+  {
+    id: 'l4',
+    league: 'Amistoso',
+    isLive: true,
+    minute: "76'5",
+    homeTeam: 'Bayer',
+    awayTeam: 'Fluminense',
+    homeScore: 3,
+    awayScore: 1,
+    HomeIcon: BayerIcon,
+    AwayIcon: FluminenseIcon,
+    odds: [
+      { key: 'home', label: 'Bayer', percentage: 80, odd: 1.20 },
+      { key: 'draw', label: 'Empate', percentage: 12, odd: 4.80 },
+      { key: 'away', label: 'Fluminense', percentage: 8, odd: 9.00 },
+    ],
+    suggestionTeam: 'Bayer',
+    suggestionDetail: 'mais de 3.5 gols',
+    defaultSelected: 'home',
+  }
+];
+
 /* ───────────────────── Componentes auxiliares ──────────── */
 
 /** Componente padronizado para ícones de times */
@@ -891,6 +974,15 @@ export default function FutebolScreen() {
 
   const [betSlip, setBetSlip] = useState<BetSlipData | null>(null);
   const [betAmount, setBetAmount] = useState('');
+  const [activeLiveIndex, setActiveLiveIndex] = useState(0);
+
+  const onLiveScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const idx = Math.round(e.nativeEvent.contentOffset.x / SCREEN_W);
+      setActiveLiveIndex(idx);
+    },
+    [],
+  );
 
   function openBetSlip(data: BetSlipData) {
     if (!isAuthenticated) {
@@ -956,14 +1048,53 @@ export default function FutebolScreen() {
           <View style={styles.sectionTitleBar} />
           <Text style={styles.sectionTitle}>Ao Vivo</Text>
         </View>
-        <LiveMatchCard
-          onBetPress={() => openBetSlip({
-            matchLabel: 'Bragantino vs Botafogo',
-            oddLabel: 'Empate',
-            oddValue: 3.30,
-            league: 'Brasileirão',
-          })}
-        />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.liveScrollContainer}
+          snapToInterval={SCREEN_W}
+          decelerationRate="fast"
+          onScroll={onLiveScroll}
+          scrollEventThrottle={16}
+        >
+          {LIVE_MATCHES.map((match) => (
+            <LiveMatchCard
+              key={match.id}
+              style={styles.liveMatchCardWidth}
+              data={{
+                league: match.league,
+                isLive: match.isLive,
+                minute: match.minute,
+                homeScore: match.homeScore,
+                awayScore: match.awayScore,
+                homeIcon: <match.HomeIcon width={52} height={52} />,
+                awayIcon: <match.AwayIcon width={52} height={52} />,
+                odds: match.odds,
+                suggestionTeam: match.suggestionTeam,
+                suggestionDetail: match.suggestionDetail,
+                defaultSelected: match.defaultSelected,
+              }}
+              onBetPress={() => openBetSlip({
+                matchLabel: `${match.homeTeam} vs ${match.awayTeam}`,
+                oddLabel: match.odds.find(o => o.key === match.defaultSelected)?.label || 'Empate',
+                oddValue: match.odds.find(o => o.key === match.defaultSelected)?.odd || 1.00,
+                league: match.league,
+              })}
+            />
+          ))}
+        </ScrollView>
+
+        <View style={styles.liveDots}>
+          {LIVE_MATCHES.map((_, i) => (
+            <View
+              key={i}
+              style={[
+                styles.dot,
+                i === activeLiveIndex ? styles.dotActive : styles.dotInactive,
+              ]}
+            />
+          ))}
+        </View>
         <MegaCotacaoSection onPress={openBetSlip} />
         <PopularesSection onPress={openBetSlip} />
       </ScrollView>
@@ -1537,6 +1668,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  liveScrollContainer: {
+    paddingBottom: 12,
+  },
+  liveMatchCardWidth: {
+    width: SCREEN_W,
+    marginTop: 0, // Overriding the default 20
+  },
+  liveDots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: -8,
+    marginBottom: 8,
+    gap: 6,
+  },
   /* ── Populares ── */
   popHeader: {
     flexDirection: 'row',

@@ -33,14 +33,20 @@ import LiveMatchCard from '../components/LiveMatchCard';
 import { useAuth } from '../context/AuthContext';
 import { storiesApi, StoryItem } from '../services/api';
 
-/* ───────────────────── Types ───────────────────── */
-
-interface BetSlipData {
-  matchLabel: string;   // e.g. "Flamengo vs Palmeiras"
-  oddLabel: string;     // e.g. "Flamengo"
-  oddValue: number;     // e.g. 4.20
-  league: string;
-}
+import AlemanhaIcon from '../../assets/alemanha.svg';
+import BarcelonaIcon from '../../assets/barcelona.svg';
+import BayerIcon from '../../assets/bayer.svg';
+import BotafogoIcon from '../../assets/botafogo.svg';
+import BragatinoIcon from '../../assets/bragatino.svg';
+import BrasilIcon from '../../assets/brasil.svg';
+import CorinthiasIcon from '../../assets/corinthias.svg';
+import EspanhaIcon from '../../assets/espanha.svg';
+import FlamengoIcon from '../../assets/flamengo.svg';
+import FluminenseIcon from '../../assets/fluminense.svg';
+import InglaterraIcon from '../../assets/inglaterra.svg';
+import PalmeirasIcon from '../../assets/palmeiras.svg';
+import RealMadridIcon from '../../assets/realmadrid.svg';
+import VascoIcon from '../../assets/vasco.svg';
 
 /* ───────────────────── Constantes ───────────────────── */
 
@@ -51,11 +57,11 @@ const BANNER_H = 160;
 /* ───────────────────── Dados mock ───────────────────── */
 
 const STORIES_FALLBACK: StoryItem[] = [
-  { id: 's1', title: '1 MILHÃO',      videoUrl: '', thumbnailUrl: null, order: 1, active: true,  createdAt: '', viewed: false },
-  { id: 's2', title: 'COTAÇÕES',      videoUrl: '', thumbnailUrl: null, order: 2, active: true,  createdAt: '', viewed: false },
-  { id: 's3', title: 'PRÊMIOS',       videoUrl: '', thumbnailUrl: null, order: 3, active: false, createdAt: '', viewed: false },
-  { id: 's4', title: 'CASHBACK',      videoUrl: '', thumbnailUrl: null, order: 4, active: false, createdAt: '', viewed: false },
-  { id: 's5', title: 'GRÁTIS',        videoUrl: '', thumbnailUrl: null, order: 5, active: false, createdAt: '', viewed: false },
+  { id: 's1', title: '1 MILHÃO', videoUrl: '', thumbnailUrl: null, order: 1, active: true, createdAt: '', viewed: false },
+  { id: 's2', title: 'COTAÇÕES', videoUrl: '', thumbnailUrl: null, order: 2, active: true, createdAt: '', viewed: false },
+  { id: 's3', title: 'PRÊMIOS', videoUrl: '', thumbnailUrl: null, order: 3, active: false, createdAt: '', viewed: false },
+  { id: 's4', title: 'CASHBACK', videoUrl: '', thumbnailUrl: null, order: 4, active: false, createdAt: '', viewed: false },
+  { id: 's5', title: 'GRÁTIS', videoUrl: '', thumbnailUrl: null, order: 5, active: false, createdAt: '', viewed: false },
 ];
 
 const BANNERS = [
@@ -110,29 +116,29 @@ interface MegaCotacaoMatch {
   date: string;
   time: string;
   homeTeam: string;
-  homeEmoji: string;
+  HomeIcon: React.FC<{ width?: number; height?: number }>;
   awayTeam: string;
-  awayEmoji: string;
+  AwayIcon: React.FC<{ width?: number; height?: number }>;
   league: string;
   odd: number;
 }
 
 const MEGA_COTACAO: MegaCotacaoMatch[] = [
-  { id: 'm1', date: 'Hoje',   time: '15:30', homeTeam: 'Flamengo',   homeEmoji: '🔴', awayTeam: 'Palmeiras',  awayEmoji: '🟢', league: 'Brasileirão',     odd: 4.20 },
-  { id: 'm2', date: 'Hoje',   time: '18:00', homeTeam: 'Barcelona',  homeEmoji: '🔵', awayTeam: 'Real Madrid', awayEmoji: '⚪', league: 'La Liga',         odd: 3.80 },
-  { id: 'm3', date: 'Amanhã', time: '20:45', homeTeam: 'PSG',        homeEmoji: '🔷', awayTeam: 'Man City',   awayEmoji: '🩵', league: 'Champions League', odd: 5.50 },
-  { id: 'm4', date: 'Amanhã', time: '22:00', homeTeam: 'Brasil',     homeEmoji: '🇧🇷', awayTeam: 'Argentina',  awayEmoji: '🇦🇷', league: 'Copa América',    odd: 2.90 },
+  { id: 'm1', date: 'Hoje', time: '15:30', homeTeam: 'Flamengo', HomeIcon: FlamengoIcon, awayTeam: 'Palmeiras', AwayIcon: PalmeirasIcon, league: 'Brasileirão', odd: 4.20 },
+  { id: 'm2', date: 'Hoje', time: '18:00', homeTeam: 'Barcelona', HomeIcon: BarcelonaIcon, awayTeam: 'Real Madrid', AwayIcon: RealMadridIcon, league: 'La Liga', odd: 3.80 },
+  { id: 'm3', date: 'Amanhã', time: '20:45', homeTeam: 'Alemanha', HomeIcon: AlemanhaIcon, awayTeam: 'Inglaterra', AwayIcon: InglaterraIcon, league: 'Amistoso Internacional', odd: 5.50 },
+  { id: 'm4', date: 'Amanhã', time: '22:00', homeTeam: 'Brasil', HomeIcon: BrasilIcon, awayTeam: 'Espanha', AwayIcon: EspanhaIcon, league: 'Copa do Mundo', odd: 2.90 },
 ];
 
 const CHAMPIONSHIPS: Championship[] = [
-  { id: 'c1', label: 'Copa do\nNordeste',  emoji: '🏆' },
-  { id: 'c2', label: 'Brasileirão',         emoji: '🇧🇷' },
-  { id: 'c3', label: 'Copa do\nBrasil',     emoji: '🏅' },
-  { id: 'c4', label: 'Libertadores',        emoji: '⭐' },
-  { id: 'c5', label: 'Champions\nLeague',   emoji: '🌟' },
-  { id: 'c6', label: 'Premier\nLeague',     emoji: '🦁' },
-  { id: 'c7', label: 'La Liga',             emoji: '🔴' },
-  { id: 'c8', label: 'Serie A',             emoji: '🇮🇹' },
+  { id: 'c1', label: 'Copa do\nNordeste', emoji: '🏆' },
+  { id: 'c2', label: 'Brasileirão', emoji: '🇧🇷' },
+  { id: 'c3', label: 'Copa do\nBrasil', emoji: '🏅' },
+  { id: 'c4', label: 'Libertadores', emoji: '⭐' },
+  { id: 'c5', label: 'Champions\nLeague', emoji: '🌟' },
+  { id: 'c6', label: 'Premier\nLeague', emoji: '🦁' },
+  { id: 'c7', label: 'La Liga', emoji: '🔴' },
+  { id: 'c8', label: 'Serie A', emoji: '🇮🇹' },
 ];
 
 interface SportCategory {
@@ -195,24 +201,24 @@ function ControllerIcon({ size = 16, color = '#fff' }: { size?: number; color?: 
 }
 
 const SPORT_CATEGORIES: SportCategory[] = [
-  { id: 'sp1', label: 'Futebol',  Icon: SoccerIcon },
-  { id: 'sp2', label: 'Tênis',    Icon: TennisIcon },
+  { id: 'sp1', label: 'Futebol', Icon: SoccerIcon },
+  { id: 'sp2', label: 'Tênis', Icon: TennisIcon },
   { id: 'sp3', label: 'Basquete', Icon: BasketballIcon },
-  { id: 'sp4', label: 'MMA',      Icon: GloveIcon },
+  { id: 'sp4', label: 'MMA', Icon: GloveIcon },
   { id: 'sp5', label: 'E-Sports', Icon: ControllerIcon },
 ];
 
 const POPULARES_MATCHES: MegaCotacaoMatch[] = [
-  { id: 'p1', date: 'Hoje',   time: '16:00', homeTeam: 'Botafogo',   homeEmoji: '⭐', awayTeam: 'Vasco',      awayEmoji: '⚫', league: 'Brasileirão',       odd: 2.10 },
-  { id: 'p2', date: 'Hoje',   time: '19:00', homeTeam: 'São Paulo', homeEmoji: '🔴', awayTeam: 'Corinthians', awayEmoji: '⚪', league: 'Brasileirão',       odd: 3.50 },
-  { id: 'p3', date: 'Amanhã', time: '21:00', homeTeam: 'Man Utd',   homeEmoji: '🔴', awayTeam: 'Arsenal',    awayEmoji: '🔴', league: 'Premier League',     odd: 2.80 },
-  { id: 'p4', date: 'Amanhã', time: '17:30', homeTeam: 'Juve',      homeEmoji: '⚫', awayTeam: 'Inter',      awayEmoji: '🐍', league: 'Serie A',            odd: 3.10 },
+  { id: 'p1', date: 'Hoje', time: '16:00', homeTeam: 'Botafogo', HomeIcon: BotafogoIcon, awayTeam: 'Vasco', AwayIcon: VascoIcon, league: 'Brasileirão', odd: 2.10 },
+  { id: 'p2', date: 'Hoje', time: '19:00', homeTeam: 'Fluminense', HomeIcon: FluminenseIcon, awayTeam: 'Corinthians', AwayIcon: CorinthiasIcon, league: 'Brasileirão', odd: 3.50 },
+  { id: 'p3', date: 'Amanhã', time: '21:00', homeTeam: 'Bayer', HomeIcon: BayerIcon, awayTeam: 'Barcelona', AwayIcon: BarcelonaIcon, league: 'Champions League', odd: 2.80 },
+  { id: 'p4', date: 'Amanhã', time: '17:30', homeTeam: 'Bragantino', HomeIcon: BragatinoIcon, awayTeam: 'Palmeiras', AwayIcon: PalmeirasIcon, league: 'Brasileirão', odd: 3.10 },
 ];
 
 /* ───────────────────── Componentes auxiliares ──────────── */
 
 /** Seção Mega Cotação */
-  function MegaCotacaoSection({ onPress }: { onPress: (data: BetSlipData) => void }) {
+function MegaCotacaoSection({ onPress }: { onPress: (data: BetSlipData) => void }) {
   return (
     <>
       <View style={styles.sectionHeader}>
@@ -226,11 +232,11 @@ const POPULARES_MATCHES: MegaCotacaoMatch[] = [
       >
         {MEGA_COTACAO.map((match) => (
           <Pressable key={match.id} style={styles.megaCard} onPress={() => onPress({
-              matchLabel: `${match.homeTeam} vs ${match.awayTeam}`,
-              oddLabel: match.homeTeam,
-              oddValue: match.odd,
-              league: match.league,
-            })}>
+            matchLabel: `${match.homeTeam} vs ${match.awayTeam}`,
+            oddLabel: match.homeTeam,
+            oddValue: match.odd,
+            league: match.league,
+          })}>
             <View style={styles.megaDateRow}>
               <View style={styles.megaAccentBar} />
               <Text style={styles.megaDate}>{match.date}</Text>
@@ -238,12 +244,16 @@ const POPULARES_MATCHES: MegaCotacaoMatch[] = [
             </View>
             <View style={styles.megaMatchArea}>
               <View style={styles.megaTeam}>
-                <Text style={styles.megaEmoji}>{match.homeEmoji}</Text>
+                <View style={styles.teamIconBox}>
+                  <match.HomeIcon width={40} height={40} />
+                </View>
                 <Text style={styles.megaTeamName} numberOfLines={1}>{match.homeTeam}</Text>
               </View>
               <Text style={styles.megaVs}>VS</Text>
               <View style={styles.megaTeam}>
-                <Text style={styles.megaEmoji}>{match.awayEmoji}</Text>
+                <View style={styles.teamIconBox}>
+                  <match.AwayIcon width={40} height={40} />
+                </View>
                 <Text style={styles.megaTeamName} numberOfLines={1}>{match.awayTeam}</Text>
               </View>
             </View>
@@ -323,11 +333,11 @@ function PopularesSection({ onPress }: { onPress: (data: BetSlipData) => void })
       >
         {POPULARES_MATCHES.map((match) => (
           <Pressable key={match.id} style={styles.megaCard} onPress={() => onPress({
-              matchLabel: `${match.homeTeam} vs ${match.awayTeam}`,
-              oddLabel: match.homeTeam,
-              oddValue: match.odd,
-              league: match.league,
-            })}>
+            matchLabel: `${match.homeTeam} vs ${match.awayTeam}`,
+            oddLabel: match.homeTeam,
+            oddValue: match.odd,
+            league: match.league,
+          })}>
             <View style={styles.megaDateRow}>
               <View style={styles.megaAccentBar} />
               <Text style={styles.megaDate}>{match.date}</Text>
@@ -335,12 +345,12 @@ function PopularesSection({ onPress }: { onPress: (data: BetSlipData) => void })
             </View>
             <View style={styles.megaMatchArea}>
               <View style={styles.megaTeam}>
-                <Text style={styles.megaEmoji}>{match.homeEmoji}</Text>
+                <match.HomeIcon width={40} height={40} />
                 <Text style={styles.megaTeamName} numberOfLines={1}>{match.homeTeam}</Text>
               </View>
               <Text style={styles.megaVs}>VS</Text>
               <View style={styles.megaTeam}>
-                <Text style={styles.megaEmoji}>{match.awayEmoji}</Text>
+                <match.AwayIcon width={40} height={40} />
                 <Text style={styles.megaTeamName} numberOfLines={1}>{match.awayTeam}</Text>
               </View>
             </View>
@@ -680,13 +690,13 @@ function StoriesBar() {
             generateThumbs(data);
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     }, [isAuthenticated, token]),
   );
 
   function handleViewed(id: string) {
     if (!token) return;
-    storiesApi.markViewed(id, token).catch(() => {});
+    storiesApi.markViewed(id, token).catch(() => { });
     setStories(prev => prev.map(s => (s.id === id ? { ...s, viewed: true } : s)));
   }
 

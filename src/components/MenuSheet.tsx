@@ -167,7 +167,7 @@ export default function MenuSheet() {
       return;
     }
     setTimeout(() => {
-      navigateToTab('Historico');
+      navigateTo('Historico');
     }, 320);
   }
 

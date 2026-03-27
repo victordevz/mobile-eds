@@ -14,7 +14,7 @@ import ChatScreen from './src/screens/ChatScreen';
 import RoletaStack from './src/navigation/stacks/RoletaStack';
 import SlotStack from './src/navigation/stacks/SlotStack';
 import FutebolStack from './src/navigation/stacks/FutebolStack';
-import HistoricoStack from './src/navigation/stacks/HistoricoStack';
+import HistoricoScreen from './src/screens/HistoricoScreen';
 import { navigationRef } from './src/navigation/navigationRef';
 import { colors } from './src/theme';
 
@@ -31,7 +31,6 @@ function MainTabs() {
       <Tab.Screen name="Roleta" component={RoletaStack} />
       <Tab.Screen name="Futebol" component={FutebolStack} />
       <Tab.Screen name="Slot" component={SlotStack} />
-      <Tab.Screen name="Historico" component={HistoricoStack} />
     </Tab.Navigator>
   );
 }
@@ -49,6 +48,17 @@ export default function App() {
               options={{
                 headerShown: true,
                 title: 'Suporte',
+                headerStyle: { backgroundColor: colors.primary },
+                headerTintColor: colors.white,
+                headerTitleStyle: { fontWeight: 'bold' },
+              }}
+            />
+            <Root.Screen
+              name="Historico"
+              component={HistoricoScreen}
+              options={{
+                headerShown: true,
+                title: 'Histórico',
                 headerStyle: { backgroundColor: colors.primary },
                 headerTintColor: colors.white,
                 headerTitleStyle: { fontWeight: 'bold' },

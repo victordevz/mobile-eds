@@ -4,7 +4,6 @@ import { SvgProps } from 'react-native-svg';
 import RoletaIcon from '../../assets/roleta.svg';
 import SlotIcon from '../../assets/slot.svg';
 import FutebolIcon from '../../assets/futebol.svg';
-import HistoricoIcon from '../../assets/historico.svg';
 
 export interface TabItem {
   routeName: string;
@@ -17,5 +16,4 @@ export const tabConfig: TabItem[] = [
   { routeName: 'Roleta', label: 'CASSINO', showLabel: true, icon: RoletaIcon },
   { routeName: 'Futebol', label: 'ESPORTES', showLabel: true, icon: FutebolIcon },
   { routeName: 'Slot', label: 'SLOT', showLabel: true, icon: SlotIcon },
-  { routeName: 'Historico', label: 'HISTÓRICO', showLabel: true, icon: HistoricoIcon },
 ];

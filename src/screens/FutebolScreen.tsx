@@ -55,6 +55,14 @@ import PalmeirasIcon from '../../assets/palmeiras.svg';
 import RealMadridIcon from '../../assets/realmadrid.svg';
 import VascoIcon from '../../assets/vasco.svg';
 
+function Fighter1Icon({ width = 48, height = 48 }: { width?: number; height?: number }) {
+  return <Image source={require('../../assets/fighter_one.png')} style={{ width: width * 0.8, height: height * 0.8, borderRadius: (width * 0.8) / 2 }} />;
+}
+
+function Fighter2Icon({ width = 48, height = 48 }: { width?: number; height?: number }) {
+  return <Image source={require('../../assets/fighter_two.png')} style={{ width: width * 0.8, height: height * 0.8, borderRadius: (width * 0.8) / 2 }} />;
+}
+
 /* ───────────────────── Constantes ───────────────────── */
 
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -129,13 +137,22 @@ interface MegaCotacaoMatch {
   AwayIcon: React.FC<{ width?: number; height?: number }>;
   league: string;
   odd: number;
+  sportId: string;
 }
 
 const MEGA_COTACAO: MegaCotacaoMatch[] = [
-  { id: 'm1', date: 'Hoje', time: '15:30', homeTeam: 'Flamengo', HomeIcon: FlamengoIcon, awayTeam: 'Palmeiras', AwayIcon: PalmeirasIcon, league: 'Brasileirão', odd: 4.20 },
-  { id: 'm2', date: 'Hoje', time: '18:00', homeTeam: 'Barcelona', HomeIcon: BarcelonaIcon, awayTeam: 'Real Madrid', AwayIcon: RealMadridIcon, league: 'La Liga', odd: 3.80 },
-  { id: 'm3', date: 'Amanhã', time: '20:45', homeTeam: 'Alemanha', HomeIcon: AlemanhaIcon, awayTeam: 'Inglaterra', AwayIcon: InglaterraIcon, league: 'Amistoso Internacional', odd: 5.50 },
-  { id: 'm4', date: 'Amanhã', time: '22:00', homeTeam: 'Brasil', HomeIcon: BrasilIcon, awayTeam: 'Espanha', AwayIcon: EspanhaIcon, league: 'Copa do Mundo', odd: 2.90 },
+  { id: 'm1', date: 'Hoje', time: '15:30', homeTeam: 'Flamengo', HomeIcon: FlamengoIcon, awayTeam: 'Palmeiras', AwayIcon: PalmeirasIcon, league: 'Brasileirão', odd: 4.20, sportId: 'sp1' },
+  { id: 'm2', date: 'Hoje', time: '18:00', homeTeam: 'Barcelona', HomeIcon: BarcelonaIcon, awayTeam: 'Real Madrid', AwayIcon: RealMadridIcon, league: 'La Liga', odd: 3.80, sportId: 'sp1' },
+  { id: 'm3', date: 'Amanhã', time: '20:45', homeTeam: 'Alemanha', HomeIcon: AlemanhaIcon, awayTeam: 'Inglaterra', AwayIcon: InglaterraIcon, league: 'Amistoso Internacional', odd: 5.50, sportId: 'sp1' },
+  { id: 'm4', date: 'Amanhã', time: '22:00', homeTeam: 'Brasil', HomeIcon: BrasilIcon, awayTeam: 'Espanha', AwayIcon: EspanhaIcon, league: 'Copa do Mundo', odd: 2.90, sportId: 'sp1' },
+  { id: 'm5', date: 'Hoje', time: '14:00', homeTeam: 'Alcaraz', HomeIcon: AlemanhaIcon, awayTeam: 'Djokovic', AwayIcon: EspanhaIcon, league: 'Wimbledon', odd: 1.85, sportId: 'sp2' },
+  { id: 'm6', date: 'Hoje', time: '16:00', homeTeam: 'Nadal', HomeIcon: FluminenseIcon, awayTeam: 'Ruud', AwayIcon: BarcelonaIcon, league: 'Roland Garros', odd: 3.10, sportId: 'sp2' },
+  { id: 'm7', date: 'Amanhã', time: '21:30', homeTeam: 'Lakers', HomeIcon: BrasilIcon, awayTeam: 'Warriors', AwayIcon: AlemanhaIcon, league: 'NBA', odd: 2.10, sportId: 'sp3' },
+  { id: 'm8', date: 'Hoje', time: '19:00', homeTeam: 'Bucks', HomeIcon: PalmeirasIcon, awayTeam: 'Nets', AwayIcon: CorinthiasIcon, league: 'NBA', odd: 1.90, sportId: 'sp3' },
+  { id: 'm9', date: 'Hoje', time: '23:00', homeTeam: 'Pereira', HomeIcon: Fighter1Icon, awayTeam: 'Hill', AwayIcon: Fighter2Icon, league: 'UFC 300', odd: 1.70, sportId: 'sp4' },
+  { id: 'm10', date: 'Amanhã', time: '22:00', homeTeam: 'Oliveira', HomeIcon: Fighter2Icon, awayTeam: 'Makhachev', AwayIcon: Fighter1Icon, league: 'UFC 294', odd: 2.80, sportId: 'sp4' },
+  { id: 'm11', date: 'Hoje', time: '19:00', homeTeam: 'G2', HomeIcon: EspanhaIcon, awayTeam: 'FaZe', AwayIcon: AlemanhaIcon, league: 'PGL Major', odd: 2.40, sportId: 'sp5' },
+  { id: 'm12', date: 'Hoje', time: '21:00', homeTeam: 'NAVI', HomeIcon: BrasilIcon, awayTeam: 'Vitality', AwayIcon: InglaterraIcon, league: 'IEM Katowice', odd: 1.95, sportId: 'sp5' },
 ];
 
 const CHAMPIONSHIPS: Championship[] = [
@@ -252,10 +269,23 @@ const SPORT_CATEGORIES: SportCategory[] = [
 ];
 
 const POPULARES_MATCHES: MegaCotacaoMatch[] = [
-  { id: 'p1', date: 'Hoje', time: '16:00', homeTeam: 'Flamengo', HomeIcon: FlamengoIcon, awayTeam: 'Vasco', AwayIcon: VascoIcon, league: 'Brasileirão', odd: 2.10 },
-  { id: 'p2', date: 'Hoje', time: '19:00', homeTeam: 'Fluminense', HomeIcon: FluminenseIcon, awayTeam: 'Corinthians', AwayIcon: CorinthiasIcon, league: 'Brasileirão', odd: 3.50 },
-  { id: 'p3', date: 'Amanhã', time: '21:00', homeTeam: 'Bayer', HomeIcon: BayerIcon, awayTeam: 'Barcelona', AwayIcon: BarcelonaIcon, league: 'Champions League', odd: 2.80 },
-  { id: 'p4', date: 'Amanhã', time: '17:30', homeTeam: 'Bragantino', HomeIcon: BragatinoIcon, awayTeam: 'Palmeiras', AwayIcon: PalmeirasIcon, league: 'Brasileirão', odd: 3.10 },
+  { id: 'p1', date: 'Hoje', time: '16:00', homeTeam: 'Flamengo', HomeIcon: FlamengoIcon, awayTeam: 'Vasco', AwayIcon: VascoIcon, league: 'Brasileirão', odd: 2.10, sportId: 'sp1' },
+  { id: 'p2', date: 'Hoje', time: '19:00', homeTeam: 'Fluminense', HomeIcon: FluminenseIcon, awayTeam: 'Corinthians', AwayIcon: CorinthiasIcon, league: 'Brasileirão', odd: 3.50, sportId: 'sp1' },
+  { id: 'p3', date: 'Amanhã', time: '21:00', homeTeam: 'Bayer', HomeIcon: BayerIcon, awayTeam: 'Barcelona', AwayIcon: BarcelonaIcon, league: 'Champions League', odd: 2.80, sportId: 'sp1' },
+  { id: 'p4', date: 'Amanhã', time: '17:30', homeTeam: 'Bragantino', HomeIcon: BragatinoIcon, awayTeam: 'Palmeiras', AwayIcon: PalmeirasIcon, league: 'Brasileirão', odd: 3.10, sportId: 'sp1' },
+  { id: 'p10', date: 'Hoje', time: '15:45', homeTeam: 'Real Madrid', HomeIcon: RealMadridIcon, awayTeam: 'Atletico', AwayIcon: FluminenseIcon, league: 'La Liga', odd: 1.85, sportId: 'sp1' },
+  { id: 'p5', date: 'Hoje', time: '20:00', homeTeam: 'Furia', HomeIcon: BrasilIcon, awayTeam: 'Navi', AwayIcon: AlemanhaIcon, league: 'CS2 Major', odd: 5.00, sportId: 'sp5' },
+  { id: 'p6', date: 'Hoje', time: '22:00', homeTeam: 'Sinner', HomeIcon: FluminenseIcon, awayTeam: 'Medvedev', AwayIcon: VascoIcon, league: 'Miami Open', odd: 1.95, sportId: 'sp2' },
+  { id: 'p11', date: 'Amanhã', time: '14:00', homeTeam: 'Swiatek', HomeIcon: AlemanhaIcon, awayTeam: 'Sabalenka', AwayIcon: EspanhaIcon, league: 'WTA Finals', odd: 1.75, sportId: 'sp2' },
+  { id: 'p12', date: 'Hoje', time: '18:30', homeTeam: 'Tsitsipas', HomeIcon: BayerIcon, awayTeam: 'Zverev', AwayIcon: AlemanhaIcon, league: 'Monte Carlo', odd: 2.20, sportId: 'sp2' },
+  { id: 'p7', date: 'Hoje', time: '21:00', homeTeam: 'Celtics', HomeIcon: PalmeirasIcon, awayTeam: 'Bulls', AwayIcon: CorinthiasIcon, league: 'NBA', odd: 1.45, sportId: 'sp3' },
+  { id: 'p13', date: 'Hoje', time: '22:30', homeTeam: 'Heat', HomeIcon: BrasilIcon, awayTeam: '76ers', AwayIcon: FluminenseIcon, league: 'NBA', odd: 2.65, sportId: 'sp3' },
+  { id: 'p14', date: 'Amanhã', time: '20:00', homeTeam: 'Suns', HomeIcon: RealMadridIcon, awayTeam: 'Kings', AwayIcon: VascoIcon, league: 'NBA Playoffs', odd: 1.88, sportId: 'sp3' },
+  { id: 'p8', date: 'Amanhã', time: '00:30', homeTeam: 'Poirier', HomeIcon: Fighter1Icon, awayTeam: 'Saint Denis', AwayIcon: Fighter2Icon, league: 'UFC 299', odd: 2.15, sportId: 'sp4' },
+  { id: 'p15', date: 'Hoje', time: '23:45', homeTeam: 'Burns', HomeIcon: Fighter2Icon, awayTeam: 'Della', AwayIcon: Fighter1Icon, league: 'UFC 299', odd: 2.30, sportId: 'sp4' },
+  { id: 'p16', date: 'Dmg', time: '22:00', homeTeam: 'O Malley', HomeIcon: Fighter1Icon, awayTeam: 'Vera', AwayIcon: Fighter2Icon, league: 'UFC Title Match', odd: 1.60, sportId: 'sp4' },
+  { id: 'p9', date: 'Hoje', time: '15:00', homeTeam: 'Liquid', HomeIcon: FluminenseIcon, awayTeam: 'Spirit', AwayIcon: RealMadridIcon, league: 'Dota 2 Masters', odd: 3.20, sportId: 'sp5' },
+  { id: 'p17', date: 'Hoje', time: '17:00', homeTeam: 'LOUD', HomeIcon: BrasilIcon, awayTeam: 'Leviatán', AwayIcon: FluminenseIcon, league: 'Valorant VCT', odd: 2.10, sportId: 'sp5' },
 ];
 
 const LIVE_MATCHES = [
@@ -341,6 +371,46 @@ const LIVE_MATCHES = [
   }
 ];
 
+/** Componente de bolinha pulsante para o AO VIVO */
+function PulseDot() {
+  const pulse = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, {
+          toValue: 0.4,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulse, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  return (
+    <Animated.View 
+      style={{
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: '#FF4D4D',
+        marginRight: 6,
+        opacity: pulse,
+        shadowColor: '#FF4D4D',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.5,
+        shadowRadius: 4,
+        elevation: 2,
+      }} 
+    />
+  );
+}
+
 /* ───────────────────── Componentes auxiliares ──────────── */
 
 /** Componente padronizado para ícones de times */
@@ -353,7 +423,16 @@ function TeamIcon({ Icon, size = 48 }: { Icon: React.FC<{ width?: number; height
 }
 
 /** Seção Mega Cotação */
-function MegaCotacaoSection({ onPress }: { onPress: (data: BetSlipData) => void }) {
+function MegaCotacaoSection({ onPress, activeSport }: { onPress: (data: BetSlipData) => void, activeSport: string }) {
+  const matches = React.useMemo(() => {
+    if (activeSport === 'sp0') {
+      return [...MEGA_COTACAO].sort((a, b) => b.odd - a.odd);
+    }
+    return MEGA_COTACAO.filter(m => m.sportId === activeSport);
+  }, [activeSport]);
+
+  if (matches.length === 0) return null;
+
   return (
     <>
       <View style={styles.sectionHeader}>
@@ -365,7 +444,7 @@ function MegaCotacaoSection({ onPress }: { onPress: (data: BetSlipData) => void 
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.megaContainer}
       >
-        {MEGA_COTACAO.map((match) => (
+        {matches.map((match) => (
           <Pressable key={match.id} style={styles.megaCard} onPress={() => onPress({
             matchLabel: `${match.homeTeam} vs ${match.awayTeam}`,
             oddLabel: match.homeTeam,
@@ -404,9 +483,15 @@ function MegaCotacaoSection({ onPress }: { onPress: (data: BetSlipData) => void 
 }
 
 /** Seção Populares */
-function PopularesSection({ onPress }: { onPress: (data: BetSlipData) => void }) {
+function PopularesSection({ onPress, activeSport, setActiveSport }: { onPress: (data: BetSlipData) => void, activeSport: string, setActiveSport: (s: string) => void }) {
   const [tab, setTab] = useState<'live' | 'next'>('live');
-  const [activeSport, setActiveSport] = useState('sp0');
+
+  const matches = React.useMemo(() => {
+    if (activeSport === 'sp0') {
+      return [...POPULARES_MATCHES].sort((a, b) => b.odd - a.odd);
+    }
+    return POPULARES_MATCHES.filter(m => m.sportId === activeSport);
+  }, [activeSport]);
 
   return (
     <>
@@ -457,23 +542,33 @@ function PopularesSection({ onPress }: { onPress: (data: BetSlipData) => void })
         })}
       </ScrollView>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.megaContainer}
-      >
-        {POPULARES_MATCHES.map((match) => (
-          <Pressable key={match.id} style={styles.megaCard} onPress={() => onPress({
-            matchLabel: `${match.homeTeam} vs ${match.awayTeam}`,
-            oddLabel: match.homeTeam,
-            oddValue: match.odd,
-            league: match.league,
-          })}>
-            <View style={styles.megaDateRow}>
-              <View style={styles.megaAccentBar} />
-              <Text style={styles.megaDate}>{match.date}</Text>
-              <Text style={styles.megaTime}>{match.time}</Text>
-            </View>
+      {matches.length > 0 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.megaContainer}
+        >
+          {matches.map((match) => (
+            <Pressable key={match.id} style={styles.megaCard} onPress={() => onPress({
+              matchLabel: `${match.homeTeam} vs ${match.awayTeam}`,
+              oddLabel: match.homeTeam,
+              oddValue: match.odd,
+              league: match.league,
+            })}>
+              <View style={styles.megaDateRow}>
+                <View style={styles.megaAccentBar} />
+                {tab === 'live' ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <PulseDot />
+                    <Text style={[styles.megaDate, { color: colors.secondary }]}>AO VIVO</Text>
+                  </View>
+                ) : (
+                  <>
+                    <Text style={styles.megaDate}>{match.date}</Text>
+                    <Text style={styles.megaTime}>{match.time}</Text>
+                  </>
+                )}
+              </View>
             <View style={styles.megaMatchArea}>
               <View style={styles.megaTeam}>
                 <TeamIcon Icon={match.HomeIcon} />
@@ -496,6 +591,7 @@ function PopularesSection({ onPress }: { onPress: (data: BetSlipData) => void })
           </Pressable>
         ))}
       </ScrollView>
+      )}
     </>
   );
 }
@@ -1119,6 +1215,7 @@ export default function FutebolScreen() {
   const [betSlip, setBetSlip] = useState<BetSlipData | null>(null);
   const [betAmount, setBetAmount] = useState('');
   const [activeLiveIndex, setActiveLiveIndex] = useState(0);
+  const [activeSportFilter, setActiveSportFilter] = useState('sp0');
 
   const sport = SPORT_THEMES[selectedSport];
 
@@ -1233,8 +1330,8 @@ export default function FutebolScreen() {
             />
           ))}
         </View>
-        <MegaCotacaoSection onPress={openBetSlip} />
-        <PopularesSection onPress={openBetSlip} />
+        <MegaCotacaoSection onPress={openBetSlip} activeSport={activeSportFilter} />
+        <PopularesSection onPress={openBetSlip} activeSport={activeSportFilter} setActiveSport={setActiveSportFilter} />
           </>
         )}
 

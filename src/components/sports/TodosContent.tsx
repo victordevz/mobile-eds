@@ -67,7 +67,7 @@ export default function TodosContent({ onBetPress, onSportSelect }: Props) {
               </View>
               <View style={[styles.sportTag, { backgroundColor: t.accent + '22' }]}>
                 <Text style={styles.sportTagEmoji}>{t.emoji}</Text>
-                <Text style={[styles.sportTagLabel, { color: t.accent }]}>{t.league}</Text>
+                <Text style={[styles.sportTagLabel, { color: t.accent }]}>{m.league}</Text>
               </View>
             </View>
 

@@ -988,8 +988,12 @@ interface BetSlipPanelProps {
 }
 
 function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetSlipPanelProps) {
-  // Sem animação de entrada — aparece diretamente
-  const translateY = useSharedValue(0);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const translateY = useSharedValue(-300); // Começa acima da tela
+
+  useEffect(() => {
+    translateY.value = withSpring(0, { damping: 14, stiffness: 140 });
+  }, []);
 
   // PanResponder: detecta swipe para CIMA e dispensa o painel
   const pan = useRef(
@@ -1026,6 +1030,14 @@ function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetS
   function addAmount(v: number) {
     const current = parseFloat(betAmount.replace(',', '.')) || 0;
     onChangeBet(String((current + v).toFixed(2)));
+  }
+
+  function handleBet() {
+    setIsConfirmed(true);
+    setTimeout(() => {
+      translateY.value = withTiming(-300, { duration: 300 });
+      setTimeout(onConfirm, 280);
+    }, 1000);
   }
 
   return (
@@ -1067,9 +1079,6 @@ function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetS
             placeholderTextColor={colors.grey}
           />
         </View>
-        <Pressable style={styles.betSlipTrash} onPress={() => onChangeBet('')}>
-          <Text style={styles.betSlipTrashIcon}>🗑️</Text>
-        </Pressable>
       </View>
 
       {/* Row 3: ganho potencial + confirmar */}
@@ -1078,8 +1087,19 @@ function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetS
           <Text style={styles.betSlipGainLabel}>GANHO POTENCIAL</Text>
           <Text style={styles.betSlipGainValue}>R$ {gain}</Text>
         </View>
-        <Pressable style={styles.betSlipConfirm} onPress={onConfirm}>
-          <Text style={styles.betSlipConfirmText}>APOSTAR</Text>
+        <Pressable 
+          style={[
+            styles.betSlipConfirm, 
+            isConfirmed && { backgroundColor: '#38E67D' }
+          ]} 
+          onPress={!isConfirmed ? handleBet : undefined}
+        >
+          <Text style={[
+            styles.betSlipConfirmText, 
+            isConfirmed && { color: '#1B2128' }
+          ]}>
+            {isConfirmed ? '✓ CONFIRMADA' : 'APOSTAR'}
+          </Text>
         </Pressable>
       </View>
     </Animated2.View>
@@ -1345,22 +1365,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.secondary,
     borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
-  betSlipQuickText: { color: colors.secondary, fontSize: 12, fontWeight: '700' },
+  betSlipQuickText: { color: colors.secondary, fontSize: 13, fontWeight: '700' },
   betSlipAmountBox: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.primaryDark,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    gap: 4,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    gap: 6,
   },
-  betSlipAmountPrefix: { color: colors.grey, fontSize: 12, fontWeight: '600' },
-  betSlipAmountInput: { flex: 1, color: colors.white, fontSize: 15, fontWeight: '700', padding: 0 },
+  betSlipAmountPrefix: { color: colors.grey, fontSize: 16, fontWeight: '600' },
+  betSlipAmountInput: { flex: 1, color: colors.white, fontSize: 18, fontWeight: '700', padding: 0 },
   betSlipTrash: { padding: 6 },
   betSlipTrashIcon: { fontSize: 16 },
 

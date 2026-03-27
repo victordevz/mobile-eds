@@ -34,7 +34,7 @@ export default function CustomTabBar({
 }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const tabWidth = width / 5;
+  const tabWidth = width / state.routes.length;
 
   const waveHeight = 40;
   const xShared = useSharedValue((state.index + 0.5) * tabWidth);

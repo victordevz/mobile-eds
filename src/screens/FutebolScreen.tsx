@@ -26,6 +26,21 @@ import LiveMatchCard from '../components/LiveMatchCard';
 import { useAuth } from '../context/AuthContext';
 import { storiesApi, StoryItem } from '../services/api';
 
+import AlemanhaIcon from '../../assets/alemanha.svg';
+import BarcelonaIcon from '../../assets/barcelona.svg';
+import BayerIcon from '../../assets/bayer.svg';
+import BotafogoIcon from '../../assets/botafogo.svg';
+import BragatinoIcon from '../../assets/bragatino.svg';
+import BrasilIcon from '../../assets/brasil.svg';
+import CorinthiasIcon from '../../assets/corinthias.svg';
+import EspanhaIcon from '../../assets/espanha.svg';
+import FlamengoIcon from '../../assets/flamengo.svg';
+import FluminenseIcon from '../../assets/fluminense.svg';
+import InglaterraIcon from '../../assets/inglaterra.svg';
+import PalmeirasIcon from '../../assets/palmeiras.svg';
+import RealMadridIcon from '../../assets/realmadrid.svg';
+import VascoIcon from '../../assets/vasco.svg';
+
 /* ───────────────────── Constantes ───────────────────── */
 
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -94,18 +109,18 @@ interface MegaCotacaoMatch {
   date: string;
   time: string;
   homeTeam: string;
-  homeEmoji: string;
+  HomeIcon: React.FC<{ width?: number; height?: number }>;
   awayTeam: string;
-  awayEmoji: string;
+  AwayIcon: React.FC<{ width?: number; height?: number }>;
   league: string;
   odd: number;
 }
 
 const MEGA_COTACAO: MegaCotacaoMatch[] = [
-  { id: 'm1', date: 'Hoje',   time: '15:30', homeTeam: 'Flamengo',   homeEmoji: '🔴', awayTeam: 'Palmeiras',  awayEmoji: '🟢', league: 'Brasileirão',     odd: 4.20 },
-  { id: 'm2', date: 'Hoje',   time: '18:00', homeTeam: 'Barcelona',  homeEmoji: '🔵', awayTeam: 'Real Madrid', awayEmoji: '⚪', league: 'La Liga',         odd: 3.80 },
-  { id: 'm3', date: 'Amanhã', time: '20:45', homeTeam: 'PSG',        homeEmoji: '🔷', awayTeam: 'Man City',   awayEmoji: '🩵', league: 'Champions League', odd: 5.50 },
-  { id: 'm4', date: 'Amanhã', time: '22:00', homeTeam: 'Brasil',     homeEmoji: '🇧🇷', awayTeam: 'Argentina',  awayEmoji: '🇦🇷', league: 'Copa América',    odd: 2.90 },
+  { id: 'm1', date: 'Hoje',   time: '15:30', homeTeam: 'Flamengo',   HomeIcon: FlamengoIcon,    awayTeam: 'Palmeiras',    AwayIcon: PalmeirasIcon,   league: 'Brasileirão',          odd: 4.20 },
+  { id: 'm2', date: 'Hoje',   time: '18:00', homeTeam: 'Barcelona',  HomeIcon: BarcelonaIcon,   awayTeam: 'Real Madrid',  AwayIcon: RealMadridIcon,  league: 'La Liga',              odd: 3.80 },
+  { id: 'm3', date: 'Amanhã', time: '20:45', homeTeam: 'Alemanha',   HomeIcon: AlemanhaIcon,    awayTeam: 'Inglaterra',   AwayIcon: InglaterraIcon,  league: 'Amistoso Internacional', odd: 5.50 },
+  { id: 'm4', date: 'Amanhã', time: '22:00', homeTeam: 'Brasil',     HomeIcon: BrasilIcon,      awayTeam: 'Espanha',      AwayIcon: EspanhaIcon,     league: 'Copa do Mundo',        odd: 2.90 },
 ];
 
 const CHAMPIONSHIPS: Championship[] = [
@@ -187,10 +202,10 @@ const SPORT_CATEGORIES: SportCategory[] = [
 ];
 
 const POPULARES_MATCHES: MegaCotacaoMatch[] = [
-  { id: 'p1', date: 'Hoje',   time: '16:00', homeTeam: 'Botafogo',   homeEmoji: '⭐', awayTeam: 'Vasco',      awayEmoji: '⚫', league: 'Brasileirão',       odd: 2.10 },
-  { id: 'p2', date: 'Hoje',   time: '19:00', homeTeam: 'São Paulo', homeEmoji: '🔴', awayTeam: 'Corinthians', awayEmoji: '⚪', league: 'Brasileirão',       odd: 3.50 },
-  { id: 'p3', date: 'Amanhã', time: '21:00', homeTeam: 'Man Utd',   homeEmoji: '🔴', awayTeam: 'Arsenal',    awayEmoji: '🔴', league: 'Premier League',     odd: 2.80 },
-  { id: 'p4', date: 'Amanhã', time: '17:30', homeTeam: 'Juve',      homeEmoji: '⚫', awayTeam: 'Inter',      awayEmoji: '🐍', league: 'Serie A',            odd: 3.10 },
+  { id: 'p1', date: 'Hoje',   time: '16:00', homeTeam: 'Botafogo',    HomeIcon: BotafogoIcon,    awayTeam: 'Vasco',        AwayIcon: VascoIcon,        league: 'Brasileirão',     odd: 2.10 },
+  { id: 'p2', date: 'Hoje',   time: '19:00', homeTeam: 'Fluminense',  HomeIcon: FluminenseIcon,  awayTeam: 'Corinthians',  AwayIcon: CorinthiasIcon,   league: 'Brasileirão',     odd: 3.50 },
+  { id: 'p3', date: 'Amanhã', time: '21:00', homeTeam: 'Bayer',       HomeIcon: BayerIcon,       awayTeam: 'Barcelona',    AwayIcon: BarcelonaIcon,    league: 'Champions League', odd: 2.80 },
+  { id: 'p4', date: 'Amanhã', time: '17:30', homeTeam: 'Bragantino',  HomeIcon: BragatinoIcon,   awayTeam: 'Palmeiras',    AwayIcon: PalmeirasIcon,    league: 'Brasileirão',     odd: 3.10 },
 ];
 
 /* ───────────────────── Componentes auxiliares ──────────── */
@@ -217,12 +232,16 @@ function MegaCotacaoSection({ onPress }: { onPress: () => void }) {
             </View>
             <View style={styles.megaMatchArea}>
               <View style={styles.megaTeam}>
-                <Text style={styles.megaEmoji}>{match.homeEmoji}</Text>
+                <View style={styles.teamIconBox}>
+                  <match.HomeIcon width={40} height={40} />
+                </View>
                 <Text style={styles.megaTeamName} numberOfLines={1}>{match.homeTeam}</Text>
               </View>
               <Text style={styles.megaVs}>VS</Text>
               <View style={styles.megaTeam}>
-                <Text style={styles.megaEmoji}>{match.awayEmoji}</Text>
+                <View style={styles.teamIconBox}>
+                  <match.AwayIcon width={40} height={40} />
+                </View>
                 <Text style={styles.megaTeamName} numberOfLines={1}>{match.awayTeam}</Text>
               </View>
             </View>
@@ -309,12 +328,12 @@ function PopularesSection({ onPress }: { onPress: () => void }) {
             </View>
             <View style={styles.megaMatchArea}>
               <View style={styles.megaTeam}>
-                <Text style={styles.megaEmoji}>{match.homeEmoji}</Text>
+                <match.HomeIcon width={40} height={40} />
                 <Text style={styles.megaTeamName} numberOfLines={1}>{match.homeTeam}</Text>
               </View>
               <Text style={styles.megaVs}>VS</Text>
               <View style={styles.megaTeam}>
-                <Text style={styles.megaEmoji}>{match.awayEmoji}</Text>
+                <match.AwayIcon width={40} height={40} />
                 <Text style={styles.megaTeamName} numberOfLines={1}>{match.awayTeam}</Text>
               </View>
             </View>

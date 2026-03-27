@@ -521,10 +521,8 @@ function Header({ sport, onSportPress }: HeaderProps) {
       <Logotipo width={80} height={28} />
 
       {/* Sport selector pill */}
-      <Pressable style={[styles.sportSelector, { borderColor: sport.accent + '88' }]} onPress={onSportPress}>
+      <Pressable style={[styles.sportSelector, { borderColor: sport.accent + '80', paddingHorizontal: 12 }]} onPress={onSportPress}>
         <Text style={styles.sportSelectorEmoji}>{sport.emoji}</Text>
-        <Text style={[styles.sportSelectorLabel, { color: sport.accent }]}>{sport.label}</Text>
-        <Text style={[styles.sportSelectorArrow, { color: sport.accent }]}>▾</Text>
       </Pressable>
 
       <View style={styles.headerActions}>
@@ -887,10 +885,12 @@ function StoriesBar() {
 
 function SportDropdown({
   current,
+  insets,
   onSelect,
   onClose,
 }: {
   current: SportType;
+  insets: any;
   onSelect: (s: SportType) => void;
   onClose: () => void;
 }) {
@@ -902,22 +902,24 @@ function SportDropdown({
     <>
       {/* Backdrop */}
       <Pressable style={styles.dropBackdrop} onPress={onClose} />
-      <Animated2.View style={[styles.sportDropdown, animStyle]}>
-        {SPORT_ORDER.map(sid => {
-          const t = SPORT_THEMES[sid];
-          const isActive = current === sid;
-          return (
-            <Pressable
-              key={sid}
-              style={[styles.dropItem, isActive && { backgroundColor: t.accent + '1A' }]}
-              onPress={() => onSelect(sid)}
-            >
-              <Text style={styles.dropEmoji}>{t.emoji}</Text>
-              <Text style={[styles.dropLabel, { color: isActive ? t.accent : '#fff' }]}>{t.label}</Text>
-              {isActive && <View style={[styles.dropCheck, { backgroundColor: t.accent }]} />}
-            </Pressable>
-          );
-        })}
+      <Animated2.View style={[styles.sportDropdown, animStyle, { maxHeight: 320, top: (insets.top || 0) + 56, zIndex: 18 }]}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {SPORT_ORDER.map(sid => {
+            const t = SPORT_THEMES[sid];
+            const isActive = current === sid;
+            return (
+              <Pressable
+                key={sid}
+                style={[styles.dropItem, isActive && { backgroundColor: t.accent + '1A' }]}
+                onPress={() => onSelect(sid)}
+              >
+                <Text style={styles.dropEmoji}>{t.emoji}</Text>
+                <Text style={[styles.dropLabel, { color: isActive ? t.accent : '#fff' }]}>{t.label}</Text>
+                {isActive && <View style={[styles.dropCheck, { backgroundColor: t.accent }]} />}
+              </Pressable>
+            );
+          })}
+        </ScrollView>
       </Animated2.View>
     </>
   );
@@ -1073,15 +1075,15 @@ export default function FutebolScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top, backgroundColor: sport.bg }]}>
+    <View style={[styles.container, { backgroundColor: sport.bg }]}>
       {/* Fixed header */}
-      <View style={[styles.headerWrapper, { backgroundColor: sport.bg }]}>
+      <View style={[styles.headerWrapper, { backgroundColor: sport.bg, paddingTop: insets.top }]}>
         <Header sport={sport} onSportPress={() => setShowDropdown(v => !v)} />
       </View>
 
       {/* Dropdown */}
       {showDropdown && (
-        <SportDropdown current={selectedSport} onSelect={handleSportSelect} onClose={() => setShowDropdown(false)} />
+        <SportDropdown current={selectedSport} insets={insets} onSelect={handleSportSelect} onClose={() => setShowDropdown(false)} />
       )}
 
       {/* BetSlip */}
@@ -1093,7 +1095,7 @@ export default function FutebolScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.scroll, { paddingBottom: 88 + (insets.bottom || 10) + 24 }]}
       >
-        <View style={{ height: betSlip && !showDropdown ? 190 : 58 }} />
+        <View style={{ height: betSlip && !showDropdown ? 190 : (insets.top || 0) + 52 }} />
 
         {/* ── TODOS ── */}
         {selectedSport === 'todos' && (

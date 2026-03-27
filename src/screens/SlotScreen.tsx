@@ -139,15 +139,9 @@ function Header() {
       {/* Logo */}
       <Logotipo width={80} height={28} />
 
-      <View style={styles.headerActions}>
-        {/* Lupa */}
-        <Pressable style={styles.searchIconBtn}>
-          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-            <Circle cx="11" cy="11" r="7" stroke="#FFFFFF" strokeWidth="2" />
-            <Line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
-          </Svg>
-        </Pressable>
 
+
+      <View style={styles.headerActions}>
         {/* Pill unificada: botão + */}
         <Pressable style={styles.balancePill} onPress={openDepositModal}>
           <View style={styles.depositCircle}>

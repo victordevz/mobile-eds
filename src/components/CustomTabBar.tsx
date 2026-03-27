@@ -46,7 +46,14 @@ export default function CustomTabBar({
   const animatedPathProps = useAnimatedProps(() => {
     const x = xShared.value;
     return {
-      d: `M -1000 0 L ${x - 70} 0 C ${x - 35} 0, ${x - 35} ${waveHeight}, ${x} ${waveHeight} C ${x + 35} ${waveHeight}, ${x + 35} 0, ${x + 70} 0 L 3000 0 L 3000 100 L -1000 100 Z`,
+      d: `M -1000 0 L ${x - 70} 0 C ${x - 35} 0, ${x - 35} ${waveHeight}, ${x} ${waveHeight} C ${x + 35} ${waveHeight}, ${x + 35} 0, ${x + 70} 0 L 3000 0 L 3000 200 L -1000 200 Z`,
+    };
+  });
+
+  const animatedStrokeProps = useAnimatedProps(() => {
+    const x = xShared.value;
+    return {
+      d: `M -1000 0 L ${x - 70} 0 C ${x - 35} 0, ${x - 35} ${waveHeight}, ${x} ${waveHeight} C ${x + 35} ${waveHeight}, ${x + 35} 0, ${x + 70} 0 L 3000 0`,
     };
   });
 
@@ -62,12 +69,12 @@ export default function CustomTabBar({
     <View
       style={[
         styles.container,
-        { paddingBottom: insets.bottom || 10 },
+        { paddingBottom: (insets.bottom || 0) + 32 },
       ]}
     >
       {/* Background SVG wave */}
       <View style={StyleSheet.absoluteFill}>
-        <Svg width={width} height={100}>
+        <Svg width={width} height={200}>
           <Defs>
             <RadialGradient
               id="waveGradient"
@@ -84,6 +91,12 @@ export default function CustomTabBar({
           <AnimatedPath
             animatedProps={animatedPathProps}
             fill="url(#waveGradient)"
+          />
+          <AnimatedPath
+            animatedProps={animatedStrokeProps}
+            fill="none"
+            stroke={colors.secondary}
+            strokeWidth={2.5}
           />
         </Svg>
       </View>
@@ -147,7 +160,7 @@ function TabBarItem({ isFocused, label, Icon, onPress }: TabBarItemProps) {
   const animatedLabel = useAnimatedStyle(() => ({
     opacity: 1,
     transform: [
-      { translateY: 0 },
+      { translateY: withSpring(isFocused ? -2 : 0, SPRING_CONFIG) },
     ],
   }), [isFocused]);
 
@@ -207,7 +220,7 @@ const styles = StyleSheet.create({
     elevation: 0,
     paddingTop: 15,
     alignItems: 'center',
-    height: 88,
+    height: 116,
     overflow: 'visible',
   },
   tab: {
@@ -215,7 +228,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-end',
     height: 78,
-    paddingBottom: 8,
+    paddingBottom: 0,
     overflow: 'visible',
   },
   circle: {

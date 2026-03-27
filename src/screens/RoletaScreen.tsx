@@ -335,16 +335,16 @@ function LiveDealerSection({ onPress }: { onPress: () => void }) {
 
 /* ─────────────── Top 10 ─────────────── */
 
-function Top10Section({ onPress }: { onPress: () => void }) {
+function Top5Section({ onPress }: { onPress: () => void }) {
   return (
     <View style={styles.section}>
-      <SectionHeader title="Top 10" subtitle="Mais jogados agora" />
+      <SectionHeader title="Top 5" subtitle="Mais jogados agora" />
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.top10Row}
       >
-        {TOP10_GAMES.map((game, index) => {
+        {TOP10_GAMES.slice(0, 5).map((game, index) => {
           const icon = GAME_ICON[game.name] ?? { emoji: '🎰', bg: '#1a3a6e' };
           
           // Mapeando algumas imagens pra dar o efeito visual real
@@ -352,6 +352,7 @@ function Top10Section({ onPress }: { onPress: () => void }) {
             'Lightning Roulette': require('../../assets/live_roulette_thumb.png'),
             'VIP Blackjack': require('../../assets/live_blackjack_thumb.png'),
             'Speed Baccarat': require('../../assets/live_baccarat_thumb.png'),
+            'Mega Ball': require('../../assets/mega_ball_thumb.png'),
             'Immersive Roulette': require('../../assets/live_roulette_thumb.png'), // reuso
             'Infinite Blackjack': require('../../assets/live_blackjack_thumb.png'), // reuso
             'Auto Roulette': require('../../assets/casino_banner_roulette.png'), // fallback do banner antigo
@@ -537,7 +538,7 @@ export default function RoletaScreen() {
         <BannerSlider />
         <CategoriesRow onPress={(_label) => handleGamePress()} />
         <LiveDealerSection onPress={handleGamePress} />
-        <Top10Section onPress={handleGamePress} />
+        <Top5Section onPress={handleGamePress} />
         <GamesByCategory onPress={handleGamePress} />
       </ScrollView>
     </View>

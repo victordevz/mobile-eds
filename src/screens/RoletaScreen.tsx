@@ -339,18 +339,19 @@ function Top5Section({ onPress }: { onPress: () => void }) {
         {TOP10_GAMES.slice(0, 5).map((game, index) => {
           const icon = GAME_ICON[game.name] ?? { emoji: '🎰', bg: '#1a3a6e' };
           
-          // Mapeando algumas imagens pra dar o efeito visual real
+          // Mapeando imagens geradas 3D para o Top 10
           const thumbMap: Record<string, any> = {
-            'Lightning Roulette': require('../../assets/live_roulette_thumb.png'),
-            'VIP Blackjack': require('../../assets/live_blackjack_thumb.png'),
-            'Speed Baccarat': require('../../assets/live_baccarat_thumb.png'),
-            'Mega Ball': require('../../assets/mega_ball_thumb.png'),
-            'Immersive Roulette': require('../../assets/live_roulette_thumb.png'), // reuso
-            'Infinite Blackjack': require('../../assets/live_blackjack_thumb.png'), // reuso
-            'Auto Roulette': require('../../assets/casino_banner_roulette.png'), // fallback do banner antigo
-            'Crazy Time': require('../../assets/casino_banner_slots.png'), // fallback
+            'Lightning Roulette': require('../../assets/roleta_ao_vivo.png'),
+            'VIP Blackjack': require('../../assets/jogos_de_cartas.png'),
+            'Speed Baccarat': require('../../assets/jogos_de_cartas.png'),
+            'Mega Ball': require('../../assets/game_shows.png'),
+            'Immersive Roulette': require('../../assets/roleta_ao_vivo.png'),
+            'Infinite Blackjack': require('../../assets/jogos_de_cartas.png'),
+            'Auto Roulette': require('../../assets/roleta_ao_vivo.png'),
+            'Crazy Time': require('../../assets/game_shows.png'),
+            'Dragon Tiger': require('../../assets/jogos_de_cartas.png')
           };
-          const imageSource = thumbMap[game.name] || null;
+          const imageSource = thumbMap[game.name] || require('../../assets/roleta_ao_vivo.png');
 
           return (
             <Pressable key={game.id} style={styles.top10Card} onPress={onPress}>
@@ -443,10 +444,26 @@ function GamesByCategory({ onPress }: { onPress: () => void }) {
         ) : (
           filteredGames.map((game) => {
             const icon = GAME_ICON[game.name] ?? { emoji: '🎰', bg: '#1a3a6e' };
+            
+            const thumbMap: Record<string, any> = {
+              'Lightning Roulette': require('../../assets/roleta_ao_vivo.png'),
+              'VIP Blackjack': require('../../assets/jogos_de_cartas.png'),
+              'Speed Baccarat': require('../../assets/jogos_de_cartas.png'),
+              'Mega Ball': require('../../assets/game_shows.png'),
+              'Immersive Roulette': require('../../assets/roleta_ao_vivo.png'),
+              'Infinite Blackjack': require('../../assets/jogos_de_cartas.png'),
+              'Auto Roulette': require('../../assets/roleta_ao_vivo.png'),
+              'Crazy Time': require('../../assets/game_shows.png'),
+              'Dragon Tiger': require('../../assets/jogos_de_cartas.png'),
+              'Deal or No Deal': require('../../assets/game_shows.png'),
+              'Three Card Poker': require('../../assets/jogos_de_cartas.png'),
+            };
+            const imageSource = thumbMap[game.name] || require('../../assets/roleta_ao_vivo.png');
+
             return (
               <Pressable key={game.id} style={styles.gameCard} onPress={onPress}>
                 <View style={[styles.gameThumb, { backgroundColor: icon.bg }]}>
-                  <Text style={styles.gameThumbEmoji}>{icon.emoji}</Text>
+                  <Image source={imageSource} style={{ width: '100%', height: '100%', borderRadius: 10 }} resizeMode="cover" />
                   {/* Badge HOT/NEW */}
                   {(game.hot || game.new) && (
                     <View style={[styles.gameCardBadge, game.new ? styles.gameCardBadgeNew : styles.gameCardBadgeHot]}>
@@ -828,6 +845,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
     marginBottom: 8,
     position: 'relative',
+    overflow: 'hidden',
   },
   gameThumbEmoji: { fontSize: 28 },
   gameCardBadge: {

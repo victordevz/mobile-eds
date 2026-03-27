@@ -115,7 +115,8 @@ const BANNERS = [
 interface Championship {
   id: string;
   label: string;
-  Icon: React.FC<{ size?: number; color?: string }>;
+  Icon?: React.FC<{ size?: number; color?: string }>;
+  image?: any;
 }
 
 interface MegaCotacaoMatch {
@@ -138,14 +139,14 @@ const MEGA_COTACAO: MegaCotacaoMatch[] = [
 ];
 
 const CHAMPIONSHIPS: Championship[] = [
-  { id: 'c1', label: 'Copa do\nNordeste', Icon: TrophyIcon },
-  { id: 'c2', label: 'Brasileirão', Icon: SoccerIcon },
-  { id: 'c3', label: 'Copa do\nBrasil', Icon: TrophyIcon },
-  { id: 'c4', label: 'Libertadores', Icon: SoccerIcon },
-  { id: 'c5', label: 'Champions\nLeague', Icon: SoccerIcon },
-  { id: 'c6', label: 'Premier\nLeague', Icon: SoccerIcon },
-  { id: 'c7', label: 'La Liga', Icon: SoccerIcon },
-  { id: 'c8', label: 'Serie A', Icon: SoccerIcon },
+  { id: 'c1', label: 'Copa do\nNordeste', image: require('../../assets/league_icon.png') },
+  { id: 'c2', label: 'Brasileirão', image: require('../../assets/league_icon.png') },
+  { id: 'c3', label: 'Copa do\nBrasil', image: require('../../assets/league_icon.png') },
+  { id: 'c4', label: 'Libertadores', image: require('../../assets/league_icon.png') },
+  { id: 'c5', label: 'Champions\nLeague', image: require('../../assets/league_icon.png') },
+  { id: 'c6', label: 'Premier\nLeague', image: require('../../assets/league_icon.png') },
+  { id: 'c7', label: 'La Liga', image: require('../../assets/league_icon.png') },
+  { id: 'c8', label: 'Serie A', image: require('../../assets/league_icon.png') },
 ];
 
 interface SportCategory {
@@ -166,15 +167,37 @@ function SoccerIcon({ size = 16, color = '#fff' }: { size?: number; color?: stri
   );
 }
 
-function TrophyIcon({ size = 20, color = '#fff' }: { size?: number; color?: string }) {
+function LeagueIcon({ size = 24, color = '#fff' }: { size?: number; color?: string }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <Path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
-      <Path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
-      <Path d="M4 22h16" />
-      <Path d="M10 22V18" />
-      <Path d="M14 22V18" />
-      <Path d="M18 4H6v7a6 6 0 0 0 12 0V4Z" />
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path 
+        d="M6 9H4.5C3.67 9 3 8.33 3 7.5V6.5C3 5.67 3.67 5 4.5 5H6" 
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      />
+      <Path 
+        d="M18 9H19.5C20.33 9 21 8.33 21 7.5V6.5C21 5.67 20.33 5 19.5 5H18" 
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      />
+      <Path 
+        d="M4 22H20" 
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      />
+      <Path 
+        d="M10 22V18" 
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      />
+      <Path 
+        d="M14 22V18" 
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      />
+      <Path 
+        d="M18 4H6V11C6 14.31 8.69 17 12 17C15.31 17 18 14.31 18 11V4Z" 
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      />
+      <Path 
+        d="M12 7.5L13.2 10.2H16L13.8 11.8L14.6 14.5L12 13L9.4 14.5L10.2 11.8L8 10.2H10.8L12 7.5Z" 
+        fill={color} 
+      />
     </Svg>
   );
 }
@@ -493,7 +516,11 @@ function ChampionshipsBar() {
           <Pressable key={item.id} style={styles.champItem} onPress={() => setActive(item.id)}>
             <View style={[styles.champCard, isActive && styles.champCardActive]}>
               <View style={[styles.champCircle, isActive && styles.champCircleActive]}>
-                <item.Icon size={24} color={isActive ? colors.secondary : colors.white} />
+                {item.image ? (
+                  <Image source={item.image} style={{ width: 44, height: 44 }} resizeMode="cover" />
+                ) : item.Icon ? (
+                  <item.Icon size={24} color={isActive ? colors.secondary : colors.white} />
+                ) : null}
               </View>
               <Text style={[styles.champLabel, isActive && styles.champLabelActive]} numberOfLines={2}>
                 {item.label}
@@ -1609,6 +1636,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1.5,
     borderColor: 'rgba(255,255,255,0.1)',
+    overflow: 'hidden',
   },
   champCircleActive: {
     borderColor: colors.secondary,

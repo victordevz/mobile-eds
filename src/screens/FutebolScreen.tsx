@@ -7,6 +7,7 @@ import {
   Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  PanResponder,
   Pressable,
   ScrollView,
   StatusBar,
@@ -32,6 +33,12 @@ import Logotipo from '../../assets/logotipo.svg';
 import LiveMatchCard from '../components/LiveMatchCard';
 import { useAuth } from '../context/AuthContext';
 import { storiesApi, StoryItem } from '../services/api';
+import { BetSlipData, SPORT_ORDER, SPORT_THEMES, SportTheme, SportType } from '../types/sports';
+import TodosContent from '../components/sports/TodosContent';
+import BasqueteContent from '../components/sports/BasqueteContent';
+import TenisContent from '../components/sports/TenisContent';
+import VoleiContent from '../components/sports/VoleiContent';
+import ESportsContent from '../components/sports/ESportsContent';
 
 import AlemanhaIcon from '../../assets/alemanha.svg';
 import BarcelonaIcon from '../../assets/barcelona.svg';
@@ -499,22 +506,28 @@ function ChampionshipsBar() {
   );
 }
 
+/* ──────────────── Header com seletor de esporte ────────────── */
 
-function Header() {
+interface HeaderProps { sport: SportTheme; onSportPress: () => void; }
+
+function Header({ sport, onSportPress }: HeaderProps) {
   const { openMenu, openDepositModal, balance, isAuthenticated } = useAuth();
-
   const balanceLabel = isAuthenticated && balance !== null
     ? `R$ ${balance.toFixed(2).replace('.', ',')}`
     : 'R$ 0,00';
 
   return (
     <View style={styles.header}>
-      {/* Logo */}
       <Logotipo width={80} height={28} />
 
-      <View style={styles.headerActions}>
+      {/* Sport selector pill */}
+      <Pressable style={[styles.sportSelector, { borderColor: sport.accent + '88' }]} onPress={onSportPress}>
+        <Text style={styles.sportSelectorEmoji}>{sport.emoji}</Text>
+        <Text style={[styles.sportSelectorLabel, { color: sport.accent }]}>{sport.label}</Text>
+        <Text style={[styles.sportSelectorArrow, { color: sport.accent }]}>▾</Text>
+      </Pressable>
 
-        {/* Pill unificada: botão + */}
+      <View style={styles.headerActions}>
         <Pressable style={styles.balancePill} onPress={openDepositModal}>
           <View style={styles.depositCircle}>
             <View style={styles.plusHorizontal} />
@@ -522,8 +535,6 @@ function Header() {
           </View>
           <Text style={styles.balanceValue}>{balanceLabel}</Text>
         </Pressable>
-
-        {/* Sanduiche */}
         <Pressable style={styles.menuBtn} onPress={openMenu}>
           <View style={styles.menuBar} />
           <View style={[styles.menuBar, { width: 16 }]} />
@@ -870,14 +881,49 @@ function StoriesBar() {
   );
 }
 
-interface BetSlipData {
-  matchLabel: string;
-  oddLabel: string;
-  oddValue: number;
-  league: string;
+
+
+/* ───────────────── Sport Dropdown ───────────────── */
+
+function SportDropdown({
+  current,
+  onSelect,
+  onClose,
+}: {
+  current: SportType;
+  onSelect: (s: SportType) => void;
+  onClose: () => void;
+}) {
+  const translateY = useSharedValue(-240);
+  useEffect(() => { translateY.value = withTiming(0, { duration: 200 }); }, []);
+  const animStyle = useAnimatedStyle(() => ({ transform: [{ translateY: translateY.value }] }));
+
+  return (
+    <>
+      {/* Backdrop */}
+      <Pressable style={styles.dropBackdrop} onPress={onClose} />
+      <Animated2.View style={[styles.sportDropdown, animStyle]}>
+        {SPORT_ORDER.map(sid => {
+          const t = SPORT_THEMES[sid];
+          const isActive = current === sid;
+          return (
+            <Pressable
+              key={sid}
+              style={[styles.dropItem, isActive && { backgroundColor: t.accent + '1A' }]}
+              onPress={() => onSelect(sid)}
+            >
+              <Text style={styles.dropEmoji}>{t.emoji}</Text>
+              <Text style={[styles.dropLabel, { color: isActive ? t.accent : '#fff' }]}>{t.label}</Text>
+              {isActive && <View style={[styles.dropCheck, { backgroundColor: t.accent }]} />}
+            </Pressable>
+          );
+        })}
+      </Animated2.View>
+    </>
+  );
 }
 
-/* ───────────────────── BetSlip Panel ───────────────────── */
+/* ───────────────── BetSlip Panel ───────────────── */
 
 interface BetSlipPanelProps {
   data: BetSlipData;
@@ -888,14 +934,36 @@ interface BetSlipPanelProps {
 }
 
 function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetSlipPanelProps) {
-  const translateY = useSharedValue(-120);
+  // Sem animação de entrada — aparece diretamente
+  const translateY = useSharedValue(0);
 
-  useEffect(() => {
-    translateY.value = withSpring(0, { damping: 18, stiffness: 200 });
-  }, []);
+  // PanResponder: detecta swipe para CIMA e dispensa o painel
+  const pan = useRef(
+    PanResponder.create({
+      // Só assume o gesto se for um movimento claramente vertical para cima
+      onMoveShouldSetPanResponder: (_, gs) =>
+        gs.dy < -8 && Math.abs(gs.dy) > Math.abs(gs.dx) * 1.5,
+      onPanResponderMove: (_, gs) => {
+        if (gs.dy < 0) translateY.value = gs.dy; // acompanha o dedo
+      },
+      onPanResponderRelease: (_, gs) => {
+        if (gs.dy < -50 || gs.vy < -0.5) {
+          // Swipe rápido/longe o suficiente → fecha
+          translateY.value = withTiming(-260, { duration: 180 });
+          setTimeout(onClose, 175);
+        } else {
+          // Volta para posição original
+          translateY.value = withTiming(0, { duration: 120 });
+        }
+      },
+    }),
+  ).current;
 
   const animStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
+    opacity: translateY.value < -20
+      ? Math.max(0, 1 - (-translateY.value - 20) / 150)
+      : 1,
   }));
 
   const numBet = parseFloat(betAmount.replace(',', '.')) || 0;
@@ -907,7 +975,10 @@ function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetS
   }
 
   return (
-    <Animated2.View style={[styles.betSlip, animStyle]}>
+    <Animated2.View style={[styles.betSlip, animStyle]} {...pan.panHandlers}>
+      {/* Alça de arrasto — dica visual para o usuário */}
+      <View style={styles.betSlipDragHandle} />
+
       {/* Row 1: odd info */}
       <View style={styles.betSlipOddRow}>
         <View style={styles.betSlipOddInfo}>
@@ -926,14 +997,11 @@ function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetS
 
       {/* Row 2: inputs */}
       <View style={styles.betSlipInputRow}>
-        {/* Quick add buttons */}
         {[5, 10, 20].map((v) => (
           <Pressable key={v} style={styles.betSlipQuickBtn} onPress={() => addAmount(v)}>
             <Text style={styles.betSlipQuickText}>+{v}</Text>
           </Pressable>
         ))}
-
-        {/* Aposta input */}
         <View style={styles.betSlipAmountBox}>
           <Text style={styles.betSlipAmountPrefix}>R$</Text>
           <TextInput
@@ -945,8 +1013,6 @@ function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetS
             placeholderTextColor={colors.grey}
           />
         </View>
-
-        {/* Trash */}
         <Pressable style={styles.betSlipTrash} onPress={() => onChangeBet('')}>
           <Text style={styles.betSlipTrashIcon}>🗑️</Text>
         </Pressable>
@@ -972,9 +1038,13 @@ export default function FutebolScreen() {
   const insets = useSafeAreaInsets();
   const { isAuthenticated, openAuthModal } = useAuth();
 
+  const [selectedSport, setSelectedSport] = useState<SportType>('todos');
+  const [showDropdown, setShowDropdown] = useState(false);
   const [betSlip, setBetSlip] = useState<BetSlipData | null>(null);
   const [betAmount, setBetAmount] = useState('');
   const [activeLiveIndex, setActiveLiveIndex] = useState(0);
+
+  const sport = SPORT_THEMES[selectedSport];
 
   const onLiveScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -985,69 +1055,61 @@ export default function FutebolScreen() {
   );
 
   function openBetSlip(data: BetSlipData) {
-    if (!isAuthenticated) {
-      openAuthModal('login');
-      return;
-    }
+    if (!isAuthenticated) { openAuthModal('login'); return; }
+    setShowDropdown(false);
     setBetSlip(data);
     setBetAmount('');
   }
-
-  function closeBetSlip() {
-    setBetSlip(null);
-    setBetAmount('');
+  function closeBetSlip() { setBetSlip(null); setBetAmount(''); }
+  function handleConfirmBet() { closeBetSlip(); }
+  function handleGamePress() {
+    if (!isAuthenticated) { openAuthModal('login'); return; }
+    openBetSlip({ matchLabel: 'Bragantino vs Botafogo', oddLabel: 'Empate', oddValue: 3.30, league: 'Brasileirão' });
   }
-
-  function handleConfirmBet() {
-    // TODO: integrar com API de apostas
+  function handleSportSelect(s: SportType) {
+    setSelectedSport(s);
+    setShowDropdown(false);
     closeBetSlip();
   }
 
-  // Callback genérico para cards que não passam dados específicos
-  function handleGamePress() {
-    if (!isAuthenticated) {
-      openAuthModal('login');
-      return;
-    }
-    openBetSlip({
-      matchLabel: 'Bragantino vs Botafogo',
-      oddLabel: 'Empate',
-      oddValue: 3.30,
-      league: 'Brasileirão',
-    });
-  }
-
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* ── Header fixo ── */}
-      <View style={styles.headerWrapper}>
-        <Header />
+    <View style={[styles.container, { paddingTop: insets.top, backgroundColor: sport.bg }]}>
+      {/* Fixed header */}
+      <View style={[styles.headerWrapper, { backgroundColor: sport.bg }]}>
+        <Header sport={sport} onSportPress={() => setShowDropdown(v => !v)} />
       </View>
 
-      {/* ── BetSlip desliza por baixo do header ── */}
-      {betSlip && (
-        <BetSlipPanel
-          data={betSlip}
-          betAmount={betAmount}
-          onChangeBet={setBetAmount}
-          onClose={closeBetSlip}
-          onConfirm={handleConfirmBet}
-        />
+      {/* Dropdown */}
+      {showDropdown && (
+        <SportDropdown current={selectedSport} onSelect={handleSportSelect} onClose={() => setShowDropdown(false)} />
+      )}
+
+      {/* BetSlip */}
+      {betSlip && !showDropdown && (
+        <BetSlipPanel data={betSlip} betAmount={betAmount} onChangeBet={setBetAmount} onClose={closeBetSlip} onConfirm={handleConfirmBet} />
       )}
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.scroll, { paddingBottom: 88 + (insets.bottom || 10) + 24 }]}
       >
-        {/* Espaço para o header fixo (≈ 58px) + BetSlip quando aberto (+ 132px) */}
-        <View style={{ height: betSlip ? 190 : 58 }} />
-        <StoriesBar />
-        <PromoBanner />
-        <ChampionshipsBar />
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionTitleBar} />
-          <Text style={styles.sectionTitle}>Ao Vivo</Text>
-        </View>
+        <View style={{ height: betSlip && !showDropdown ? 190 : 58 }} />
+
+        {/* ── TODOS ── */}
+        {selectedSport === 'todos' && (
+          <TodosContent onBetPress={openBetSlip} onSportSelect={handleSportSelect} />
+        )}
+
+        {/* ── FUTEBOL ── */}
+        {selectedSport === 'futebol' && (
+          <>
+            <StoriesBar />
+            <PromoBanner />
+            <ChampionshipsBar />
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionTitleBar} />
+              <Text style={styles.sectionTitle}>Ao Vivo</Text>
+            </View>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -1097,6 +1159,17 @@ export default function FutebolScreen() {
         </View>
         <MegaCotacaoSection onPress={openBetSlip} />
         <PopularesSection onPress={openBetSlip} />
+          </>
+        )}
+
+        {/* ── BASQUETE ── */}
+        {selectedSport === 'basquete' && <BasqueteContent onBetPress={openBetSlip} />}
+        {/* ── TÊnis ── */}
+        {selectedSport === 'tenis' && <TenisContent onBetPress={openBetSlip} />}
+        {/* ── VÔLEI ── */}
+        {selectedSport === 'volei' && <VoleiContent onBetPress={openBetSlip} />}
+        {/* ── ESPORTS ── */}
+        {selectedSport === 'esports' && <ESportsContent onBetPress={openBetSlip} />}
       </ScrollView>
     </View>
   );
@@ -1127,14 +1200,35 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
+  /* ── Sport Selector ── */
+  sportSelector: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    borderWidth: 1.5, borderRadius: 20,
+    paddingHorizontal: 12, paddingVertical: 6,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+  },
+  sportSelectorEmoji: { fontSize: 14 },
+  sportSelectorLabel: { fontSize: 13, fontWeight: '800' },
+  sportSelectorArrow: { fontSize: 12, fontWeight: '700' },
+
+  /* ── Sport Dropdown ── */
+  dropBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 17 },
+  sportDropdown: {
+    position: 'absolute', top: 56, left: 16, zIndex: 18,
+    backgroundColor: '#0D1E50', borderRadius: 16,
+    paddingVertical: 6, minWidth: 200,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4, shadowRadius: 12, elevation: 16,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
+  },
+  dropItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 13, gap: 12 },
+  dropEmoji: { fontSize: 18 },
+  dropLabel: { fontSize: 15, fontWeight: '700', flex: 1 },
+  dropCheck: { width: 8, height: 8, borderRadius: 4 },
+
   /* ── Header wrapper ── */
   headerWrapper: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 20,
-    backgroundColor: colors.primaryDark,
+    position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20,
   },
 
   /* ── Bet Slip ── */
@@ -1158,6 +1252,12 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.08)',
     gap: 10,
+  },
+  betSlipDragHandle: {
+    width: 36, height: 4, borderRadius: 2,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    alignSelf: 'center',
+    marginBottom: 4,
   },
   betSlipOddRow: {
     flexDirection: 'row',

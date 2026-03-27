@@ -115,7 +115,8 @@ const BANNERS = [
 interface Championship {
   id: string;
   label: string;
-  Icon: React.FC<{ size?: number; color?: string }>;
+  Icon?: React.FC<{ size?: number; color?: string }>;
+  image?: any;
 }
 
 interface MegaCotacaoMatch {
@@ -138,14 +139,14 @@ const MEGA_COTACAO: MegaCotacaoMatch[] = [
 ];
 
 const CHAMPIONSHIPS: Championship[] = [
-  { id: 'c1', label: 'Copa do\nNordeste', Icon: TrophyIcon },
-  { id: 'c2', label: 'Brasileirão', Icon: SoccerIcon },
-  { id: 'c3', label: 'Copa do\nBrasil', Icon: TrophyIcon },
-  { id: 'c4', label: 'Libertadores', Icon: SoccerIcon },
-  { id: 'c5', label: 'Champions\nLeague', Icon: SoccerIcon },
-  { id: 'c6', label: 'Premier\nLeague', Icon: SoccerIcon },
-  { id: 'c7', label: 'La Liga', Icon: SoccerIcon },
-  { id: 'c8', label: 'Serie A', Icon: SoccerIcon },
+  { id: 'c1', label: 'Copa do\nNordeste', image: require('../../assets/league_icon.png') },
+  { id: 'c2', label: 'Brasileirão', image: require('../../assets/league_icon.png') },
+  { id: 'c3', label: 'Copa do\nBrasil', image: require('../../assets/league_icon.png') },
+  { id: 'c4', label: 'Libertadores', image: require('../../assets/league_icon.png') },
+  { id: 'c5', label: 'Champions\nLeague', image: require('../../assets/league_icon.png') },
+  { id: 'c6', label: 'Premier\nLeague', image: require('../../assets/league_icon.png') },
+  { id: 'c7', label: 'La Liga', image: require('../../assets/league_icon.png') },
+  { id: 'c8', label: 'Serie A', image: require('../../assets/league_icon.png') },
 ];
 
 interface SportCategory {
@@ -166,15 +167,37 @@ function SoccerIcon({ size = 16, color = '#fff' }: { size?: number; color?: stri
   );
 }
 
-function TrophyIcon({ size = 20, color = '#fff' }: { size?: number; color?: string }) {
+function LeagueIcon({ size = 24, color = '#fff' }: { size?: number; color?: string }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <Path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
-      <Path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
-      <Path d="M4 22h16" />
-      <Path d="M10 22V18" />
-      <Path d="M14 22V18" />
-      <Path d="M18 4H6v7a6 6 0 0 0 12 0V4Z" />
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path 
+        d="M6 9H4.5C3.67 9 3 8.33 3 7.5V6.5C3 5.67 3.67 5 4.5 5H6" 
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      />
+      <Path 
+        d="M18 9H19.5C20.33 9 21 8.33 21 7.5V6.5C21 5.67 20.33 5 19.5 5H18" 
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      />
+      <Path 
+        d="M4 22H20" 
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      />
+      <Path 
+        d="M10 22V18" 
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      />
+      <Path 
+        d="M14 22V18" 
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      />
+      <Path 
+        d="M18 4H6V11C6 14.31 8.69 17 12 17C15.31 17 18 14.31 18 11V4Z" 
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      />
+      <Path 
+        d="M12 7.5L13.2 10.2H16L13.8 11.8L14.6 14.5L12 13L9.4 14.5L10.2 11.8L8 10.2H10.8L12 7.5Z" 
+        fill={color} 
+      />
     </Svg>
   );
 }
@@ -493,7 +516,11 @@ function ChampionshipsBar() {
           <Pressable key={item.id} style={styles.champItem} onPress={() => setActive(item.id)}>
             <View style={[styles.champCard, isActive && styles.champCardActive]}>
               <View style={[styles.champCircle, isActive && styles.champCircleActive]}>
-                <item.Icon size={24} color={isActive ? colors.secondary : colors.white} />
+                {item.image ? (
+                  <Image source={item.image} style={{ width: 44, height: 44 }} resizeMode="cover" />
+                ) : item.Icon ? (
+                  <item.Icon size={24} color={isActive ? colors.secondary : colors.white} />
+                ) : null}
               </View>
               <Text style={[styles.champLabel, isActive && styles.champLabelActive]} numberOfLines={2}>
                 {item.label}
@@ -770,6 +797,20 @@ function StoriesBar() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [thumbs, setThumbs] = useState<Record<string, string>>({});
 
+  const groupedStories = React.useMemo(() => {
+    const groups: { title: string; items: StoryItem[] }[] = [];
+    stories.forEach(item => {
+      const prefix = item.title.split(' ')[0].toUpperCase();
+      const existing = groups.find(g => g.items[0].title.split(' ')[0].toUpperCase() === prefix);
+      if (existing) {
+        existing.items.push(item);
+      } else {
+        groups.push({ title: item.title, items: [item] });
+      }
+    });
+    return groups;
+  }, [stories]);
+
   async function generateThumbs(items: StoryItem[]) {
     const entries = await Promise.all(
       items.map(async (s) => {
@@ -845,35 +886,48 @@ function StoriesBar() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.storiesContainer}
       >
-        {stories.map((story, index) => (
-          <Pressable key={story.id} style={styles.storyItem} onPress={() => setActiveIndex(index)}>
-            <View
-              style={[
-                styles.storyRingOuter,
-                !story.viewed ? styles.storyRingActive : styles.storyRingInactive,
-              ]}
+        {groupedStories.map((group) => {
+          const firstItem = group.items[0];
+          const allViewed = group.items.every(s => s.viewed);
+          const firstUnviewed = group.items.findIndex(s => !s.viewed);
+          const startAt = firstUnviewed === -1 ? 0 : firstUnviewed;
+          // Find the flat index for this segment
+          const flatIndex = stories.findIndex(s => s.id === group.items[startAt].id);
+
+          return (
+            <Pressable 
+              key={group.title} 
+              style={styles.storyItem} 
+              onPress={() => setActiveIndex(flatIndex)}
             >
-              <View style={styles.storyRingGap}>
-                <View style={styles.storyCircle}>
-                  {thumbs[story.id] || story.thumbnailUrl ? (
-                    <Image source={{ uri: thumbs[story.id] ?? story.thumbnailUrl! }} style={styles.storyThumb} />
-                  ) : (
-                    <Text style={styles.storyInitial}>{story.title.charAt(0).toUpperCase()}</Text>
-                  )}
+              <View
+                style={[
+                  styles.storyRingOuter,
+                  !allViewed ? styles.storyRingActive : styles.storyRingInactive,
+                ]}
+              >
+                <View style={styles.storyRingGap}>
+                  <View style={styles.storyCircle}>
+                    {thumbs[firstItem.id] || firstItem.thumbnailUrl ? (
+                      <Image source={{ uri: thumbs[firstItem.id] ?? firstItem.thumbnailUrl! }} style={styles.storyThumb} />
+                    ) : (
+                      <Text style={styles.storyInitial}>{group.title.charAt(0).toUpperCase()}</Text>
+                    )}
+                  </View>
                 </View>
               </View>
-            </View>
-            <Text
-              style={[
-                styles.storyLabel,
-                !story.viewed ? styles.storyLabelActive : styles.storyLabelInactive,
-              ]}
-              numberOfLines={1}
-            >
-              {story.title}
-            </Text>
-          </Pressable>
-        ))}
+              <Text
+                style={[
+                  styles.storyLabel,
+                  !allViewed ? styles.storyLabelActive : styles.storyLabelInactive,
+                ]}
+                numberOfLines={1}
+              >
+                {group.title}
+              </Text>
+            </Pressable>
+          );
+        })}
       </ScrollView>
     </>
   );
@@ -936,8 +990,12 @@ interface BetSlipPanelProps {
 }
 
 function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetSlipPanelProps) {
-  // Sem animação de entrada — aparece diretamente
-  const translateY = useSharedValue(0);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const translateY = useSharedValue(-300); // Começa acima da tela
+
+  useEffect(() => {
+    translateY.value = withSpring(0, { damping: 14, stiffness: 140 });
+  }, []);
 
   // PanResponder: detecta swipe para CIMA e dispensa o painel
   const pan = useRef(
@@ -974,6 +1032,14 @@ function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetS
   function addAmount(v: number) {
     const current = parseFloat(betAmount.replace(',', '.')) || 0;
     onChangeBet(String((current + v).toFixed(2)));
+  }
+
+  function handleBet() {
+    setIsConfirmed(true);
+    setTimeout(() => {
+      translateY.value = withTiming(-300, { duration: 300 });
+      setTimeout(onConfirm, 280);
+    }, 1000);
   }
 
   return (
@@ -1015,9 +1081,6 @@ function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetS
             placeholderTextColor={colors.grey}
           />
         </View>
-        <Pressable style={styles.betSlipTrash} onPress={() => onChangeBet('')}>
-          <Text style={styles.betSlipTrashIcon}>🗑️</Text>
-        </Pressable>
       </View>
 
       {/* Row 3: ganho potencial + confirmar */}
@@ -1026,8 +1089,19 @@ function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetS
           <Text style={styles.betSlipGainLabel}>GANHO POTENCIAL</Text>
           <Text style={styles.betSlipGainValue}>R$ {gain}</Text>
         </View>
-        <Pressable style={styles.betSlipConfirm} onPress={onConfirm}>
-          <Text style={styles.betSlipConfirmText}>APOSTAR</Text>
+        <Pressable 
+          style={[
+            styles.betSlipConfirm, 
+            isConfirmed && { backgroundColor: '#38E67D' }
+          ]} 
+          onPress={!isConfirmed ? handleBet : undefined}
+        >
+          <Text style={[
+            styles.betSlipConfirmText, 
+            isConfirmed && { color: '#1B2128' }
+          ]}>
+            {isConfirmed ? '✓ CONFIRMADA' : 'APOSTAR'}
+          </Text>
         </Pressable>
       </View>
     </Animated2.View>
@@ -1293,22 +1367,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.secondary,
     borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
-  betSlipQuickText: { color: colors.secondary, fontSize: 12, fontWeight: '700' },
+  betSlipQuickText: { color: colors.secondary, fontSize: 13, fontWeight: '700' },
   betSlipAmountBox: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.primaryDark,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    gap: 4,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    gap: 6,
   },
-  betSlipAmountPrefix: { color: colors.grey, fontSize: 12, fontWeight: '600' },
-  betSlipAmountInput: { flex: 1, color: colors.white, fontSize: 15, fontWeight: '700', padding: 0 },
+  betSlipAmountPrefix: { color: colors.grey, fontSize: 16, fontWeight: '600' },
+  betSlipAmountInput: { flex: 1, color: colors.white, fontSize: 18, fontWeight: '700', padding: 0 },
   betSlipTrash: { padding: 6 },
   betSlipTrashIcon: { fontSize: 16 },
 
@@ -1611,6 +1685,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1.5,
     borderColor: 'rgba(255,255,255,0.1)',
+    overflow: 'hidden',
   },
   champCircleActive: {
     borderColor: colors.secondary,

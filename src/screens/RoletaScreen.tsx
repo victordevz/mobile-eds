@@ -102,16 +102,16 @@ const GAME_ICON: Record<string, { emoji: string; bg: string }> = {
 };
 
 const TOP10_GAMES: CasinoGame[] = [
-  { id: 't1',  name: 'Gates of Olympus',    provider: 'Pragmatic',   rtp: '96.5%', hot: true,  category: ['Slots', 'Popular'], players: 12400 },
-  { id: 't2',  name: 'Sweet Bonanza',        provider: 'Pragmatic',   rtp: '96.4%', hot: true,  category: ['Slots', 'Popular'], players: 9800  },
-  { id: 't3',  name: 'Lightning Roulette',   provider: 'Evolution',   rtp: '97.3%', hot: true,  category: ['Roletas Ao Vivo'],  players: 8700  },
-  { id: 't4',  name: 'Crazy Time',           provider: 'Evolution',   rtp: '96.0%', hot: true,  category: ['Game Shows'],       players: 8100  },
-  { id: 't5',  name: 'Aviator',              provider: 'Spribe',      rtp: '97.0%', hot: true,  category: ['Crash'],            players: 7500  },
-  { id: 't6',  name: 'Monopoly Live',        provider: 'Evolution',   rtp: '96.2%',             category: ['Game Shows'],       players: 6200  },
-  { id: 't7',  name: 'Speed Baccarat',       provider: 'Evolution',   rtp: '98.9%',             category: ['Jogos de Cartas'],  players: 5900  },
-  { id: 't8',  name: 'Mega Ball',            provider: 'Evolution',   rtp: '95.4%',             category: ['Game Shows'],       players: 5400  },
-  { id: 't9',  name: 'Infinite Blackjack',   provider: 'Evolution',   rtp: '99.5%',             category: ['Jogos de Cartas'],  players: 4900  },
-  { id: 't10', name: 'Dragon Tiger',         provider: 'Evolution',   rtp: '96.7%', new: true,  category: ['Jogos de Cartas'],  players: 4200  },
+  { id: 't1',  name: 'Lightning Roulette',   provider: 'Evolution',   rtp: '97.3%', hot: true,  category: ['Roletas Ao Vivo'],  players: 18700  },
+  { id: 't2',  name: 'VIP Blackjack',        provider: 'Evolution',   rtp: '99.5%', hot: true,  category: ['Jogos de Cartas'],  players: 14200  },
+  { id: 't3',  name: 'Speed Baccarat',       provider: 'Evolution',   rtp: '98.9%', hot: true,  category: ['Jogos de Cartas'],  players: 11900  },
+  { id: 't4',  name: 'Crazy Time',           provider: 'Evolution',   rtp: '96.0%', hot: true,  category: ['Game Shows'],       players: 9100   },
+  { id: 't5',  name: 'Mega Ball',            provider: 'Evolution',   rtp: '95.4%',             category: ['Game Shows'],       players: 8400   },
+  { id: 't6',  name: 'Monopoly Live',        provider: 'Evolution',   rtp: '96.2%',             category: ['Game Shows'],       players: 7200   },
+  { id: 't7',  name: 'Immersive Roulette',   provider: 'Evolution',   rtp: '97.3%',             category: ['Roletas Ao Vivo'],  players: 6800   },
+  { id: 't8',  name: 'Auto Roulette',        provider: 'Evolution',   rtp: '97.3%',             category: ['Roletas Ao Vivo'],  players: 5900   },
+  { id: 't9',  name: 'Infinite Blackjack',   provider: 'Evolution',   rtp: '99.5%',             category: ['Jogos de Cartas'],  players: 4900   },
+  { id: 't10', name: 'Dragon Tiger',         provider: 'Evolution',   rtp: '96.7%', new: true,  category: ['Jogos de Cartas'],  players: 4200   },
 ];
 
 type CategoryTab = 'Game Shows' | 'Roletas Ao Vivo' | 'Jogos de Cartas' | 'Crash' | 'Slots' | 'Popular';
@@ -346,6 +346,19 @@ function Top10Section({ onPress }: { onPress: () => void }) {
       >
         {TOP10_GAMES.map((game, index) => {
           const icon = GAME_ICON[game.name] ?? { emoji: '🎰', bg: '#1a3a6e' };
+          
+          // Mapeando algumas imagens pra dar o efeito visual real
+          const thumbMap: Record<string, any> = {
+            'Lightning Roulette': require('../../assets/live_roulette_thumb.png'),
+            'VIP Blackjack': require('../../assets/live_blackjack_thumb.png'),
+            'Speed Baccarat': require('../../assets/live_baccarat_thumb.png'),
+            'Immersive Roulette': require('../../assets/live_roulette_thumb.png'), // reuso
+            'Infinite Blackjack': require('../../assets/live_blackjack_thumb.png'), // reuso
+            'Auto Roulette': require('../../assets/casino_banner_roulette.png'), // fallback do banner antigo
+            'Crazy Time': require('../../assets/casino_banner_slots.png'), // fallback
+          };
+          const imageSource = thumbMap[game.name] || null;
+
           return (
             <Pressable key={game.id} style={styles.top10Card} onPress={onPress}>
               {/* Rank badge */}
@@ -354,29 +367,38 @@ function Top10Section({ onPress }: { onPress: () => void }) {
                   {index + 1}
                 </Text>
               </View>
-              {/* Game thumb */}
+              {/* Game thumb - Landscape Video feel */}
               <View style={[styles.top10Thumb, { backgroundColor: icon.bg }]}>
-                <Text style={styles.top10Emoji}>{icon.emoji}</Text>
+                {imageSource ? (
+                  <Image source={imageSource} style={styles.top10Image} />
+                ) : (
+                  <Text style={styles.top10Emoji}>{icon.emoji}</Text>
+                )}
                 {/* Live indicator overlay */}
                 <View style={styles.top10LiveBadge}>
                   <View style={styles.top10LiveDot} />
                   <Text style={styles.top10LiveText}>AO VIVO</Text>
                 </View>
               </View>
-              <Text style={styles.top10Name} numberOfLines={2}>{game.name}</Text>
-              <Text style={styles.top10Provider} numberOfLines={1}>{game.provider}</Text>
-              <View style={styles.top10Footer}>
-                <Text style={styles.top10Rtp}>RTP {game.rtp}</Text>
-                {(game.hot || game.new) && (
-                  <View style={[styles.top10Badge, game.new ? styles.top10BadgeNew : styles.top10BadgeHot]}>
-                    <Text style={styles.top10BadgeText}>{game.new ? 'NOVO' : 'HOT'}</Text>
-                  </View>
-                )}
-              </View>
-              {/* Players */}
-              <View style={styles.top10Players}>
-                <View style={styles.top10PlayerDot} />
-                <Text style={styles.top10PlayersText}>{(game.players / 1000).toFixed(1)}K jogando</Text>
+              
+              <View style={styles.top10Info}>
+                <Text style={styles.top10Name} numberOfLines={1}>{game.name}</Text>
+                <Text style={styles.top10Provider} numberOfLines={1}>{game.provider}</Text>
+                
+                <View style={styles.top10Footer}>
+                  <Text style={styles.top10Rtp}>RTP {game.rtp}</Text>
+                  {(game.hot || game.new) && (
+                    <View style={[styles.top10Badge, game.new ? styles.top10BadgeNew : styles.top10BadgeHot]}>
+                      <Text style={styles.top10BadgeText}>{game.new ? 'NOVO' : 'HOT'}</Text>
+                    </View>
+                  )}
+                </View>
+                
+                {/* Players */}
+                <View style={styles.top10Players}>
+                  <View style={styles.top10PlayerDot} />
+                  <Text style={styles.top10PlayersText}>{(game.players / 1000).toFixed(1)}K jogando</Text>
+                </View>
               </View>
             </Pressable>
           );
@@ -668,15 +690,6 @@ const styles = StyleSheet.create({
   catLabel: { color: colors.grey, fontSize: 11, fontWeight: '700', textAlign: 'center' },
   catLabelActive: { color: colors.white, fontWeight: '900' },
 
-  /* ── Top 10 live badge ── */
-  top10LiveBadge: {
-    position: 'absolute', bottom: 6, left: 6,
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: 'rgba(230,57,70,0.85)',
-    borderRadius: 5, paddingHorizontal: 6, paddingVertical: 2,
-  },
-  top10LiveDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: '#fff' },
-  top10LiveText: { color: '#fff', fontSize: 8, fontWeight: '900', letterSpacing: 0.5 },
 
   /* ── Game card live tag ── */
   gameLiveTag: {
@@ -716,46 +729,75 @@ const styles = StyleSheet.create({
   liveSub: { color: colors.secondary, fontSize: 12, marginTop: 2 },
 
   /* ── Top 10 ── */
-  top10Row: { gap: 12, paddingVertical: 4 },
+  top10Row: { gap: 16, paddingVertical: 10, paddingHorizontal: 4 },
   top10Card: {
-    width: 140,
-    backgroundColor: colors.card,
+    width: 260,
+    backgroundColor: '#0A183D',
     borderRadius: 16,
-    padding: 12,
+    padding: 10,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.07)',
   },
   rankBadge: {
-    position: 'absolute', top: -8, left: -6,
-    width: 26, height: 26, borderRadius: 13,
+    position: 'absolute', top: -10, left: -10,
+    width: 28, height: 28, borderRadius: 10,
     backgroundColor: colors.surface,
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.15)',
-    zIndex: 2,
+    borderWidth: 2, borderColor: '#0A183D',
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 4,
   },
-  rankBadgeGold: { backgroundColor: '#FFD700', borderColor: '#FFA500' },
-  rankText: { color: colors.grey, fontSize: 11, fontWeight: '800' },
+  rankBadgeGold: { backgroundColor: '#FFCC00' },
+  rankText: { color: colors.grey, fontSize: 13, fontWeight: '900' },
   rankTextGold: { color: '#01184F' },
   top10Thumb: {
-    width: '100%', height: 90,
+    width: '100%', height: 130, // Horizontal video proportion (roughly 16:9 on 240px width)
     backgroundColor: colors.cardLight,
-    borderRadius: 10,
+    borderRadius: 12,
     alignItems: 'center', justifyContent: 'center',
     marginBottom: 10,
-    marginTop: 8,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
   },
-  top10Emoji: { fontSize: 36 },
-  top10Name: { color: colors.white, fontSize: 13, fontWeight: '700', marginBottom: 2 },
-  top10Provider: { color: colors.grey, fontSize: 11, marginBottom: 6 },
+  top10Image: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  top10Emoji: { fontSize: 48 },
+  top10LiveBadge: {
+    position: 'absolute', bottom: 8, left: 8,
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: '#E63946',
+    borderRadius: 6, paddingHorizontal: 6, paddingVertical: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.4,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  top10LiveDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#fff' },
+  top10LiveText: { color: '#fff', fontSize: 9, fontWeight: '900', letterSpacing: 0.5 },
+  top10Info: {
+    gap: 2,
+    paddingHorizontal: 4,
+  },
+  top10Name: { color: colors.white, fontSize: 15, fontWeight: '800', marginBottom: 2 },
+  top10Provider: { color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: '600', marginBottom: 6 },
   top10Footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  top10Rtp: { color: colors.secondary, fontSize: 11, fontWeight: '600' },
-  top10Badge: { borderRadius: 4, paddingHorizontal: 5, paddingVertical: 2 },
-  top10BadgeHot: { backgroundColor: 'rgba(255,107,53,0.2)', borderWidth: 1, borderColor: '#FF6B35' },
-  top10BadgeNew: { backgroundColor: 'rgba(56,230,125,0.15)', borderWidth: 1, borderColor: colors.secondary },
+  top10Rtp: { color: '#38E67D', fontSize: 12, fontWeight: '800' },
+  top10Badge: { borderRadius: 4, paddingHorizontal: 5, paddingVertical: 2, borderWidth: 1 },
+  top10BadgeHot: { backgroundColor: 'rgba(230,57,70,0.1)', borderColor: 'rgba(230,57,70,0.8)' },
+  top10BadgeNew: { backgroundColor: 'rgba(56,230,125,0.1)', borderColor: colors.secondary },
   top10BadgeText: { fontSize: 9, fontWeight: '800', color: colors.white },
   top10Players: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 8 },
   top10PlayerDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#38E67D' },
-  top10PlayersText: { color: colors.grey, fontSize: 10 },
+  top10PlayersText: { color: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: '600' },
 
   /* ── Category Tab Strip ── */
   tabStrip: { gap: 8, paddingVertical: 4, marginBottom: 16 },

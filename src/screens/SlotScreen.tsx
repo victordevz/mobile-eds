@@ -54,7 +54,7 @@ function generateWin() {
   const betVal = (Math.random() * 50 + 1).toFixed(2);
   const multVal = Math.floor(Math.random() * 50) + 2;
   const winVal = (parseFloat(betVal) * multVal).toFixed(2);
-  
+
   const now = new Date();
   const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
@@ -187,10 +187,10 @@ function SubTopBar() {
 }
 
 /** Banner promocional com paginação */
-function PromoBanner({ 
-  onPlay, 
-  games 
-}: { 
+function PromoBanner({
+  onPlay,
+  games
+}: {
   onPlay: (game: any) => void;
   games: any[];
 }) {
@@ -272,7 +272,7 @@ function PromoBanner({
 
               {/* Botões */}
               <View style={styles.bannerButtons}>
-                <Pressable 
+                <Pressable
                   style={styles.bannerBtnPlay}
                   onPress={() => {
                     const game = games.find((g: any) => g.title === item.game);
@@ -533,7 +533,7 @@ function RecentWins() {
     const scrollInterval = setInterval(() => {
       if (scrollViewRef.current) {
         scrollPos.current += 1.5; // Velocidade da esteira
-        
+
         // Se chegar ao final (aproximadamente), volta pro início de forma invisível
         // Para um efeito infinito perfeito, duplicamos a lista de itens
         if (maxScroll.current > 0 && scrollPos.current >= maxScroll.current / 2) {
@@ -563,10 +563,10 @@ function RecentWins() {
         </Animated.View>
       </View>
 
-      <ScrollView 
+      <ScrollView
         ref={scrollViewRef}
-        horizontal 
-        showsHorizontalScrollIndicator={false} 
+        horizontal
+        showsHorizontalScrollIndicator={false}
         scrollEnabled={false} // Desabilita manual para não quebrar o autoscroll
         onContentSizeChange={(w) => { maxScroll.current = w; }}
         contentContainerStyle={styles.tickerScrollContent}
@@ -1119,7 +1119,7 @@ const styles = StyleSheet.create({
   providerTextActive: {
     color: colors.primaryDark,
   },
-  
+
   /* ── Recent Wins Ticker ── */
   tickerSection: {
     marginTop: 20,

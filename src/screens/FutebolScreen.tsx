@@ -108,7 +108,7 @@ const BANNERS = [
 interface Championship {
   id: string;
   label: string;
-  emoji: string;
+  Icon: React.FC<{ size?: number; color?: string }>;
 }
 
 interface MegaCotacaoMatch {
@@ -131,14 +131,14 @@ const MEGA_COTACAO: MegaCotacaoMatch[] = [
 ];
 
 const CHAMPIONSHIPS: Championship[] = [
-  { id: 'c1', label: 'Copa do\nNordeste', emoji: '🏆' },
-  { id: 'c2', label: 'Brasileirão', emoji: '🇧🇷' },
-  { id: 'c3', label: 'Copa do\nBrasil', emoji: '🏅' },
-  { id: 'c4', label: 'Libertadores', emoji: '⭐' },
-  { id: 'c5', label: 'Champions\nLeague', emoji: '🌟' },
-  { id: 'c6', label: 'Premier\nLeague', emoji: '🦁' },
-  { id: 'c7', label: 'La Liga', emoji: '🔴' },
-  { id: 'c8', label: 'Serie A', emoji: '🇮🇹' },
+  { id: 'c1', label: 'Copa do\nNordeste', Icon: TrophyIcon },
+  { id: 'c2', label: 'Brasileirão', Icon: SoccerIcon },
+  { id: 'c3', label: 'Copa do\nBrasil', Icon: TrophyIcon },
+  { id: 'c4', label: 'Libertadores', Icon: SoccerIcon },
+  { id: 'c5', label: 'Champions\nLeague', Icon: SoccerIcon },
+  { id: 'c6', label: 'Premier\nLeague', Icon: SoccerIcon },
+  { id: 'c7', label: 'La Liga', Icon: SoccerIcon },
+  { id: 'c8', label: 'Serie A', Icon: SoccerIcon },
 ];
 
 interface SportCategory {
@@ -155,6 +155,19 @@ function SoccerIcon({ size = 16, color = '#fff' }: { size?: number; color?: stri
       <Path d="M12 2C12 2 15 6 15 12s-3 10-3 10" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
       <Path d="M2 12h20" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
       <Path d="M3.5 7h17M3.5 17h17" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+function TrophyIcon({ size = 20, color = '#fff' }: { size?: number; color?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+      <Path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+      <Path d="M4 22h16" />
+      <Path d="M10 22V18" />
+      <Path d="M14 22V18" />
+      <Path d="M18 4H6v7a6 6 0 0 0 12 0V4Z" />
     </Svg>
   );
 }
@@ -209,13 +222,22 @@ const SPORT_CATEGORIES: SportCategory[] = [
 ];
 
 const POPULARES_MATCHES: MegaCotacaoMatch[] = [
-  { id: 'p1', date: 'Hoje', time: '16:00', homeTeam: 'Botafogo', HomeIcon: BotafogoIcon, awayTeam: 'Vasco', AwayIcon: VascoIcon, league: 'Brasileirão', odd: 2.10 },
+  { id: 'p1', date: 'Hoje', time: '16:00', homeTeam: 'Flamengo', HomeIcon: FlamengoIcon, awayTeam: 'Vasco', AwayIcon: VascoIcon, league: 'Brasileirão', odd: 2.10 },
   { id: 'p2', date: 'Hoje', time: '19:00', homeTeam: 'Fluminense', HomeIcon: FluminenseIcon, awayTeam: 'Corinthians', AwayIcon: CorinthiasIcon, league: 'Brasileirão', odd: 3.50 },
   { id: 'p3', date: 'Amanhã', time: '21:00', homeTeam: 'Bayer', HomeIcon: BayerIcon, awayTeam: 'Barcelona', AwayIcon: BarcelonaIcon, league: 'Champions League', odd: 2.80 },
   { id: 'p4', date: 'Amanhã', time: '17:30', homeTeam: 'Bragantino', HomeIcon: BragatinoIcon, awayTeam: 'Palmeiras', AwayIcon: PalmeirasIcon, league: 'Brasileirão', odd: 3.10 },
 ];
 
 /* ───────────────────── Componentes auxiliares ──────────── */
+
+/** Componente padronizado para ícones de times */
+function TeamIcon({ Icon, size = 48 }: { Icon: React.FC<{ width?: number; height?: number }>; size?: number }) {
+  return (
+    <View style={styles.teamIconBox}>
+      <Icon width={size} height={size} />
+    </View>
+  );
+}
 
 /** Seção Mega Cotação */
 function MegaCotacaoSection({ onPress }: { onPress: (data: BetSlipData) => void }) {
@@ -244,16 +266,12 @@ function MegaCotacaoSection({ onPress }: { onPress: (data: BetSlipData) => void 
             </View>
             <View style={styles.megaMatchArea}>
               <View style={styles.megaTeam}>
-                <View style={styles.teamIconBox}>
-                  <match.HomeIcon width={40} height={40} />
-                </View>
+                <TeamIcon Icon={match.HomeIcon} />
                 <Text style={styles.megaTeamName} numberOfLines={1}>{match.homeTeam}</Text>
               </View>
               <Text style={styles.megaVs}>VS</Text>
               <View style={styles.megaTeam}>
-                <View style={styles.teamIconBox}>
-                  <match.AwayIcon width={40} height={40} />
-                </View>
+                <TeamIcon Icon={match.AwayIcon} />
                 <Text style={styles.megaTeamName} numberOfLines={1}>{match.awayTeam}</Text>
               </View>
             </View>
@@ -345,12 +363,12 @@ function PopularesSection({ onPress }: { onPress: (data: BetSlipData) => void })
             </View>
             <View style={styles.megaMatchArea}>
               <View style={styles.megaTeam}>
-                <match.HomeIcon width={40} height={40} />
+                <TeamIcon Icon={match.HomeIcon} />
                 <Text style={styles.megaTeamName} numberOfLines={1}>{match.homeTeam}</Text>
               </View>
               <Text style={styles.megaVs}>VS</Text>
               <View style={styles.megaTeam}>
-                <match.AwayIcon width={40} height={40} />
+                <TeamIcon Icon={match.AwayIcon} />
                 <Text style={styles.megaTeamName} numberOfLines={1}>{match.awayTeam}</Text>
               </View>
             </View>
@@ -385,7 +403,7 @@ function ChampionshipsBar() {
           <Pressable key={item.id} style={styles.champItem} onPress={() => setActive(item.id)}>
             <View style={[styles.champCard, isActive && styles.champCardActive]}>
               <View style={[styles.champCircle, isActive && styles.champCircleActive]}>
-                <Text style={styles.champEmoji}>{item.emoji}</Text>
+                <item.Icon size={24} color={isActive ? colors.secondary : colors.white} />
               </View>
               <Text style={[styles.champLabel, isActive && styles.champLabelActive]} numberOfLines={2}>
                 {item.label}
@@ -767,6 +785,13 @@ function StoriesBar() {
       </ScrollView>
     </>
   );
+}
+
+interface BetSlipData {
+  matchLabel: string;
+  oddLabel: string;
+  oddValue: number;
+  league: string;
 }
 
 /* ───────────────────── BetSlip Panel ───────────────────── */
@@ -1358,9 +1383,6 @@ const styles = StyleSheet.create({
     borderColor: colors.secondary,
     backgroundColor: 'rgba(56,230,125,0.12)',
   },
-  champEmoji: {
-    fontSize: 22,
-  },
   champLabel: {
     color: colors.grey,
     fontSize: 10.5,
@@ -1590,7 +1612,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   megaCard: {
-    width: 160,
+    width: 180,
     borderRadius: 14,
     backgroundColor: colors.card,
     padding: 12,
@@ -1638,9 +1660,10 @@ const styles = StyleSheet.create({
   },
   megaTeamName: {
     color: colors.white,
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '700',
     textAlign: 'center',
+    marginTop: 2,
   },
   megaVs: {
     color: colors.grey,
@@ -1682,4 +1705,19 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
 
+  teamIconBox: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.1)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    elevation: 4,
+  },
 });

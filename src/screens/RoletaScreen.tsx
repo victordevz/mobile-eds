@@ -57,15 +57,15 @@ interface GameCategory {
   color: string;
 }
 
-const GAME_CATEGORIES: GameCategory[] = [
-  { id: 'gc1', label: 'Roleta', emoji: '🎡', color: '#E63946' },
-  { id: 'gc2', label: 'Blackjack', emoji: '🃏', color: '#2A9D8F' },
+const GAME_CATEGORIES: (GameCategory & { image?: any })[] = [
+  { id: 'gc1', label: 'Roleta', emoji: '🎡', color: '#E63946', image: require('../../assets/casino_banner_roulette.png') },
+  { id: 'gc2', label: 'Blackjack', emoji: '🃏', color: '#2A9D8F', image: require('../../assets/blackjack_thumbnail.png') },
   { id: 'gc3', label: 'Dados', emoji: '🎲', color: '#E9C46A' },
   { id: 'gc4', label: 'Baccarat', emoji: '💎', color: '#9B5DE5' },
-  { id: 'gc5', label: 'Poker', emoji: '♠️', color: '#38E67D' },
-  { id: 'gc6', label: 'Crash', emoji: '🚀', color: '#F77F00' },
+  { id: 'gc5', label: 'Poker', emoji: '♠️', color: '#38E67D', image: require('../../assets/casino_banner_poker.png') },
+  { id: 'gc6', label: 'Crash', emoji: '🚀', color: '#F77F00', image: require('../../assets/aviator.jpeg') },
   { id: 'gc7', label: 'Mines', emoji: '💣', color: '#4CC9F0' },
-  { id: 'gc8', label: 'Plinko', emoji: '⚪', color: '#FF6B6B' },
+  { id: 'gc8', label: 'Slots', emoji: '🎰', color: '#FF6B6B', image: require('../../assets/casino_banner_slots.png') },
 ];
 
 interface CasinoGame {
@@ -271,14 +271,27 @@ function CategoriesRow({ onPress }: { onPress: (label: string) => void }) {
             >
               <View
                 style={[
-                  styles.catCircle,
-                  { backgroundColor: isActive ? cat.color : colors.card },
-                  isActive && { shadowColor: cat.color, shadowOpacity: 0.6, shadowRadius: 8, elevation: 6 },
+                  styles.catThumb,
+                  { backgroundColor: cat.color + '22' },
+                  isActive && styles.catThumbActive,
                 ]}
               >
-                <Text style={styles.catEmoji}>{cat.emoji}</Text>
+                {cat.image ? (
+                  <Image source={cat.image} style={styles.catImage} />
+                ) : (
+                  <LinearGradient
+                    colors={[cat.color, cat.color + '88']}
+                    style={styles.catImage}
+                  >
+                    <Text style={styles.catEmoji}>{cat.emoji}</Text>
+                  </LinearGradient>
+                )}
+                <LinearGradient
+                   colors={['transparent', 'rgba(0,0,0,0.6)']}
+                   style={styles.catGradient}
+                />
               </View>
-              <Text style={[styles.catLabel, isActive && { color: colors.white, fontWeight: '700' }]}>
+              <Text style={[styles.catLabel, isActive && styles.catLabelActive]}>
                 {cat.label}
               </Text>
             </Pressable>
@@ -617,15 +630,43 @@ const styles = StyleSheet.create({
   liveBadgeSmallText: { color: '#E63946', fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
 
   /* ── Game Categories ── */
-  catRow: { gap: 4, paddingVertical: 4 },
-  catItem: { alignItems: 'center', marginRight: 18, width: 64 },
-  catCircle: {
-    width: 56, height: 56, borderRadius: 28,
-    alignItems: 'center', justifyContent: 'center',
+  catRow: { gap: 12, paddingVertical: 12 },
+  catItem: { alignItems: 'center', marginRight: 4 },
+  catThumb: {
+    width: 90,
+    height: 110,
+    borderRadius: 14,
+    overflow: 'hidden',
+    backgroundColor: colors.card,
     marginBottom: 8,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
   },
-  catEmoji: { fontSize: 24 },
-  catLabel: { color: colors.grey, fontSize: 11, fontWeight: '600', textAlign: 'center' },
+  catThumbActive: {
+    borderColor: colors.secondary,
+  },
+  catImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  catGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '50%',
+  },
+  catEmoji: { fontSize: 32 },
+  catLabel: { color: colors.grey, fontSize: 11, fontWeight: '700', textAlign: 'center' },
+  catLabelActive: { color: colors.white, fontWeight: '900' },
 
   /* ── Top 10 live badge ── */
   top10LiveBadge: {

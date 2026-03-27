@@ -631,9 +631,9 @@ function ChampionshipsBar() {
 
 /* ──────────────── Header com seletor de esporte ────────────── */
 
-interface HeaderProps { sport: SportTheme; onSportPress: () => void; }
+interface HeaderProps { sport: SportTheme; }
 
-function Header({ sport, onSportPress }: HeaderProps) {
+function Header({ sport }: HeaderProps) {
   const { openMenu, openDepositModal, balance, isAuthenticated } = useAuth();
   const balanceLabel = isAuthenticated && balance !== null
     ? `R$ ${balance.toFixed(2).replace('.', ',')}`
@@ -643,10 +643,7 @@ function Header({ sport, onSportPress }: HeaderProps) {
     <View style={styles.header}>
       <Logotipo width={80} height={28} />
 
-      {/* Sport selector pill */}
-      <Pressable style={[styles.sportSelector, { borderColor: sport.accent + '80', paddingHorizontal: 12 }]} onPress={onSportPress}>
-        <Text style={styles.sportSelectorEmoji}>{sport.emoji}</Text>
-      </Pressable>
+      {/* Sport selector pill removido conforme solicitado */}
 
       <View style={styles.headerActions}>
         <Pressable style={styles.balancePill} onPress={openDepositModal}>
@@ -1249,7 +1246,7 @@ export default function FutebolScreen() {
     <View style={[styles.container, { backgroundColor: sport.bg }]}>
       {/* Fixed header */}
       <View style={[styles.headerWrapper, { backgroundColor: sport.bg, paddingTop: insets.top }]}>
-        <Header sport={sport} onSportPress={() => setShowDropdown(v => !v)} />
+        <Header sport={sport} />
       </View>
 
       {/* Dropdown */}

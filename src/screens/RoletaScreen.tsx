@@ -60,12 +60,9 @@ interface GameCategory {
 const GAME_CATEGORIES: (GameCategory & { image?: any })[] = [
   { id: 'gc1', label: 'Roleta', emoji: '🎡', color: '#E63946', image: require('../../assets/casino_banner_roulette.png') },
   { id: 'gc2', label: 'Blackjack', emoji: '🃏', color: '#2A9D8F', image: require('../../assets/blackjack_thumbnail.png') },
-  { id: 'gc3', label: 'Dados', emoji: '🎲', color: '#E9C46A' },
-  { id: 'gc4', label: 'Baccarat', emoji: '💎', color: '#9B5DE5' },
+  { id: 'gc3', label: 'Dados', emoji: '🎲', color: '#E9C46A', image: require('../../assets/dice_thumb.png') },
+  { id: 'gc4', label: 'Baccarat', emoji: '💎', color: '#9B5DE5', image: require('../../assets/live_baccarat_thumb.png') },
   { id: 'gc5', label: 'Poker', emoji: '♠️', color: '#38E67D', image: require('../../assets/casino_banner_poker.png') },
-  { id: 'gc6', label: 'Crash', emoji: '🚀', color: '#F77F00', image: require('../../assets/aviator.jpeg') },
-  { id: 'gc7', label: 'Mines', emoji: '💣', color: '#4CC9F0' },
-  { id: 'gc8', label: 'Slots', emoji: '🎰', color: '#FF6B6B', image: require('../../assets/casino_banner_slots.png') },
 ];
 
 interface CasinoGame {
@@ -114,15 +111,13 @@ const TOP10_GAMES: CasinoGame[] = [
   { id: 't10', name: 'Dragon Tiger',         provider: 'Evolution',   rtp: '96.7%', new: true,  category: ['Jogos de Cartas'],  players: 4200   },
 ];
 
-type CategoryTab = 'Game Shows' | 'Roletas Ao Vivo' | 'Jogos de Cartas' | 'Crash' | 'Slots' | 'Popular';
+type CategoryTab = 'Game Shows' | 'Roletas Ao Vivo' | 'Jogos de Cartas' | 'Popular';
 
 const CATEGORY_TABS: CategoryTab[] = [
   'Popular',
   'Game Shows',
   'Roletas Ao Vivo',
   'Jogos de Cartas',
-  'Crash',
-  'Slots',
 ];
 
 const ALL_GAMES: CasinoGame[] = [
@@ -130,9 +125,6 @@ const ALL_GAMES: CasinoGame[] = [
   { id: 'g1',  name: 'Immersive Roulette',  provider: 'Evolution',  rtp: '97.3%', category: ['Roletas Ao Vivo', 'Popular'], players: 3800 },
   { id: 'g2',  name: 'Auto Roulette',       provider: 'Evolution',  rtp: '97.3%', category: ['Roletas Ao Vivo'],           players: 2900 },
   { id: 'g3',  name: 'Deal or No Deal',     provider: 'Evolution',  rtp: '95.4%', category: ['Game Shows'],                players: 2300 },
-  { id: 'g4',  name: 'Book of Dead',        provider: 'Play\'n GO', rtp: '96.2%', new: true, category: ['Slots'],          players: 2100 },
-  { id: 'g5',  name: 'Mines',               provider: 'Spribe',     rtp: '97.0%', category: ['Crash'],                    players: 1900 },
-  { id: 'g6',  name: 'JetX',               provider: 'SmartSoft',  rtp: '97.0%', category: ['Crash'],                    players: 1700 },
   { id: 'g7',  name: 'VIP Blackjack',       provider: 'Evolution',  rtp: '99.5%', category: ['Jogos de Cartas'],          players: 1600 },
   { id: 'g8',  name: 'Three Card Poker',    provider: 'Evolution',  rtp: '97.6%', category: ['Jogos de Cartas'],          players: 1400 },
 ];

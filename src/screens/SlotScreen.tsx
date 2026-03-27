@@ -234,9 +234,9 @@ function PromoBanner({
         snapToInterval={BANNER_W + 12}
         snapToAlignment="start"
         decelerationRate="fast"
-        nestedScrollEnabled
+        // nestedScrollEnabled removido para evitar conflitos de gesto desnecessários no iOS/Android (horizontal vs vertical)
         overScrollMode="never"
-        scrollEventThrottle={16}
+        scrollEventThrottle={32}
 
         contentContainerStyle={styles.bannerList}
         onScroll={onScroll}
@@ -328,7 +328,6 @@ function CategoryPills({
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      nestedScrollEnabled
       overScrollMode="never"
       contentContainerStyle={styles.pillsContainer}
     >
@@ -434,7 +433,6 @@ function GameSection({
           data={games}
           horizontal
           showsHorizontalScrollIndicator={false}
-          nestedScrollEnabled
           overScrollMode="never"
           contentContainerStyle={styles.gameList}
           keyExtractor={(item) => item.id}
@@ -514,11 +512,10 @@ function RecentWinTickerItem({ item }: { item: any }) {
 
 /** Esteira de Últimos Ganhos (Ticker) com Autoscroll */
 function RecentWins() {
-  const [wins, setWins] = useState(() => Array.from({ length: 15 }).map(() => generateWin()));
+  const [wins] = useState(() => Array.from({ length: 15 }).map(() => generateWin()));
   const blinkAnim = useRef(new Animated.Value(1)).current;
-  const scrollViewRef = useRef<ScrollView>(null);
-  const scrollPos = useRef(0);
-  const maxScroll = useRef(0);
+  const scrollAnim = useRef(new Animated.Value(0)).current;
+  const [contentWidth, setContentWidth] = useState(0);
 
   useEffect(() => {
     // Animação de piscar "AO VIVO"
@@ -528,24 +525,25 @@ function RecentWins() {
         Animated.timing(blinkAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
       ])
     ).start();
-
-    // Loop de Autoscroll Suave
-    const scrollInterval = setInterval(() => {
-      if (scrollViewRef.current) {
-        scrollPos.current += 1.5; // Velocidade da esteira
-
-        // Se chegar ao final (aproximadamente), volta pro início de forma invisível
-        // Para um efeito infinito perfeito, duplicamos a lista de itens
-        if (maxScroll.current > 0 && scrollPos.current >= maxScroll.current / 2) {
-          scrollPos.current = 0;
-        }
-
-        scrollViewRef.current.scrollTo({ x: scrollPos.current, animated: false });
-      }
-    }, 20); // 50fps para suavidade máxima
-
-    return () => clearInterval(scrollInterval);
   }, []);
+
+  useEffect(() => {
+    if (contentWidth > 0) {
+      // Reinicia a animação sempre que o loop deve acontecer
+      // Para um ticker infinito suave, animamos o translateX
+      const duration = contentWidth * 25; // Ajuste a velocidade aqui (ms por pixel)
+      
+      scrollAnim.setValue(0);
+      Animated.loop(
+        Animated.timing(scrollAnim, {
+          toValue: -contentWidth / 2, // Anda metade do conteúdo (que é duplicado)
+          duration: duration / 2,
+          useNativeDriver: true,
+          easing: (t) => t, // Linear
+        })
+      ).start();
+    }
+  }, [contentWidth]);
 
   // Duplicamos a lista para criar o efeito de loop infinito suave
   const displayWins = [...wins, ...wins];
@@ -563,18 +561,22 @@ function RecentWins() {
         </Animated.View>
       </View>
 
-      <ScrollView
-        ref={scrollViewRef}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        scrollEnabled={false} // Desabilita manual para não quebrar o autoscroll
-        onContentSizeChange={(w) => { maxScroll.current = w; }}
-        contentContainerStyle={styles.tickerScrollContent}
-      >
-        {displayWins.map((item, index) => (
-          <RecentWinTickerItem key={`${item.id}-${index}`} item={item} />
-        ))}
-      </ScrollView>
+      <View style={{ overflow: 'hidden' }}>
+        <Animated.View
+          style={[
+            styles.tickerScrollContent,
+            {
+              flexDirection: 'row',
+              transform: [{ translateX: scrollAnim }],
+            },
+          ]}
+          onLayout={(e) => setContentWidth(e.nativeEvent.layout.width)}
+        >
+          {displayWins.map((item, index) => (
+            <RecentWinTickerItem key={`${item.id}-${index}`} item={item} />
+          ))}
+        </Animated.View>
+      </View>
     </View>
   );
 }
@@ -618,6 +620,7 @@ export default function SlotScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
+        style={{ flex: 1 }} // Garante que o ScrollView ocupe o espaço e receba toques corretamente
       >
         <Header />
         <PromoBanner onPlay={handleGamePress} games={popular.data} />

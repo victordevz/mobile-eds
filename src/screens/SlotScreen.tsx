@@ -18,6 +18,7 @@ import {
   LayoutAnimation,
   UIManager,
   Platform,
+  Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -40,9 +41,15 @@ const WIN_COLS = {
 };
 
 function generateWin() {
-  const games = ['Starlight Princess', 'Gates of Olympus', 'Sweet Bonanza', 'Sugar Rush', 'Aviator', 'Mines'];
+  const games = [
+    { name: 'Starlight Princess', icon: require('../../assets/ZU_Thumb-HoodH51vs-Wolf.webp') },
+    { name: 'Gates of Olympus', icon: require('../../assets/gates_of_olympus_1000_game_thumbnail-v2.avif') },
+    { name: 'Sweet Bonanza', icon: require('../../assets/sweet_bonanza_thumbnail_game.webp') },
+    { name: 'Sugar Rush', icon: require('../../assets/gb_sweet-land_420x560_1803.avif') },
+    { name: 'Big Bass Bonanza', icon: require('../../assets/big_bass_bonanza_3_reeler_thumbnail_game_logo-v2.webp') },
+  ];
   const users = ['Anônimo', 'joao***', 'maria***', 'carlos***', 'lucas***', 'ana***', 'victor***'];
-  const game = games[Math.floor(Math.random() * games.length)];
+  const gameInfo = games[Math.floor(Math.random() * games.length)];
   const user = users[Math.floor(Math.random() * users.length)];
   const betVal = (Math.random() * 50 + 1).toFixed(2);
   const multVal = Math.floor(Math.random() * 50) + 2;
@@ -53,7 +60,8 @@ function generateWin() {
 
   return {
     id: Math.random().toString(36).substring(7),
-    game,
+    game: gameInfo.name,
+    icon: gameInfo.icon,
     user,
     time,
     bet: `R$ ${betVal.replace('.', ',')}`,
@@ -179,17 +187,42 @@ function SubTopBar() {
 }
 
 /** Banner promocional com paginação */
-function PromoBanner() {
+function PromoBanner({ 
+  onPlay, 
+  games 
+}: { 
+  onPlay: (game: any) => void;
+  games: any[];
+}) {
+
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveIndex((current) => {
+        const next = (current + 1) % BANNERS.length;
+        flatListRef.current?.scrollToOffset({
+          offset: next * (BANNER_W + 12),
+          animated: true,
+        });
+        return next;
+      });
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   const onScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const idx = Math.round(e.nativeEvent.contentOffset.x / BANNER_W);
-      setActiveIndex(idx);
+      const offsetX = e.nativeEvent.contentOffset.x;
+      const idx = Math.round(offsetX / (BANNER_W + 12));
+      if (idx !== activeIndex && idx >= 0 && idx < BANNERS.length) {
+        setActiveIndex(idx);
+      }
     },
-    [],
+    [activeIndex],
   );
+
 
   return (
     <View style={styles.bannerSection}>
@@ -197,16 +230,21 @@ function PromoBanner() {
         ref={flatListRef}
         data={BANNERS}
         horizontal
-        pagingEnabled
         showsHorizontalScrollIndicator={false}
         snapToInterval={BANNER_W + 12}
+        snapToAlignment="start"
         decelerationRate="fast"
+        nestedScrollEnabled
+        overScrollMode="never"
+        scrollEventThrottle={16}
+
         contentContainerStyle={styles.bannerList}
         onScroll={onScroll}
-        scrollEventThrottle={16}
         keyExtractor={(item) => item.id}
+
         renderItem={({ item }) => (
           <View style={styles.bannerCard}>
+
             {/* Imagem de fundo */}
             <Image source={item.image} style={styles.bannerImage} />
 
@@ -234,13 +272,21 @@ function PromoBanner() {
 
               {/* Botões */}
               <View style={styles.bannerButtons}>
-                <Pressable style={styles.bannerBtnPlay}>
+                <Pressable 
+                  style={styles.bannerBtnPlay}
+                  onPress={() => {
+                    const game = games.find((g: any) => g.title === item.game);
+                    if (game) onPlay(game);
+                  }}
+                >
+
                   <Text style={styles.bannerBtnPlayText}>▶ Jogar</Text>
                 </Pressable>
                 <Pressable style={styles.bannerBtnInfo}>
                   <Text style={styles.bannerBtnInfoText}>+ Info</Text>
                 </Pressable>
               </View>
+
             </View>
           </View>
         )}
@@ -249,8 +295,15 @@ function PromoBanner() {
       {/* Indicadores de paginação */}
       <View style={styles.dots}>
         {BANNERS.map((b, i) => (
-          <View
+          <Pressable
             key={b.id}
+            onPress={() => {
+              flatListRef.current?.scrollToOffset({
+                offset: i * (BANNER_W + 12),
+                animated: true,
+              });
+              setActiveIndex(i);
+            }}
             style={[
               styles.dot,
               i === activeIndex ? styles.dotActive : styles.dotInactive,
@@ -258,6 +311,7 @@ function PromoBanner() {
           />
         ))}
       </View>
+
     </View>
   );
 }
@@ -274,8 +328,11 @@ function CategoryPills({
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
+      nestedScrollEnabled
+      overScrollMode="never"
       contentContainerStyle={styles.pillsContainer}
     >
+
       {CATEGORIES.map((cat) => {
         const isActive = active === cat.id;
         return (
@@ -377,8 +434,11 @@ function GameSection({
           data={games}
           horizontal
           showsHorizontalScrollIndicator={false}
+          nestedScrollEnabled
+          overScrollMode="never"
           contentContainerStyle={styles.gameList}
           keyExtractor={(item) => item.id}
+
           renderItem={({ item, index }) => (
             <GameCard
               game={item}
@@ -435,65 +495,85 @@ function ProvidersSection({
   );
 }
 
-/** Tabela de Últimos Ganhos */
-function RecentWins() {
-  const [wins, setWins] = useState(() => 
-    Array.from({ length: 5 }).map(() => generateWin())
+/** Card individual de ganho para a esteira */
+function RecentWinTickerItem({ item }: { item: any }) {
+  return (
+    <View style={styles.tickerCard}>
+      <Image source={item.icon} style={styles.tickerIcon} />
+      <View style={styles.tickerInfo}>
+        <Text style={styles.tickerUser} numberOfLines={1}>{item.user}</Text>
+        <Text style={styles.tickerGame} numberOfLines={1}>{item.game}</Text>
+      </View>
+      <View style={styles.tickerValues}>
+        <Text style={styles.tickerWin}>{item.win}</Text>
+        <Text style={styles.tickerMult}>{item.mult}</Text>
+      </View>
+    </View>
   );
+}
+
+/** Esteira de Últimos Ganhos (Ticker) com Autoscroll */
+function RecentWins() {
+  const [wins, setWins] = useState(() => Array.from({ length: 15 }).map(() => generateWin()));
+  const blinkAnim = useRef(new Animated.Value(1)).current;
+  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollPos = useRef(0);
+  const maxScroll = useRef(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      setWins(prev => [generateWin(), ...prev.slice(0, 4)]);
-    }, 3000);
+    // Animação de piscar "AO VIVO"
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(blinkAnim, { toValue: 0.3, duration: 800, useNativeDriver: true }),
+        Animated.timing(blinkAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+      ])
+    ).start();
 
-    return () => clearInterval(interval);
+    // Loop de Autoscroll Suave
+    const scrollInterval = setInterval(() => {
+      if (scrollViewRef.current) {
+        scrollPos.current += 1.5; // Velocidade da esteira
+        
+        // Se chegar ao final (aproximadamente), volta pro início de forma invisível
+        // Para um efeito infinito perfeito, duplicamos a lista de itens
+        if (maxScroll.current > 0 && scrollPos.current >= maxScroll.current / 2) {
+          scrollPos.current = 0;
+        }
+
+        scrollViewRef.current.scrollTo({ x: scrollPos.current, animated: false });
+      }
+    }, 20); // 50fps para suavidade máxima
+
+    return () => clearInterval(scrollInterval);
   }, []);
 
+  // Duplicamos a lista para criar o efeito de loop infinito suave
+  const displayWins = [...wins, ...wins];
+
   return (
-    <View style={styles.recentWinsContainer}>
-      <View style={styles.recentWinsHeader}>
-        <View style={styles.recentWinsTitleRow}>
-          <Text style={styles.recentWinsStar}>★</Text>
-          <Text style={styles.recentWinsTitle}>Últimos ganhos</Text>
+    <View style={styles.tickerSection}>
+      <View style={styles.tickerHeader}>
+        <View style={styles.tickerTitleRow}>
+          <Text style={styles.tickerStar}>★</Text>
+          <Text style={styles.tickerTitle}>Ganhos em Tempo Real</Text>
         </View>
-        <View style={styles.recentWinsLiveBadge}>
-          <View style={styles.recentWinsLiveDot} />
-          <Text style={styles.recentWinsLiveText}>AO VIVO</Text>
-        </View>
+        <Animated.View style={[styles.tickerLiveBadge, { opacity: blinkAnim }]}>
+          <View style={styles.tickerLiveDot} />
+          <Text style={styles.tickerLiveText}>AO VIVO</Text>
+        </Animated.View>
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recentWinsScroll}>
-        <View style={styles.recentWinsTable}>
-          {/* Header Row */}
-          <View style={[styles.recentWinsRow, styles.recentWinsTableHeader]}>
-            <Text style={[styles.recentWinsCellText, styles.recentWinsCol1]}>Jogo</Text>
-            <Text style={[styles.recentWinsCellText, styles.recentWinsCol2]}>Usuário</Text>
-            <Text style={[styles.recentWinsCellText, styles.recentWinsCol3]}>Hora</Text>
-            <Text style={[styles.recentWinsCellText, styles.recentWinsCol4]}>Aposta</Text>
-            <Text style={[styles.recentWinsCellText, styles.recentWinsCol5]}>Mult</Text>
-            <Text style={[styles.recentWinsCellText, styles.recentWinsCol6]}>Valor ganho</Text>
-          </View>
-
-          {/* Data Rows */}
-          {wins.map((item, index) => (
-            <View key={item.id} style={[
-              styles.recentWinsRow, 
-              index % 2 === 0 ? styles.recentWinsRowEven : styles.recentWinsRowOdd,
-              index === 0 && styles.recentWinsRowHighlight
-            ]}>
-              <View style={[styles.recentWinsCol1, styles.recentWinsGameCol]}>
-                <View style={styles.recentWinsGameIcon} />
-                <Text style={styles.recentWinsCellDataText} numberOfLines={1}>{item.game}</Text>
-              </View>
-              <Text style={[styles.recentWinsCellDataText, styles.recentWinsCol2]} numberOfLines={1}>{item.user}</Text>
-              <Text style={[styles.recentWinsCellDataText, styles.recentWinsCol3]}>{item.time}</Text>
-              <Text style={[styles.recentWinsCellDataText, styles.recentWinsCol4]}>{item.bet}</Text>
-              <Text style={[styles.recentWinsCellDataText, styles.recentWinsCol5, { color: colors.secondary }]}>{item.mult}</Text>
-              <Text style={[styles.recentWinsCellDataText, styles.recentWinsCol6, { color: colors.secondary, fontWeight: '700' }]}>{item.win}</Text>
-            </View>
-          ))}
-        </View>
+      <ScrollView 
+        ref={scrollViewRef}
+        horizontal 
+        showsHorizontalScrollIndicator={false} 
+        scrollEnabled={false} // Desabilita manual para não quebrar o autoscroll
+        onContentSizeChange={(w) => { maxScroll.current = w; }}
+        contentContainerStyle={styles.tickerScrollContent}
+      >
+        {displayWins.map((item, index) => (
+          <RecentWinTickerItem key={`${item.id}-${index}`} item={item} />
+        ))}
       </ScrollView>
     </View>
   );
@@ -540,15 +620,16 @@ export default function SlotScreen() {
         contentContainerStyle={styles.scroll}
       >
         <Header />
-        <PromoBanner />
+        <PromoBanner onPlay={handleGamePress} games={popular.data} />
         <CategoryPills active={activeCategory} onChange={handleCategoryChange} />
-        <RecentWins />
+
         <GameSection
           title="Mais Jogados"
           games={popular.data}
           loading={popular.loading}
           onGamePress={handleGamePress}
         />
+        <RecentWins />
         <GameSection
           title="Novidades"
           games={newGames.data}
@@ -1039,111 +1120,108 @@ const styles = StyleSheet.create({
     color: colors.primaryDark,
   },
   
-  /* ── Recent Wins ── */
-  recentWinsContainer: {
-    marginHorizontal: 16,
-    marginTop: 24,
-    backgroundColor: '#1E2536',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    overflow: 'hidden',
+  /* ── Recent Wins Ticker ── */
+  tickerSection: {
+    marginTop: 20,
+    marginBottom: 8,
   },
-  recentWinsHeader: {
+  tickerHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 12,
-    backgroundColor: 'rgba(255,255,255,0.02)',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
+    paddingHorizontal: 16,
+    marginBottom: 10,
   },
-  recentWinsTitleRow: {
+  tickerTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
-  recentWinsStar: {
-    color: colors.grey,
+  tickerStar: {
+    color: '#FFB703',
     fontSize: 14,
   },
-  recentWinsTitle: {
+  tickerTitle: {
     color: colors.white,
     fontSize: 14,
     fontWeight: '800',
+    letterSpacing: 0.3,
   },
-  recentWinsLiveBadge: {
+  tickerLiveBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(230, 57, 70, 0.1)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
-    gap: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(230, 57, 70, 0.3)',
+    gap: 5,
   },
-  recentWinsLiveDot: {
+  tickerLiveDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
     backgroundColor: '#E63946',
   },
-  recentWinsLiveText: {
-    color: colors.white,
+  tickerLiveText: {
+    color: '#E63946',
     fontSize: 10,
+    fontWeight: '900',
+  },
+  tickerScrollContent: {
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  tickerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1A2235',
+    padding: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    gap: 12,
+    minWidth: 180,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  tickerIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
+  },
+  tickerInfo: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  tickerUser: {
+    color: colors.white,
+    fontSize: 12,
     fontWeight: '700',
   },
-  recentWinsScroll: {
-    width: '100%',
-  },
-  recentWinsTable: {
-    minWidth: 500,
-  },
-  recentWinsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  recentWinsTableHeader: {
-    backgroundColor: 'rgba(255,255,255,0.02)',
-  },
-  recentWinsRowEven: {
-    backgroundColor: 'rgba(255,255,255,0.01)',
-  },
-  recentWinsRowOdd: {
-    backgroundColor: 'transparent',
-  },
-  recentWinsRowHighlight: {
-    borderColor: '#3A86FF',
-    backgroundColor: 'rgba(58,134,255,0.15)',
-  },
-  recentWinsCellText: {
+  tickerGame: {
     color: colors.grey,
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  recentWinsCellDataText: {
-    color: colors.white,
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '500',
+    marginTop: 2,
   },
-  recentWinsGameCol: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  tickerValues: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
-  recentWinsGameIcon: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+  tickerWin: {
+    color: colors.secondary,
+    fontSize: 13,
+    fontWeight: '900',
   },
-  recentWinsCol1: { width: WIN_COLS.col1 },
-  recentWinsCol2: { width: WIN_COLS.col2 },
-  recentWinsCol3: { width: WIN_COLS.col3 },
-  recentWinsCol4: { width: WIN_COLS.col4 },
-  recentWinsCol5: { width: WIN_COLS.col5 },
-  recentWinsCol6: { width: WIN_COLS.col6 },
+  tickerMult: {
+    color: 'rgba(56, 230, 125, 0.8)',
+    fontSize: 10,
+    fontWeight: '800',
+    marginTop: 2,
+  },
 });

@@ -79,6 +79,28 @@ interface CasinoGame {
   players: number;
 }
 
+// Emoji / bg color per game for visual identity
+const GAME_ICON: Record<string, { emoji: string; bg: string }> = {
+  'Gates of Olympus':  { emoji: '⚡', bg: '#1a3a6e' },
+  'Sweet Bonanza':     { emoji: '🍬', bg: '#1a3a6e' },
+  'Lightning Roulette':{ emoji: '⚡', bg: '#1a3a6e' },
+  'Crazy Time':        { emoji: '🎡', bg: '#1a3a6e' },
+  'Aviator':           { emoji: '✈️', bg: '#1a3a6e' },
+  'Monopoly Live':     { emoji: '🎩', bg: '#1a3a6e' },
+  'Speed Baccarat':    { emoji: '🃏', bg: '#1a3a6e' },
+  'Mega Ball':         { emoji: '🎱', bg: '#1a3a6e' },
+  'Infinite Blackjack':{ emoji: '♠️', bg: '#1a3a6e' },
+  'Dragon Tiger':      { emoji: '🐉', bg: '#1a3a6e' },
+  'Immersive Roulette':{ emoji: '🎰', bg: '#1a3a6e' },
+  'Auto Roulette':     { emoji: '🎰', bg: '#1a3a6e' },
+  'Deal or No Deal':   { emoji: '💼', bg: '#1a3a6e' },
+  'Book of Dead':      { emoji: '📖', bg: '#1a3a6e' },
+  'Mines':             { emoji: '💣', bg: '#1a3a6e' },
+  'JetX':              { emoji: '🚀', bg: '#1a3a6e' },
+  'VIP Blackjack':     { emoji: '♠️', bg: '#1a3a6e' },
+  'Three Card Poker':  { emoji: '🃏', bg: '#1a3a6e' },
+};
+
 const TOP10_GAMES: CasinoGame[] = [
   { id: 't1',  name: 'Gates of Olympus',    provider: 'Pragmatic',   rtp: '96.5%', hot: true,  category: ['Slots', 'Popular'], players: 12400 },
   { id: 't2',  name: 'Sweet Bonanza',        provider: 'Pragmatic',   rtp: '96.4%', hot: true,  category: ['Slots', 'Popular'], players: 9800  },
@@ -148,9 +170,6 @@ function Header() {
     <View style={styles.header}>
       <Logotipo width={80} height={28} />
       <View style={styles.headerActions}>
-        <Pressable style={styles.searchBtn}>
-          <SearchIcon />
-        </Pressable>
         <Pressable style={styles.balancePill} onPress={openDepositModal}>
           <View style={styles.depositCircle}>
             <View style={styles.plusH} />
@@ -312,37 +331,43 @@ function Top10Section({ onPress }: { onPress: () => void }) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.top10Row}
       >
-        {TOP10_GAMES.map((game, index) => (
-          <Pressable key={game.id} style={styles.top10Card} onPress={onPress}>
-            {/* Rank badge */}
-            <View style={[styles.rankBadge, index < 3 && styles.rankBadgeGold]}>
-              <Text style={[styles.rankText, index < 3 && styles.rankTextGold]}>
-                {index + 1}
-              </Text>
-            </View>
-            {/* Game thumb placeholder */}
-            <View style={styles.top10Thumb}>
-              <Text style={styles.top10Emoji}>
-                {index === 0 ? '⚡' : index === 1 ? '🍬' : index === 2 ? '⚡' : index === 3 ? '🎪' : index === 4 ? '✈️' : '🎰'}
-              </Text>
-            </View>
-            <Text style={styles.top10Name} numberOfLines={2}>{game.name}</Text>
-            <Text style={styles.top10Provider} numberOfLines={1}>{game.provider}</Text>
-            <View style={styles.top10Footer}>
-              <Text style={styles.top10Rtp}>RTP {game.rtp}</Text>
-              {(game.hot || game.new) && (
-                <View style={[styles.top10Badge, game.new ? styles.top10BadgeNew : styles.top10BadgeHot]}>
-                  <Text style={styles.top10BadgeText}>{game.new ? 'NOVO' : 'HOT'}</Text>
+        {TOP10_GAMES.map((game, index) => {
+          const icon = GAME_ICON[game.name] ?? { emoji: '🎰', bg: '#1a3a6e' };
+          return (
+            <Pressable key={game.id} style={styles.top10Card} onPress={onPress}>
+              {/* Rank badge */}
+              <View style={[styles.rankBadge, index < 3 && styles.rankBadgeGold]}>
+                <Text style={[styles.rankText, index < 3 && styles.rankTextGold]}>
+                  {index + 1}
+                </Text>
+              </View>
+              {/* Game thumb */}
+              <View style={[styles.top10Thumb, { backgroundColor: icon.bg }]}>
+                <Text style={styles.top10Emoji}>{icon.emoji}</Text>
+                {/* Live indicator overlay */}
+                <View style={styles.top10LiveBadge}>
+                  <View style={styles.top10LiveDot} />
+                  <Text style={styles.top10LiveText}>AO VIVO</Text>
                 </View>
-              )}
-            </View>
-            {/* Players */}
-            <View style={styles.top10Players}>
-              <View style={styles.top10PlayerDot} />
-              <Text style={styles.top10PlayersText}>{(game.players / 1000).toFixed(1)}K jogando</Text>
-            </View>
-          </Pressable>
-        ))}
+              </View>
+              <Text style={styles.top10Name} numberOfLines={2}>{game.name}</Text>
+              <Text style={styles.top10Provider} numberOfLines={1}>{game.provider}</Text>
+              <View style={styles.top10Footer}>
+                <Text style={styles.top10Rtp}>RTP {game.rtp}</Text>
+                {(game.hot || game.new) && (
+                  <View style={[styles.top10Badge, game.new ? styles.top10BadgeNew : styles.top10BadgeHot]}>
+                    <Text style={styles.top10BadgeText}>{game.new ? 'NOVO' : 'HOT'}</Text>
+                  </View>
+                )}
+              </View>
+              {/* Players */}
+              <View style={styles.top10Players}>
+                <View style={styles.top10PlayerDot} />
+                <Text style={styles.top10PlayersText}>{(game.players / 1000).toFixed(1)}K jogando</Text>
+              </View>
+            </Pressable>
+          );
+        })}
       </ScrollView>
     </View>
   );
@@ -388,27 +413,36 @@ function GamesByCategory({ onPress }: { onPress: () => void }) {
             <Text style={styles.emptyText}>Nenhum jogo nessa categoria</Text>
           </View>
         ) : (
-          filteredGames.map((game) => (
-            <Pressable key={game.id} style={styles.gameCard} onPress={onPress}>
-              <View style={styles.gameThumb}>
-                <Text style={styles.gameThumbEmoji}>🎰</Text>
-                {(game.hot || game.new) && (
-                  <View style={[styles.gameCardBadge, game.new ? styles.gameCardBadgeNew : styles.gameCardBadgeHot]}>
-                    <Text style={styles.gameCardBadgeText}>{game.new ? 'NOVO' : '🔥'}</Text>
+          filteredGames.map((game) => {
+            const icon = GAME_ICON[game.name] ?? { emoji: '🎰', bg: '#1a3a6e' };
+            return (
+              <Pressable key={game.id} style={styles.gameCard} onPress={onPress}>
+                <View style={[styles.gameThumb, { backgroundColor: icon.bg }]}>
+                  <Text style={styles.gameThumbEmoji}>{icon.emoji}</Text>
+                  {/* Badge HOT/NEW */}
+                  {(game.hot || game.new) && (
+                    <View style={[styles.gameCardBadge, game.new ? styles.gameCardBadgeNew : styles.gameCardBadgeHot]}>
+                      <Text style={styles.gameCardBadgeText}>{game.new ? 'N' : 'H'}</Text>
+                    </View>
+                  )}
+                  {/* Live tag bottom */}
+                  <View style={styles.gameLiveTag}>
+                    <View style={styles.gameLiveDot} />
+                    <Text style={styles.gameLiveTagText}>AO VIVO</Text>
                   </View>
-                )}
-              </View>
-              <Text style={styles.gameName} numberOfLines={1}>{game.name}</Text>
-              <Text style={styles.gameProvider} numberOfLines={1}>{game.provider}</Text>
-              <View style={styles.gameRtpRow}>
-                <Text style={styles.gameRtp}>RTP {game.rtp}</Text>
-                <View style={styles.gameOnline}>
-                  <View style={styles.gameOnlineDot} />
-                  <Text style={styles.gameOnlineText}>{(game.players / 1000).toFixed(1)}K</Text>
                 </View>
-              </View>
-            </Pressable>
-          ))
+                <Text style={styles.gameName} numberOfLines={1}>{game.name}</Text>
+                <Text style={styles.gameProvider} numberOfLines={1}>{game.provider}</Text>
+                <View style={styles.gameRtpRow}>
+                  <Text style={styles.gameRtp}>RTP {game.rtp}</Text>
+                  <View style={styles.gameOnline}>
+                    <View style={styles.gameOnlineDot} />
+                    <Text style={styles.gameOnlineText}>{(game.players / 1000).toFixed(1)}K</Text>
+                  </View>
+                </View>
+              </Pressable>
+            );
+          })
         )}
       </View>
     </View>
@@ -457,11 +491,14 @@ export default function RoletaScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header fixo — fica visível enquanto a pessoa rola */}
+      <View style={styles.stickyHeader}>
+        <Header />
+      </View>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 88 + (insets.bottom || 10) + 24 }}
       >
-        <Header />
         <BannerSlider />
         <CategoriesRow onPress={(_label) => handleGamePress()} />
         <LiveDealerSection onPress={handleGamePress} />
@@ -478,6 +515,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.primaryDark,
+  },
+
+  /* header fora do scroll → sempre visível */
+  stickyHeader: {
+    backgroundColor: colors.primaryDark,
+    zIndex: 10,
   },
 
   /* ── Header ── */
@@ -583,6 +626,26 @@ const styles = StyleSheet.create({
   },
   catEmoji: { fontSize: 24 },
   catLabel: { color: colors.grey, fontSize: 11, fontWeight: '600', textAlign: 'center' },
+
+  /* ── Top 10 live badge ── */
+  top10LiveBadge: {
+    position: 'absolute', bottom: 6, left: 6,
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: 'rgba(230,57,70,0.85)',
+    borderRadius: 5, paddingHorizontal: 6, paddingVertical: 2,
+  },
+  top10LiveDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: '#fff' },
+  top10LiveText: { color: '#fff', fontSize: 8, fontWeight: '900', letterSpacing: 0.5 },
+
+  /* ── Game card live tag ── */
+  gameLiveTag: {
+    position: 'absolute', bottom: 4, left: 4,
+    flexDirection: 'row', alignItems: 'center', gap: 3,
+    backgroundColor: 'rgba(230,57,70,0.85)',
+    borderRadius: 4, paddingHorizontal: 4, paddingVertical: 2,
+  },
+  gameLiveDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#fff' },
+  gameLiveTagText: { color: '#fff', fontSize: 7, fontWeight: '900' },
 
   /* ── Live Dealer ── */
   liveCard: {

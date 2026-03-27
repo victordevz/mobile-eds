@@ -12,8 +12,15 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
+import Animated2, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import * as VideoThumbnails from 'expo-video-thumbnails';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,6 +32,15 @@ import Logotipo from '../../assets/logotipo.svg';
 import LiveMatchCard from '../components/LiveMatchCard';
 import { useAuth } from '../context/AuthContext';
 import { storiesApi, StoryItem } from '../services/api';
+
+/* ───────────────────── Types ───────────────────── */
+
+interface BetSlipData {
+  matchLabel: string;   // e.g. "Flamengo vs Palmeiras"
+  oddLabel: string;     // e.g. "Flamengo"
+  oddValue: number;     // e.g. 4.20
+  league: string;
+}
 
 /* ───────────────────── Constantes ───────────────────── */
 
@@ -196,7 +212,7 @@ const POPULARES_MATCHES: MegaCotacaoMatch[] = [
 /* ───────────────────── Componentes auxiliares ──────────── */
 
 /** Seção Mega Cotação */
-function MegaCotacaoSection({ onPress }: { onPress: () => void }) {
+  function MegaCotacaoSection({ onPress }: { onPress: (data: BetSlipData) => void }) {
   return (
     <>
       <View style={styles.sectionHeader}>
@@ -209,7 +225,12 @@ function MegaCotacaoSection({ onPress }: { onPress: () => void }) {
         contentContainerStyle={styles.megaContainer}
       >
         {MEGA_COTACAO.map((match) => (
-          <Pressable key={match.id} style={styles.megaCard} onPress={onPress}>
+          <Pressable key={match.id} style={styles.megaCard} onPress={() => onPress({
+              matchLabel: `${match.homeTeam} vs ${match.awayTeam}`,
+              oddLabel: match.homeTeam,
+              oddValue: match.odd,
+              league: match.league,
+            })}>
             <View style={styles.megaDateRow}>
               <View style={styles.megaAccentBar} />
               <Text style={styles.megaDate}>{match.date}</Text>
@@ -242,7 +263,7 @@ function MegaCotacaoSection({ onPress }: { onPress: () => void }) {
 }
 
 /** Seção Populares */
-function PopularesSection({ onPress }: { onPress: () => void }) {
+function PopularesSection({ onPress }: { onPress: (data: BetSlipData) => void }) {
   const [tab, setTab] = useState<'live' | 'next'>('live');
   const [activeSport, setActiveSport] = useState('sp0');
 
@@ -301,7 +322,12 @@ function PopularesSection({ onPress }: { onPress: () => void }) {
         contentContainerStyle={styles.megaContainer}
       >
         {POPULARES_MATCHES.map((match) => (
-          <Pressable key={match.id} style={styles.megaCard} onPress={onPress}>
+          <Pressable key={match.id} style={styles.megaCard} onPress={() => onPress({
+              matchLabel: `${match.homeTeam} vs ${match.awayTeam}`,
+              oddLabel: match.homeTeam,
+              oddValue: match.odd,
+              league: match.league,
+            })}>
             <View style={styles.megaDateRow}>
               <View style={styles.megaAccentBar} />
               <Text style={styles.megaDate}>{match.date}</Text>
@@ -376,13 +402,6 @@ function Header() {
       <Logotipo width={80} height={28} />
 
       <View style={styles.headerActions}>
-        {/* Lupa */}
-        <Pressable style={styles.searchIconBtn}>
-          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-            <Circle cx="11" cy="11" r="7" stroke="#FFFFFF" strokeWidth="2" />
-            <Line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
-          </Svg>
-        </Pressable>
 
         {/* Pill unificada: botão + */}
         <Pressable style={styles.balancePill} onPress={openDepositModal}>
@@ -740,23 +759,161 @@ function StoriesBar() {
   );
 }
 
+/* ───────────────────── BetSlip Panel ───────────────────── */
+
+interface BetSlipPanelProps {
+  data: BetSlipData;
+  betAmount: string;
+  onChangeBet: (v: string) => void;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetSlipPanelProps) {
+  const translateY = useSharedValue(-120);
+
+  useEffect(() => {
+    translateY.value = withSpring(0, { damping: 18, stiffness: 200 });
+  }, []);
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  const numBet = parseFloat(betAmount.replace(',', '.')) || 0;
+  const gain = numBet > 0 ? (numBet * data.oddValue).toFixed(2).replace('.', ',') : '0,00';
+
+  function addAmount(v: number) {
+    const current = parseFloat(betAmount.replace(',', '.')) || 0;
+    onChangeBet(String((current + v).toFixed(2)));
+  }
+
+  return (
+    <Animated2.View style={[styles.betSlip, animStyle]}>
+      {/* Row 1: odd info */}
+      <View style={styles.betSlipOddRow}>
+        <View style={styles.betSlipOddInfo}>
+          <Text style={styles.betSlipLeague} numberOfLines={1}>{data.league}</Text>
+          <Text style={styles.betSlipMatch} numberOfLines={1}>{data.matchLabel}</Text>
+          <Text style={styles.betSlipOddLabel} numberOfLines={1}>{data.oddLabel}</Text>
+        </View>
+        <View style={styles.betSlipOddBadge}>
+          <Text style={styles.betSlipOddBadgeLabel}>ODD</Text>
+          <Text style={styles.betSlipOddValue}>{data.oddValue.toFixed(2)}</Text>
+        </View>
+        <Pressable onPress={onClose} style={styles.betSlipClose} hitSlop={12}>
+          <Text style={styles.betSlipCloseText}>✕</Text>
+        </Pressable>
+      </View>
+
+      {/* Row 2: inputs */}
+      <View style={styles.betSlipInputRow}>
+        {/* Quick add buttons */}
+        {[5, 10, 20].map((v) => (
+          <Pressable key={v} style={styles.betSlipQuickBtn} onPress={() => addAmount(v)}>
+            <Text style={styles.betSlipQuickText}>+{v}</Text>
+          </Pressable>
+        ))}
+
+        {/* Aposta input */}
+        <View style={styles.betSlipAmountBox}>
+          <Text style={styles.betSlipAmountPrefix}>R$</Text>
+          <TextInput
+            style={styles.betSlipAmountInput}
+            value={betAmount}
+            onChangeText={onChangeBet}
+            keyboardType="decimal-pad"
+            placeholder="0,00"
+            placeholderTextColor={colors.grey}
+          />
+        </View>
+
+        {/* Trash */}
+        <Pressable style={styles.betSlipTrash} onPress={() => onChangeBet('')}>
+          <Text style={styles.betSlipTrashIcon}>🗑️</Text>
+        </Pressable>
+      </View>
+
+      {/* Row 3: ganho potencial + confirmar */}
+      <View style={styles.betSlipFooter}>
+        <View>
+          <Text style={styles.betSlipGainLabel}>GANHO POTENCIAL</Text>
+          <Text style={styles.betSlipGainValue}>R$ {gain}</Text>
+        </View>
+        <Pressable style={styles.betSlipConfirm} onPress={onConfirm}>
+          <Text style={styles.betSlipConfirmText}>APOSTAR</Text>
+        </Pressable>
+      </View>
+    </Animated2.View>
+  );
+}
+
 /* ───────────────────── Tela principal ───────────────────── */
 
 export default function FutebolScreen() {
   const insets = useSafeAreaInsets();
   const { isAuthenticated, openAuthModal } = useAuth();
 
+  const [betSlip, setBetSlip] = useState<BetSlipData | null>(null);
+  const [betAmount, setBetAmount] = useState('');
+
+  function openBetSlip(data: BetSlipData) {
+    if (!isAuthenticated) {
+      openAuthModal('login');
+      return;
+    }
+    setBetSlip(data);
+    setBetAmount('');
+  }
+
+  function closeBetSlip() {
+    setBetSlip(null);
+    setBetAmount('');
+  }
+
+  function handleConfirmBet() {
+    // TODO: integrar com API de apostas
+    closeBetSlip();
+  }
+
+  // Callback genérico para cards que não passam dados específicos
   function handleGamePress() {
-    if (!isAuthenticated) openAuthModal('login');
+    if (!isAuthenticated) {
+      openAuthModal('login');
+      return;
+    }
+    openBetSlip({
+      matchLabel: 'Bragantino vs Botafogo',
+      oddLabel: 'Empate',
+      oddValue: 3.30,
+      league: 'Brasileirão',
+    });
   }
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* ── Header fixo ── */}
+      <View style={styles.headerWrapper}>
+        <Header />
+      </View>
+
+      {/* ── BetSlip desliza por baixo do header ── */}
+      {betSlip && (
+        <BetSlipPanel
+          data={betSlip}
+          betAmount={betAmount}
+          onChangeBet={setBetAmount}
+          onClose={closeBetSlip}
+          onConfirm={handleConfirmBet}
+        />
+      )}
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.scroll, { paddingBottom: 88 + (insets.bottom || 10) + 24 }]}
       >
-        <Header />
+        {/* Espaço para o header fixo (≈ 58px) + BetSlip quando aberto (+ 132px) */}
+        <View style={{ height: betSlip ? 190 : 58 }} />
         <StoriesBar />
         <PromoBanner />
         <ChampionshipsBar />
@@ -764,9 +921,16 @@ export default function FutebolScreen() {
           <View style={styles.sectionTitleBar} />
           <Text style={styles.sectionTitle}>Ao Vivo</Text>
         </View>
-        <LiveMatchCard onBetPress={handleGamePress} />
-        <MegaCotacaoSection onPress={handleGamePress} />
-        <PopularesSection onPress={handleGamePress} />
+        <LiveMatchCard
+          onBetPress={() => openBetSlip({
+            matchLabel: 'Bragantino vs Botafogo',
+            oddLabel: 'Empate',
+            oddValue: 3.30,
+            league: 'Brasileirão',
+          })}
+        />
+        <MegaCotacaoSection onPress={openBetSlip} />
+        <PopularesSection onPress={openBetSlip} />
       </ScrollView>
     </View>
   );
@@ -796,6 +960,104 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 0.3,
   },
+
+  /* ── Header wrapper ── */
+  headerWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 20,
+    backgroundColor: colors.primaryDark,
+  },
+
+  /* ── Bet Slip ── */
+  betSlip: {
+    position: 'absolute',
+    top: 56, // logo abaixo do header
+    left: 0,
+    right: 0,
+    zIndex: 15, // atrás do header (zIndex 20), à frente do scroll
+    backgroundColor: '#042B7A',
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.08)',
+    gap: 10,
+  },
+  betSlipOddRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  betSlipOddInfo: { flex: 1 },
+  betSlipLeague: { color: colors.grey, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
+  betSlipMatch: { color: colors.white, fontSize: 13, fontWeight: '700' },
+  betSlipOddLabel: { color: colors.secondary, fontSize: 11, fontWeight: '600' },
+  betSlipOddBadge: {
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    alignItems: 'center',
+    minWidth: 58,
+  },
+  betSlipOddBadgeLabel: { color: colors.grey, fontSize: 9, fontWeight: '700', textTransform: 'uppercase' },
+  betSlipOddValue: { color: colors.white, fontSize: 18, fontWeight: '900' },
+  betSlipClose: { padding: 4 },
+  betSlipCloseText: { color: colors.grey, fontSize: 18 },
+
+  betSlipInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  betSlipQuickBtn: {
+    backgroundColor: 'rgba(56,230,125,0.15)',
+    borderWidth: 1,
+    borderColor: colors.secondary,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  betSlipQuickText: { color: colors.secondary, fontSize: 12, fontWeight: '700' },
+  betSlipAmountBox: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primaryDark,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    gap: 4,
+  },
+  betSlipAmountPrefix: { color: colors.grey, fontSize: 12, fontWeight: '600' },
+  betSlipAmountInput: { flex: 1, color: colors.white, fontSize: 15, fontWeight: '700', padding: 0 },
+  betSlipTrash: { padding: 6 },
+  betSlipTrashIcon: { fontSize: 16 },
+
+  betSlipFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  betSlipGainLabel: { color: colors.grey, fontSize: 9, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  betSlipGainValue: { color: colors.white, fontSize: 16, fontWeight: '800' },
+  betSlipConfirm: {
+    backgroundColor: colors.secondary,
+    borderRadius: 10,
+    paddingHorizontal: 22,
+    paddingVertical: 10,
+  },
+  betSlipConfirmText: { color: colors.primaryDark, fontSize: 13, fontWeight: '800' },
 
   /* ── Layout raiz ── */
   container: {

@@ -32,11 +32,11 @@ function MainTabs() {
       tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{ headerShown: false }}
     >
-      <Tab.Screen name="Roleta" component={RoletaStack} />
       <Tab.Screen name="Previsoes" component={PrevisoesStack} />
+      <Tab.Screen name="Roleta" component={RoletaStack} />
       <Tab.Screen name="Futebol" component={FutebolStack} />
-      <Tab.Screen name="Bolao" component={BolaoStack} />
       <Tab.Screen name="Slot" component={SlotStack} />
+      <Tab.Screen name="Bolao" component={BolaoStack} />
     </Tab.Navigator>
   );
 }

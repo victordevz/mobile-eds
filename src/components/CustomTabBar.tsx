@@ -37,7 +37,7 @@ export default function CustomTabBar({
   const { width } = useWindowDimensions();
   const tabWidth = width / state.routes.length;
 
-  const waveHeight = 40;
+  const waveHeight = 32;
   const xShared = useSharedValue((state.index + 0.5) * tabWidth);
 
   useEffect(() => {
@@ -163,7 +163,7 @@ function TabBarItem({ isFocused, label, Icon, onPress }: TabBarItemProps) {
       SPRING_CONFIG
     ),
     transform: [
-      { translateY: withSpring(isFocused ? -54 : 0, BOUNCE_SPRING) },
+      { translateY: withSpring(isFocused ? -42 : 0, BOUNCE_SPRING) },
     ],
   }), [isFocused]);
 

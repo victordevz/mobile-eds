@@ -17,5 +17,6 @@ export const tabConfig: TabItem[] = [
   { routeName: 'Roleta', label: 'CASSINO', showLabel: true, icon: RoletaIcon },
   { routeName: 'Futebol', label: 'ESPORTES', showLabel: true, icon: FutebolIcon },
   { routeName: 'Previsoes', label: 'PREVISÕES', showLabel: true, icon: FoguinhoIcon },
+  { routeName: 'Bolao', label: 'BOLÃO', showLabel: true, icon: FoguinhoIcon },
   { routeName: 'Slot', label: 'SLOT', showLabel: true, icon: SlotIcon },
 ];

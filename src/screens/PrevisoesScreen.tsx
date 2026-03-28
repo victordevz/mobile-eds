@@ -306,7 +306,6 @@ export default function PrevisoesScreen() {
             >
               <Text style={[
                 styles.voteButtonText,
-                { color: colors.primaryDark },
                 isSelected('A China invadirá Taiwan até o final de 2026?', 'SIM') && styles.voteButtonTextActive
               ]}>SIM</Text>
             </Pressable>
@@ -352,7 +351,6 @@ export default function PrevisoesScreen() {
               >
                 <Text style={[
                   styles.voteButtonText,
-                  { color: colors.primaryDark },
                   isSelected('Kanye vai liberar o VALENTÃO até?...', 'SIM') && styles.voteButtonTextActive
                 ]}>SIM</Text>
               </Pressable>
@@ -433,7 +431,6 @@ export default function PrevisoesScreen() {
             >
               <Text style={[
                 styles.voteButtonText,
-                { color: colors.primaryDark },
                 isSelected('BTC 5 Minute Up or Down', 'Pra cima') && styles.voteButtonTextActive
               ]}>Pra cima</Text>
             </Pressable>
@@ -710,24 +707,24 @@ const styles = StyleSheet.create({
   voteButton: {
     flex: 1,
     paddingVertical: 10,
-    borderRadius: 50,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
   },
   voteButtonGreen: {
-    backgroundColor: colors.secondary,
+    backgroundColor: 'rgba(56, 230, 125, 0.05)',
     borderColor: colors.secondary,
   },
   voteButtonBlue: {
-    backgroundColor: colors.cardLight, 
-    borderColor: colors.cardLight,
+    backgroundColor: 'rgba(2, 51, 151, 0.05)', 
+    borderColor: colors.primary,
   },
   voteButtonText: {
     color: colors.white,
-    fontWeight: '900',
+    fontWeight: '700',
     fontSize: 14,
-    letterSpacing: 0.5,
+    letterSpacing: 0.2,
   },
   subText: {
     color: 'rgba(255,255,255,0.5)',

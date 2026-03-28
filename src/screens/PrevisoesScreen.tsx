@@ -108,8 +108,8 @@ export default function PrevisoesScreen() {
   const { openMenu, openDepositModal, balance, isAuthenticated } = useAuth();
   const [activeCat, setActiveCat] = useState('todos');
 
-  const balanceLabel = isAuthenticated && balance !== null
-    ? `R$ ${balance.toFixed(2).replace('.', ',')}`
+  const balanceLabel = isAuthenticated && balance != null
+    ? `R$ ${Number(balance).toFixed(2).replace('.', ',')}`
     : 'R$ 0,00';
 
   return (

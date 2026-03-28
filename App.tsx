@@ -14,6 +14,7 @@ import ChatScreen from './src/screens/ChatScreen';
 import RoletaStack from './src/navigation/stacks/RoletaStack';
 import SlotStack from './src/navigation/stacks/SlotStack';
 import FutebolStack from './src/navigation/stacks/FutebolStack';
+import PrevisoesStack from './src/navigation/stacks/PrevisoesStack';
 import HistoricoScreen from './src/screens/HistoricoScreen';
 import { navigationRef } from './src/navigation/navigationRef';
 import { colors } from './src/theme';
@@ -30,6 +31,7 @@ function MainTabs() {
     >
       <Tab.Screen name="Roleta" component={RoletaStack} />
       <Tab.Screen name="Futebol" component={FutebolStack} />
+      <Tab.Screen name="Previsoes" component={PrevisoesStack} />
       <Tab.Screen name="Slot" component={SlotStack} />
     </Tab.Navigator>
   );

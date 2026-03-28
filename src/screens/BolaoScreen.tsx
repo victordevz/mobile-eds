@@ -427,18 +427,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     paddingTop: 16,
     paddingBottom: 24,
-    minHeight: Dimensions.get('window').height,
   },
   tabsContainer: {
+    flexDirection: 'row',
     paddingHorizontal: 16,
     gap: 8,
     marginBottom: 20,
+    alignItems: 'center',
   },
   tabBtn: {
     backgroundColor: '#E0E0E0',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tabBtnActive: {
     backgroundColor: '#666',

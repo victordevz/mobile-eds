@@ -9,6 +9,8 @@ import {
   View,
 } from 'react-native';
 import { colors } from '../theme';
+import { GradientBackground } from '../components/GradientBackground';
+
 
 type FilterType = 'all' | 'casino' | 'sports';
 
@@ -282,7 +284,7 @@ export default function HistoricoScreen() {
   const sections = useMemo(() => groupByDate(MOCK_HISTORY, filter), [filter]);
 
   return (
-    <View style={styles.container}>
+    <GradientBackground style={styles.container}>
       <SectionList
         sections={sections}
         keyExtractor={item => item.id}
@@ -296,14 +298,13 @@ export default function HistoricoScreen() {
         ]}
         stickySectionHeadersEnabled={false}
       />
-    </View>
+    </GradientBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primaryDark,
   },
   listContent: {
     paddingBottom: 100,

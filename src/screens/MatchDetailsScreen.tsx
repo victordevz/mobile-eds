@@ -13,6 +13,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { colors } from '../theme';
+import { GradientBackground } from '../components/GradientBackground';
+
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
@@ -292,7 +294,7 @@ export default function MatchDetailsScreen() {
   const league = route.params?.league || 'BRASILEIRÃO SÉRIE A • RODADA 5';
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <GradientBackground style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="light-content" backgroundColor="#0D1E50" />
       
       {/* HEADER TELA */}
@@ -400,7 +402,7 @@ export default function MatchDetailsScreen() {
         </Pressable>
       </View>
 
-    </View>
+    </GradientBackground>
   );
 }
 
@@ -411,7 +413,6 @@ export default function MatchDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0D1E50', // Background principal do App / Escuro vibrante
   },
   header: {
     flexDirection: 'row',

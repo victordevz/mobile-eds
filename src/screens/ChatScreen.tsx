@@ -12,6 +12,8 @@ import {
   Animated,
 } from 'react-native';
 import { colors } from '../theme';
+import { GradientBackground } from '../components/GradientBackground';
+
 import { supportApi, SupportMessage } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -165,7 +167,8 @@ export default function ChatScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
+    <GradientBackground style={{ flex: 1 }}>
+      <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
@@ -216,17 +219,18 @@ export default function ChatScreen() {
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
+  </GradientBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: 'transparent',
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -19,6 +19,8 @@ import Svg, { Circle, Ellipse, Line, Path, Polygon, Rect, G } from 'react-native
 import { colors } from '../theme';
 // import Logotipo from '../../assets/logotipo.svg';
 import { useAuth } from '../context/AuthContext';
+import { GradientBackground } from '../components/GradientBackground';
+
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const BANNER_W = SCREEN_W - 32;
@@ -612,7 +614,7 @@ export default function RoletaScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <GradientBackground style={[styles.container, { paddingTop: insets.top }]}>
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top, backgroundColor: colors.primary, zIndex: 100 }} />
       {/* Header fixo — fica visível enquanto a pessoa rola */}
       <View style={styles.stickyHeader}>
@@ -629,7 +631,7 @@ export default function RoletaScreen() {
         <Top5Section onPress={handleGamePress} />
         <GamesByCategory onPress={handleGamePress} />
       </ScrollView>
-    </View>
+    </GradientBackground>
   );
 }
 
@@ -638,12 +640,11 @@ export default function RoletaScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primaryDark,
   },
 
   /* header fora do scroll → sempre visível */
   stickyHeader: {
-    backgroundColor: colors.primaryDark,
+    backgroundColor: 'transparent',
     zIndex: 10,
   },
 

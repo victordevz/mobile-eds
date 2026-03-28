@@ -40,6 +40,8 @@ import TenisContent from '../components/sports/TenisContent';
 import VoleiContent from '../components/sports/VoleiContent';
 import ESportsContent from '../components/sports/ESportsContent';
 import StoriesBar from '../components/StoriesBar';
+import { GradientBackground } from '../components/GradientBackground';
+
 
 import AlemanhaIcon from '../../assets/alemanha.svg';
 import BarcelonaIcon from '../../assets/barcelona.svg';
@@ -1044,7 +1046,7 @@ export default function FutebolScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: sport.bg }]}>
+    <GradientBackground style={styles.container}>
       {/* Fixed header */}
       <View style={[styles.headerWrapper, { paddingTop: insets.top }]}>
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top, backgroundColor: colors.primary }} />
@@ -1143,7 +1145,7 @@ export default function FutebolScreen() {
         {/* ── ESPORTS ── */}
         {selectedSport === 'esports' && <ESportsContent onBetPress={openBetSlip} />}
       </ScrollView>
-    </View>
+    </GradientBackground>
   );
 }
 
@@ -1306,7 +1308,6 @@ const styles = StyleSheet.create({
   /* ── Layout raiz ── */
   container: {
     flex: 1,
-    backgroundColor: colors.primaryDark,
   },
   scroll: {
     paddingBottom: 0,

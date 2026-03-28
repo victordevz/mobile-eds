@@ -29,6 +29,8 @@ import { colors } from '../theme';
 import { useAuth } from '../context/AuthContext';
 
 import StoriesBar from '../components/StoriesBar';
+import { GradientBackground } from '../components/GradientBackground';
+
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -652,7 +654,7 @@ export default function SlotScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <GradientBackground style={[styles.container, { paddingTop: insets.top }]}>
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top, backgroundColor: colors.primary, zIndex: 100 }} />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -689,7 +691,7 @@ export default function SlotScreen() {
         <ProvidersSection providers={providers} active={activeProvider} onChange={setActiveProvider} />
         <View style={{ height: 24 }} />
       </ScrollView>
-    </View>
+    </GradientBackground>
   );
 }
 
@@ -699,7 +701,6 @@ const styles = StyleSheet.create({
   /* ── Layout raiz ── */
   container: {
     flex: 1,
-    backgroundColor: colors.primaryDark,
   },
   scroll: {
     paddingBottom: 120,

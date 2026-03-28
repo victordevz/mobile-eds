@@ -13,6 +13,8 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
 import { colors } from '../theme';
+import { GradientBackground } from '../components/GradientBackground';
+
 
 type GameRouteParams = {
   Game: { gameUrl: string; title: string };
@@ -61,7 +63,7 @@ export default function GameScreen() {
   }, []);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <GradientBackground style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="light-content" />
 
       <View style={styles.header}>
@@ -118,21 +120,20 @@ export default function GameScreen() {
           )}
         </>
       )}
-    </View>
+    </GradientBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primaryDark,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: colors.primaryDark,
+    backgroundColor: 'transparent',
   },
   backBtn: {
     width: 34,
@@ -149,14 +150,14 @@ const styles = StyleSheet.create({
   },
   webview: {
     flex: 1,
-    backgroundColor: colors.primaryDark,
+    backgroundColor: 'transparent',
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     top: 54,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.primaryDark,
+    backgroundColor: 'rgba(1, 24, 79, 0.8)',
   },
   errorContainer: {
     flex: 1,

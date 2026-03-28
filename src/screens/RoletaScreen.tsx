@@ -197,11 +197,11 @@ function Header() {
             {isSearchActive && (
               <>
                 <View style={{ position: 'absolute', bottom: -10, left: 0, right: 0, height: 10, backgroundColor: '#042B7A' }} />
-                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, left: -12, width: 12, height: 12, backgroundColor: '#042B7A' }}>
-                  <View style={{ flex: 1, backgroundColor: colors.primary, borderBottomRightRadius: 12 }} />
+                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, left: -30, width: 30, height: 30, backgroundColor: '#042B7A' }}>
+                  <View style={{ flex: 1, backgroundColor: colors.primary, borderBottomRightRadius: 30 }} />
                 </View>
-                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, right: -12, width: 12, height: 12, backgroundColor: '#042B7A' }}>
-                  <View style={{ flex: 1, backgroundColor: colors.primary, borderBottomLeftRadius: 12 }} />
+                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, right: -30, width: 30, height: 30, backgroundColor: '#042B7A' }}>
+                  <View style={{ flex: 1, backgroundColor: colors.primary, borderBottomLeftRadius: 30 }} />
                 </View>
               </>
             )}
@@ -622,6 +622,7 @@ export default function RoletaScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 88 + (insets.bottom || 10) + 24 }}
       >
+        <View style={{ height: 16 }} />
         <BannerSlider />
         <CategoriesRow onPress={(_label) => handleGamePress()} />
         <LiveDealerSection onPress={handleGamePress} />
@@ -650,6 +651,8 @@ const styles = StyleSheet.create({
   headerContainer: {
     backgroundColor: colors.primary,
     paddingBottom: 10,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   header: {
     flexDirection: 'row',

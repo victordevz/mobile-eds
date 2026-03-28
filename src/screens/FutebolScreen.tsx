@@ -643,11 +643,11 @@ function Header({ sport }: HeaderProps) {
             {isSearchActive && (
               <>
                 <View style={{ position: 'absolute', bottom: -10, left: 0, right: 0, height: 10, backgroundColor: '#042B7A' }} />
-                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, left: -12, width: 12, height: 12, backgroundColor: '#042B7A' }}>
-                  <View style={{ flex: 1, backgroundColor: colors.primary, borderBottomRightRadius: 12 }} />
+                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, left: -30, width: 30, height: 30, backgroundColor: '#042B7A' }}>
+                  <View style={{ flex: 1, backgroundColor: colors.primary, borderBottomRightRadius: 30 }} />
                 </View>
-                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, right: -12, width: 12, height: 12, backgroundColor: '#042B7A' }}>
-                  <View style={{ flex: 1, backgroundColor: colors.primary, borderBottomLeftRadius: 12 }} />
+                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, right: -30, width: 30, height: 30, backgroundColor: '#042B7A' }}>
+                  <View style={{ flex: 1, backgroundColor: colors.primary, borderBottomLeftRadius: 30 }} />
                 </View>
               </>
             )}
@@ -1014,7 +1014,8 @@ export default function FutebolScreen() {
   return (
     <View style={[styles.container, { backgroundColor: sport.bg }]}>
       {/* Fixed header */}
-      <View style={[styles.headerWrapper, { backgroundColor: colors.primary, paddingTop: insets.top }]}>
+      <View style={[styles.headerWrapper, { paddingTop: insets.top }]}>
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top, backgroundColor: colors.primary }} />
         <Header sport={sport} />
       </View>
 
@@ -1032,7 +1033,7 @@ export default function FutebolScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.scroll, { paddingBottom: 88 + (insets.bottom || 10) + 24 }]}
       >
-        <View style={{ height: betSlip && !showDropdown ? 190 : (insets.top || 0) + 52 }} />
+        <View style={{ height: 16 }} />
 
         {/* ── TODOS ── */}
         {selectedSport === 'todos' && (
@@ -1167,22 +1168,19 @@ const styles = StyleSheet.create({
 
   /* ── Header wrapper ── */
   headerWrapper: {
-    position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20,
+    zIndex: 20,
   },
 
   /* ── Bet Slip ── */
   betSlip: {
-    position: 'absolute',
-    top: 56, // logo abaixo do header
-    left: 0,
-    right: 0,
-    zIndex: 15, // atrás do header (zIndex 20), à frente do scroll
+    zIndex: 15, // atrás do header (zIndex 20)
     backgroundColor: '#042B7A',
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
     paddingHorizontal: 16,
-    paddingTop: 10,
+    paddingTop: 14,
     paddingBottom: 12,
+    marginTop: -16, // tuck under header
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -1286,6 +1284,8 @@ const styles = StyleSheet.create({
   headerContainer: {
     backgroundColor: colors.primary,
     paddingBottom: 10,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   header: {
     flexDirection: 'row',

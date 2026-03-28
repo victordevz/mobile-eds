@@ -19,6 +19,8 @@ import {
 import Animated2, {
   useAnimatedStyle,
   useSharedValue,
+  withRepeat,
+  withSequence,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
@@ -695,8 +697,23 @@ function Header({ sport, onToggleDropdown, isDropdownOpen, onCloseDropdown }: He
 }
 
 /** Banner promocional com paginação */
-function PromoBanner() {
+function PromoBanner({ onPlay }: { onPlay: () => void }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const glow = useSharedValue(0.5);
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    glow.value = withRepeat(
+      withTiming(0.9, { duration: 1200 }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    shadowOpacity: glow.value,
+  }));
   const flatListRef = useRef<FlatList>(null);
 
   const onScroll = useCallback(
@@ -750,12 +767,22 @@ function PromoBanner() {
                     </Text>
                   )}
                   <View style={styles.bannerButtons}>
-                    <Pressable style={[styles.bannerBtnPlay, item.buttonText && { backgroundColor: item.accent }]}>
-                      {item.buttonText ? (
-                        <Text style={[styles.bannerBtnPlayText, { color: '#0A1128' }]}>▶  {item.buttonText}</Text>
-                      ) : (
-                        <Text style={styles.bannerBtnPlayText}>▶  Jogar</Text>
-                      )}
+                    <Pressable 
+                      onPressIn={() => scale.value = withSpring(0.95)}
+                      onPressOut={() => scale.value = withSpring(1)}
+                      onPress={onPlay}
+                    >
+                      <Animated2.View style={[
+                        styles.bannerBtnPlay, 
+                        item.buttonText && { backgroundColor: item.accent },
+                        animatedButtonStyle
+                      ]}>
+                        {item.buttonText ? (
+                          <Text style={[styles.bannerBtnPlayText, { color: '#0A1128' }]}>▶  {item.buttonText}</Text>
+                        ) : (
+                          <Text style={styles.bannerBtnPlayText}>▶  Jogar</Text>
+                        )}
+                      </Animated2.View>
                     </Pressable>
                     {!item.hideInfoButton && (
                       <Pressable style={styles.bannerBtnInfo}>
@@ -1078,7 +1105,7 @@ export default function FutebolScreen() {
         {selectedSport === 'futebol' && (
           <>
             <StoriesBar />
-            <PromoBanner />
+            <PromoBanner onPlay={handleGamePress} />
             <ChampionshipsBar />
             <View style={styles.sectionHeader}>
               <View style={styles.sectionTitleBar} />

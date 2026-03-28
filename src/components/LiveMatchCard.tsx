@@ -8,6 +8,13 @@ import {
   ViewStyle,
 } from 'react-native';
 import { colors } from '../theme';
+import Animated2, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withRepeat, 
+  withTiming, 
+  withSpring 
+} from 'react-native-reanimated';
 import BragatinoLogo from '../../assets/bragatino.svg';
 import BotafogoLogo from '../../assets/botafogo.svg';
 import Foguinho from '../../assets/foguinho.svg';
@@ -60,6 +67,22 @@ const DEFAULT_DATA: LiveMatchData = {
 export default function LiveMatchCard({ data, onBetPress, style }: LiveMatchCardProps) {
   const d = data ?? DEFAULT_DATA;
   const blink = useRef(new Animated.Value(1)).current;
+  
+  const glow = useSharedValue(0.5);
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    glow.value = withRepeat(
+      withTiming(0.9, { duration: 1200 }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    shadowOpacity: glow.value,
+  }));
 
   useEffect(() => {
     if (!d.isLive) return;
@@ -91,8 +114,15 @@ export default function LiveMatchCard({ data, onBetPress, style }: LiveMatchCard
               </View>
             )}
           </View>
-          <Pressable style={styles.betButton} onPress={onBetPress}>
-            <Text style={styles.betButtonText}>Criar aposta &gt;</Text>
+          <Pressable 
+            onPressIn={() => scale.value = withSpring(0.96)}
+            onPressOut={() => scale.value = withSpring(1)}
+            style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]} 
+            onPress={onBetPress}
+          >
+            <Animated2.View style={[styles.betButton, animatedButtonStyle]}>
+              <Text style={styles.betButtonText}>Criar aposta &gt;</Text>
+            </Animated2.View>
           </Pressable>
         </View>
 
@@ -135,8 +165,15 @@ export default function LiveMatchCard({ data, onBetPress, style }: LiveMatchCard
               {d.suggestionTeam} <Text style={styles.bold}>{d.suggestionDetail}</Text>
             </Text>
           </View>
-          <Pressable style={styles.goButton} onPress={onBetPress}>
-            <Text style={styles.goButtonText}>VAMO LÁ</Text>
+          <Pressable 
+            onPressIn={() => scale.value = withSpring(0.96)}
+            onPressOut={() => scale.value = withSpring(1)}
+            style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]} 
+            onPress={onBetPress}
+          >
+            <Animated2.View style={[styles.goButton, animatedButtonStyle]}>
+              <Text style={styles.goButtonText}>VAMO LÁ</Text>
+            </Animated2.View>
           </Pressable>
         </View>
       </View>

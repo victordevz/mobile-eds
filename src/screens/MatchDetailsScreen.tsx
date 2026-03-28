@@ -12,6 +12,13 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import Svg, { Path, Circle } from 'react-native-svg';
+import Animated2, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withRepeat, 
+  withTiming, 
+  withSpring 
+} from 'react-native-reanimated';
 import { colors } from '../theme';
 import { GradientBackground } from '../components/GradientBackground';
 
@@ -288,6 +295,22 @@ export default function MatchDetailsScreen() {
 
   const [activeTab, setActiveTab] = useState('Resultado');
 
+  const glow = useSharedValue(0.5);
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    glow.value = withRepeat(
+      withTiming(0.9, { duration: 1200 }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    shadowOpacity: glow.value,
+  }));
+
   // Valores mock ou vindos dos params se possível
   const homeTeam = route.params?.homeTeam || 'Internacional';
   const awayTeam = route.params?.awayTeam || 'Chapecoense';
@@ -397,8 +420,14 @@ export default function MatchDetailsScreen() {
         <View style={{ flex: 1 }} />
         <Text style={styles.oddTotal}>Odd 3.14</Text>
         {/* Quando clicado abriremos o verdadeiro BetSlipPanel com as odds escolhidas ou efetuará compra */}
-        <Pressable style={styles.apostarBtn}>
-          <Text style={styles.apostarText}>Apostar</Text>
+        <Pressable 
+          style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}
+          onPressIn={() => scale.value = withSpring(0.96)}
+          onPressOut={() => scale.value = withSpring(1)}
+        >
+          <Animated2.View style={[styles.apostarBtn, animatedButtonStyle]}>
+            <Text style={styles.apostarText}>Apostar</Text>
+          </Animated2.View>
         </Pressable>
       </View>
 

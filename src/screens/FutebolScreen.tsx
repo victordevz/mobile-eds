@@ -43,6 +43,7 @@ import VoleiContent from '../components/sports/VoleiContent';
 import ESportsContent from '../components/sports/ESportsContent';
 import StoriesBar from '../components/StoriesBar';
 import { GradientBackground } from '../components/GradientBackground';
+import { BetCupomBar } from '../components/BetCupomDrawer';
 import { BetSlipPanel } from '../components/BetSlipPanel';
 
 
@@ -1078,6 +1079,8 @@ export default function FutebolScreen() {
           onCloseDropdown={() => setShowDropdown(false)}
         />
       </View>
+
+      <BetCupomBar />
 
       {/* Dropdown */}
       {showDropdown && (

@@ -190,7 +190,7 @@ export default function MenuSheet() {
 
   const balanceLabel =
     isAuthenticated && balance !== null
-      ? `R$ ${balance.toFixed(2).replace('.', ',')}`
+      ? `${balance.toFixed(2).replace('.', ',')}`
       : '0,00';
 
   function handleDeposit() {

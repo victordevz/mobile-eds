@@ -138,7 +138,7 @@ export function BetCupomBar() {
   const gain = numBet > 0 ? (numBet * totalOdd).toFixed(2).replace('.', ',') : '0,00';
 
   return (
-    <View style={[bs.container, { paddingBottom: insets.bottom > 0 ? insets.bottom : 8 }]}>
+    <View style={bs.container}>
       <View style={bs.stats}>
         <View style={bs.stat}>
           <Text style={bs.statLabel}>ODDS</Text>

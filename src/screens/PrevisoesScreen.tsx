@@ -13,6 +13,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../theme';
 import { GradientBackground } from '../components/GradientBackground';
 import { useAuth } from '../context/AuthContext';
+import { BetSlipPanel } from '../components/BetSlipPanel';
+import { BetSlipData } from '../types/sports';
 import Svg, { Circle, Path, Line, Rect } from 'react-native-svg';
 
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -112,6 +114,25 @@ export default function PrevisoesScreen() {
     ? `R$ ${Number(balance).toFixed(2).replace('.', ',')}`
     : 'R$ 0,00';
 
+  const [betSlip, setBetSlip] = useState<BetSlipData | null>(null);
+  const [betAmount, setBetAmount] = useState('');
+
+  const openBetSlip = (data: BetSlipData) => {
+    if (!isAuthenticated) return;
+    setBetSlip(data);
+    setBetAmount('');
+  };
+
+  const closeBetSlip = () => {
+    setBetSlip(null);
+    setBetAmount('');
+  };
+
+  const handleConfirmBet = () => {
+    closeBetSlip();
+    // Previsões não navegam para match details por enquanto
+  };
+
   return (
     <GradientBackground style={styles.container}>
       {/* Fixed header Wrapper */}
@@ -143,6 +164,19 @@ export default function PrevisoesScreen() {
           </View>
         </View>
       </View>
+
+      {/* BetSlip */}
+      {betSlip && (
+        <View style={{ position: 'absolute', top: insets.top + 72, left: 16, right: 16, zIndex: 100 }}>
+          <BetSlipPanel
+            data={betSlip}
+            betAmount={betAmount}
+            onChangeBet={setBetAmount}
+            onClose={closeBetSlip}
+            onConfirm={handleConfirmBet}
+          />
+        </View>
+      )}
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Como Funciona Card */}
@@ -189,14 +223,54 @@ export default function PrevisoesScreen() {
           {/* Card 1 */}
           <View style={styles.predictCard}>
             <Text style={styles.predictTitle}>Bitcoin vai ultrapassar R$ 500k até dez/25?</Text>
-            <ProgressBarRow label="SIM" value={67} color={colors.secondary} />
-            <ProgressBarRow label="NÃO" value={33} color="#007BFF" />
+            <ProgressBarRow
+              label="SIM"
+              value={67}
+              color={colors.secondary}
+              onPress={() => openBetSlip({
+                matchLabel: 'Bitcoin vai ultrapassar R$ 500k até dez/25?',
+                oddLabel: 'SIM',
+                oddValue: 1.50,
+                league: 'Cripto'
+              })}
+            />
+            <ProgressBarRow
+              label="NÃO"
+              value={33}
+              color="#007BFF"
+              onPress={() => openBetSlip({
+                matchLabel: 'Bitcoin vai ultrapassar R$ 500k até dez/25?',
+                oddLabel: 'NÃO',
+                oddValue: 2.50,
+                league: 'Cripto'
+              })}
+            />
           </View>
           {/* Card 2 */}
           <View style={styles.predictCard}>
             <Text style={styles.predictTitle}>EUA entrarão em recessão em 2025?</Text>
-            <ProgressBarRow label="SIM" value={67} color={colors.secondary} />
-            <ProgressBarRow label="NÃO" value={33} color="#007BFF" />
+            <ProgressBarRow
+              label="SIM"
+              value={67}
+              color={colors.secondary}
+              onPress={() => openBetSlip({
+                matchLabel: 'EUA entrarão em recessão em 2025?',
+                oddLabel: 'SIM',
+                oddValue: 1.80,
+                league: 'Economia'
+              })}
+            />
+            <ProgressBarRow
+              label="NÃO"
+              value={33}
+              color="#007BFF"
+              onPress={() => openBetSlip({
+                matchLabel: 'EUA entrarão em recessão em 2025?',
+                oddLabel: 'NÃO',
+                oddValue: 2.20,
+                league: 'Economia'
+              })}
+            />
           </View>
         </View>
 
@@ -209,10 +283,26 @@ export default function PrevisoesScreen() {
         <View style={[styles.predictCard, styles.predictCardFull]}>
           <Text style={styles.predictTitle}>A China invadirá Taiwan até o final de 2026?</Text>
           <View style={styles.buttonsRow}>
-            <Pressable style={[styles.voteButton, styles.voteButtonGreen]}>
+            <Pressable
+              style={[styles.voteButton, styles.voteButtonGreen]}
+              onPress={() => openBetSlip({
+                matchLabel: 'A China invadirá Taiwan até o final de 2026?',
+                oddLabel: 'SIM',
+                oddValue: 4.50,
+                league: 'Mundo'
+              })}
+            >
               <Text style={styles.voteButtonText}>SIM</Text>
             </Pressable>
-            <Pressable style={[styles.voteButton, styles.voteButtonBlue]}>
+            <Pressable
+              style={[styles.voteButton, styles.voteButtonBlue]}
+              onPress={() => openBetSlip({
+                matchLabel: 'A China invadirá Taiwan até o final de 2026?',
+                oddLabel: 'NÃO',
+                oddValue: 1.20,
+                league: 'Mundo'
+              })}
+            >
               <Text style={styles.voteButtonText}>NÃO</Text>
             </Pressable>
           </View>
@@ -223,10 +313,26 @@ export default function PrevisoesScreen() {
           <View style={styles.predictCard}>
             <Text style={styles.predictTitle}>Kanye vai liberar o VALENTÃO até?...</Text>
             <View style={styles.buttonsRow}>
-              <Pressable style={[styles.voteButton, styles.voteButtonGreen, { paddingVertical: 8 }]}>
+              <Pressable
+                style={[styles.voteButton, styles.voteButtonGreen, { paddingVertical: 8 }]}
+                onPress={() => openBetSlip({
+                  matchLabel: 'Kanye vai liberar o VALENTÃO até?...',
+                  oddLabel: 'SIM',
+                  oddValue: 2.10,
+                  league: 'Mundo'
+                })}
+              >
                 <Text style={styles.voteButtonText}>SIM</Text>
               </Pressable>
-              <Pressable style={[styles.voteButton, styles.voteButtonBlue, { paddingVertical: 8 }]}>
+              <Pressable
+                style={[styles.voteButton, styles.voteButtonBlue, { paddingVertical: 8 }]}
+                onPress={() => openBetSlip({
+                  matchLabel: 'Kanye vai liberar o VALENTÃO até?...',
+                  oddLabel: 'NÃO',
+                  oddValue: 1.80,
+                  league: 'Mundo'
+                })}
+              >
                 <Text style={styles.voteButtonText}>NÃO</Text>
               </Pressable>
             </View>
@@ -235,8 +341,28 @@ export default function PrevisoesScreen() {
           {/* Destaque 3 */}
           <View style={styles.predictCard}>
             <Text style={styles.predictTitle}>O petróleo bruto atingirá até o final de março?</Text>
-            <ProgressBarRow label="SIM" value={67} color={colors.secondary} />
-            <ProgressBarRow label="NÃO" value={33} color="#007BFF" />
+            <ProgressBarRow
+              label="SIM"
+              value={67}
+              color={colors.secondary}
+              onPress={() => openBetSlip({
+                matchLabel: 'O petróleo bruto atingirá até o final de março?',
+                oddLabel: 'SIM',
+                oddValue: 1.65,
+                league: 'Economia'
+              })}
+            />
+            <ProgressBarRow
+              label="NÃO"
+              value={33}
+              color="#007BFF"
+              onPress={() => openBetSlip({
+                matchLabel: 'O petróleo bruto atingirá até o final de março?',
+                oddLabel: 'NÃO',
+                oddValue: 2.35,
+                league: 'Economia'
+              })}
+            />
           </View>
         </View>
 
@@ -250,10 +376,26 @@ export default function PrevisoesScreen() {
             </View>
           </View>
           <View style={styles.buttonsRow}>
-            <Pressable style={[styles.voteButton, styles.voteButtonGreen]}>
+            <Pressable
+              style={[styles.voteButton, styles.voteButtonGreen]}
+              onPress={() => openBetSlip({
+                matchLabel: 'BTC 5 Minute Up or Down',
+                oddLabel: 'Pra cima',
+                oddValue: 1.95,
+                league: 'Cripto'
+              })}
+            >
               <Text style={styles.voteButtonText}>Pra cima</Text>
             </Pressable>
-            <Pressable style={[styles.voteButton, styles.voteButtonBlue]}>
+            <Pressable
+              style={[styles.voteButton, styles.voteButtonBlue]}
+              onPress={() => openBetSlip({
+                matchLabel: 'BTC 5 Minute Up or Down',
+                oddLabel: 'Pra baixo',
+                oddValue: 1.95,
+                league: 'Cripto'
+              })}
+            >
               <Text style={styles.voteButtonText}>Pra baixo</Text>
             </Pressable>
           </View>
@@ -269,16 +411,16 @@ export default function PrevisoesScreen() {
 
 // --- Components Internos Auxiliares ---
 
-function ProgressBarRow({ label, value, color }: { label: string, value: number, color: string }) {
+function ProgressBarRow({ label, value, color, onPress }: { label: string, value: number, color: string, onPress?: () => void }) {
   return (
-    <View style={styles.progressRow}>
+    <Pressable style={styles.progressRow} onPress={onPress}>
       <View style={[styles.progressBg, { backgroundColor: color + '33' }]}>
         <View style={[styles.progressFill, { width: `${value}%`, backgroundColor: color }]}>
           <Text style={styles.progressLabelInside}>{label}</Text>
         </View>
       </View>
       <Text style={styles.progressPercentage}>{value}%</Text>
-    </View>
+    </Pressable>
   );
 }
 

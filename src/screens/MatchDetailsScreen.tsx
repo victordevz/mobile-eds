@@ -196,12 +196,21 @@ function EscanteiosTab({ matchLabel, league }: { matchLabel: string; league: str
 }
 
 // ─── BET SLIP DROPDOWN (drops from header) ───
-function BetSlipDropdown() {
+function BetSlipDropdown({ navigation }: { navigation: any }) {
   const { selections, totalOdd, betAmount, setBetAmount, removeSelection, clearSelections, openCupom } = useBetCupom();
+  const [confirmed, setConfirmed] = useState(false);
   const numBet = parseFloat(betAmount.replace(',', '.')) || 0;
   const gain = numBet > 0 ? (numBet * totalOdd).toFixed(2).replace('.', ',') : '0,00';
 
   if (selections.length === 0) return null;
+
+  function handleApostar() {
+    setConfirmed(true);
+    setTimeout(() => {
+      setConfirmed(false);
+      navigation.goBack();
+    }, 1200);
+  }
 
   return (
     <View style={s.slipDrop}>
@@ -232,17 +241,16 @@ function BetSlipDropdown() {
           <Text style={s.slipStatVal}>R$ {numBet > 0 ? gain : (totalOdd * 20).toFixed(2).replace('.', ',')}</Text>
         </View>
       </View>
-      {/* Botões */}
-      <View style={s.slipActions}>
-        <TouchableOpacity style={s.slipTodasBtn} onPress={openCupom}>
-          <Text style={s.slipTodasIcon}>🎟</Text>
-          <Text style={s.slipTodasText}>TODAS</Text>
-          <View style={s.slipBadge}><Text style={s.slipBadgeText}>{selections.length}</Text></View>
-        </TouchableOpacity>
-        <TouchableOpacity style={s.slipPlusBtn} onPress={openCupom}>
-          <Text style={s.slipPlusTxt}>+</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Botão APOSTE JÁ / ✓ */}
+      <TouchableOpacity
+        style={[s.slipApostBtn, confirmed && s.slipApostBtnCheck]}
+        onPress={!confirmed ? handleApostar : undefined}
+        activeOpacity={0.8}
+      >
+        <Text style={[s.slipApostTxt, confirmed && s.slipApostTxtCheck]}>
+          {confirmed ? '✓' : 'APOSTE JÁ'}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -279,7 +287,7 @@ export default function MatchDetailsScreen() {
       </View>
 
       {/* BET SLIP DROPDOWN (below header, green bar) */}
-      <BetSlipDropdown />
+      <BetSlipDropdown navigation={navigation} />
 
       {/* SCOREBOARD */}
       <View style={s.scoreboard}>
@@ -472,4 +480,16 @@ const s = StyleSheet.create({
   ouLabel: { color: '#8A99BB', fontSize: 12, fontWeight: '700' },
 
   emptyLabel: { color: '#34477A', fontSize: 11, fontWeight: '800', textAlign: 'center', margin: 20 },
+
+  /* APOSTE JÁ button */
+  slipApostBtn: {
+    backgroundColor: colors.primary, borderRadius: 10,
+    paddingHorizontal: 16, paddingVertical: 10,
+    alignItems: 'center', justifyContent: 'center', minWidth: 100,
+  },
+  slipApostBtnCheck: {
+    backgroundColor: colors.secondary,
+  },
+  slipApostTxt: { color: colors.white, fontSize: 13, fontWeight: '900', letterSpacing: 0.5 },
+  slipApostTxtCheck: { color: colors.primaryDark, fontSize: 20 },
 });

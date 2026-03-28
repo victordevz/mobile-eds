@@ -434,12 +434,7 @@ function Top5Section({ onPress }: { onPress: () => void }) {
 
           return (
             <Pressable key={game.id} style={styles.top10Card} onPress={onPress}>
-              {/* Rank badge */}
-              <View style={[styles.rankBadge, index < 3 && styles.rankBadgeGold]}>
-                <Text style={[styles.rankText, index < 3 && styles.rankTextGold]}>
-                  {index + 1}
-                </Text>
-              </View>
+              {/* Rank badge removido */}
               {/* Game thumb - Landscape Video feel */}
               <View style={[styles.top10Thumb, { backgroundColor: icon.bg }]}>
                 {imageSource ? (
@@ -458,21 +453,27 @@ function Top5Section({ onPress }: { onPress: () => void }) {
                 <Text style={styles.top10Name} numberOfLines={1}>{game.name}</Text>
                 <Text style={styles.top10Provider} numberOfLines={1}>{game.provider}</Text>
                 
-                <View style={styles.top10Footer}>
-                  <Text style={styles.top10Rtp}>RTP {game.rtp}</Text>
-                  {(game.hot || game.new) && (
-                    <View style={[styles.top10Badge, game.new ? styles.top10BadgeNew : styles.top10BadgeHot]}>
-                      <Text style={styles.top10BadgeText}>{game.new ? 'NOVO' : 'HOT'}</Text>
-                    </View>
-                  )}
-                </View>
-                
                 {/* Players */}
-                <View style={styles.top10Players}>
+                <View style={[styles.top10Players, { marginTop: 8 }]}>
                   <View style={styles.top10PlayerDot} />
                   <Text style={styles.top10PlayersText}>{(game.players / 1000).toFixed(1)}K jogando</Text>
                 </View>
               </View>
+
+              {(game.hot || game.new) && (
+                <Image 
+                  source={require('../../assets/destaque.png')}
+                  style={{
+                    position: 'absolute',
+                    bottom: -15,
+                    right: -20,
+                    width: 140,
+                    height: 48,
+                    resizeMode: 'contain',
+                    zIndex: 10
+                  }}
+                />
+              )}
             </Pressable>
           );
         })}

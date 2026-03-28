@@ -585,18 +585,15 @@ function ChampionshipsBar() {
         return (
           <Pressable key={item.id} style={styles.champItem} onPress={() => setActive(item.id)}>
             <View style={styles.champImageWrapper}>
-              <View style={styles.champNativeCard}>
+              <View style={[styles.champNativeCard, isActive && styles.champNativeCardActive]}>
                 {item.bgUrl && <Image source={item.bgUrl} style={styles.champBgImg} resizeMode="cover" />}
                 <View style={styles.champNativeOverlay} />
-                {item.logoUrl && <Image source={item.logoUrl} style={styles.champLogoImg} resizeMode="contain" />}
+                {item.logoUrl && (
+                  <View style={styles.champLogoContainer}>
+                    <Image source={item.logoUrl} style={styles.champLogoImg} resizeMode="contain" />
+                  </View>
+                )}
               </View>
-              {item.isDestaque && (
-                <Image 
-                  source={require('../../assets/destaque.png')} 
-                  style={styles.champDestaqueOverlay}
-                  resizeMode="contain"
-                />
-              )}
             </View>
           </Pressable>
         );
@@ -1621,22 +1618,20 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: 'rgba(0,0,0,0.7)', // Much darker overlay
   },
-  champLogoImg: {
-    width: 110, // Larger logo (cup)
+  champLogoContainer: {
+    width: 110,
     height: 110,
-    // Add white glow/brightness to the cup
+    justifyContent: 'center',
+    alignItems: 'center',
+    // Glow effect for the cup itself
     shadowColor: '#fff',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 15,
   },
-  champDestaqueOverlay: {
-    position: 'absolute',
-    bottom: -8,
-    right: -4,
-    width: 105,
-    height: 38,
-    zIndex: 10,
+  champLogoImg: {
+    width: 110, // Larger logo (cup)
+    height: 110,
   },
 
 

@@ -17,7 +17,7 @@ import Svg, { Path, Defs, RadialGradient, LinearGradient, Stop } from 'react-nat
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { colors } from '../theme';
 import { tabConfig } from '../navigation/tabConfig';
-import { BetCupomBar } from './BetCupomDrawer';
+
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
@@ -63,13 +63,12 @@ export default function CustomTabBar({
   const nestedState = currentTab.state;
   const activeNestedRoute =
     nestedState?.routes?.[nestedState.index ?? 0]?.name;
-  if (activeNestedRoute === 'Game') return null;
+  if (activeNestedRoute === 'Game' || activeNestedRoute === 'MatchDetails') return null;
 
   const xPos = (state.index + 0.5) * tabWidth;
 
   return (
     <>
-      <BetCupomBar />
       <View
         style={[
           styles.container,

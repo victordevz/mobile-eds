@@ -81,7 +81,6 @@ export default function LiveMatchCard({ data, onBetPress, style }: LiveMatchCard
 
   const animatedButtonStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
-    shadowOpacity: glow.value,
   }));
 
   useEffect(() => {

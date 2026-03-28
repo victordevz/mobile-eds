@@ -15,6 +15,10 @@ import { GradientBackground } from '../components/GradientBackground';
 import { useAuth } from '../context/AuthContext';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
+import BotafogoIcon from '../../assets/botafogo.svg';
+import BragatinoIcon from '../../assets/bragatino.svg';
+import SubtractIcon from '../../assets/Subtract.svg';
+
 const { width: SCREEN_W } = Dimensions.get('window');
 
 // --- Icons Auxiliares ---
@@ -23,6 +27,64 @@ function SearchIcon({ size = 20, color = '#FFF' }: { size?: number; color?: stri
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Circle cx="11" cy="11" r="7" stroke={color} strokeWidth="2" />
       <Line x1="16.5" y1="16.5" x2="22" y2="22" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+function UsersIcon({ size = 18, color = colors.grey }: { size?: number; color?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45768C17.623 10.1593 16.8604 10.6597 16 10.88"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function PersonIcon({ size = 18, color = colors.grey }: { size?: number; color?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Circle
+        cx="12"
+        cy="7"
+        r="4"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </Svg>
   );
 }
@@ -134,7 +196,10 @@ function HeaderTimer() {
 
   return (
     <>
-      <Text style={styles.timerText}>Faltam {timeLeft.d} dias para acabar</Text>
+      <View style={styles.timerHeaderRow}>
+        <SubtractIcon width={16} height={16} style={{ marginRight: 6 }} />
+        <Text style={styles.timerText}>Faltam {timeLeft.d} dias para acabar</Text>
+      </View>
       
       <View style={styles.scoreSquaresContainer}>
         <View style={styles.scoreSquare}>
@@ -188,9 +253,13 @@ function MeusPalpitesContent() {
             <Text style={styles.dataText}>26/03 • 19:30</Text>
           </View>
           <View style={styles.teamsCircleRow}>
-            <View style={styles.teamCircle} />
+            <View style={styles.teamIconWrapper}>
+              <BragatinoIcon width={32} height={32} />
+            </View>
             <Text style={{ marginHorizontal: 8, color: '#999', fontWeight: 'bold' }}>X</Text>
-            <View style={styles.teamCircle} />
+            <View style={styles.teamIconWrapper}>
+              <BotafogoIcon width={32} height={32} />
+            </View>
           </View>
           <View style={styles.abertoBadge}>
             <Text style={styles.abertoText}>ABERTO</Text>
@@ -249,7 +318,9 @@ function PremioRow({ acertos, title, value, players }: { acertos: string; title:
         <Text style={styles.premioValue}>{value}</Text>
       </View>
       <View style={{ alignItems: 'center' }}>
-        <View style={styles.playerSquare} />
+        <View style={styles.playerIconBox}>
+          <UsersIcon size={22} color={colors.grey} />
+        </View>
         <Text style={styles.playersText}>{players}</Text>
       </View>
     </View>
@@ -300,7 +371,9 @@ function RankingItem({ place, name }: { place: string; name: string }) {
         <Text style={styles.rankNum}>{place}</Text>
         <Text style={styles.rankSub}>Lugar</Text>
       </View>
-      <View style={styles.avatarCircle} />
+      <View style={styles.avatarIconBox}>
+        <PersonIcon size={20} color={colors.white} />
+      </View>
       <View style={styles.rankInfo}>
         <Text style={styles.rankName}>{name}</Text>
         <Text style={styles.rankStats}>5/8 acertos • Rodada perfeita</Text>
@@ -359,14 +432,14 @@ function MinhasSalasContent() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020B24',
+    backgroundColor: 'transparent',
   },
   headerWrapper: {
     zIndex: 20,
-    backgroundColor: colors.white, // In prototype it looks like the header top is part of blue
+    backgroundColor: 'transparent',
   },
   headerContainer: {
-    backgroundColor: '#003399', // A deeper blue as seen in prototype
+    backgroundColor: colors.primary, // A deeper blue as seen in prototype
     paddingBottom: 20,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
@@ -435,11 +508,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   scrollContent: {
-    backgroundColor: '#EBEBEB',
+    backgroundColor: 'transparent',
     flexGrow: 1,
   },
   contentCard: {
-    backgroundColor: '#FFF',
+    backgroundColor: 'transparent',
     paddingHorizontal: 0,
     paddingTop: 16,
     paddingBottom: 24,
@@ -452,32 +525,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tabBtn: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: colors.card,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
   },
   tabBtnActive: {
-    backgroundColor: '#666',
+    backgroundColor: 'rgba(56,230,125,0.12)',
+    borderColor: colors.secondary,
   },
   tabText: {
-    color: '#333',
+    color: colors.grey,
     fontWeight: 'bold',
     fontSize: 13,
   },
   tabTextActive: {
-    color: '#FFF',
+    color: colors.secondary,
   },
   tabSection: {
     paddingHorizontal: 16,
   },
+  timerHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
   timerText: {
     fontSize: 14,
-    color: '#333',
+    color: colors.white,
     fontWeight: '500',
-    marginBottom: 12,
   },
   scoreSquaresContainer: {
     flexDirection: 'row',
@@ -488,16 +568,18 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginHorizontal: 8,
-    color: '#333',
+    color: colors.white,
   },
   scoreSquare: {
     width: 36,
     height: 42,
-    backgroundColor: '#4B4B4B',
+    backgroundColor: colors.card,
     borderRadius: 8,
     marginRight: 4,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   scoreSquareText: {
     color: '#FFF',
@@ -505,28 +587,30 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   progressContainer: {
-    backgroundColor: '#E5E5E5',
+    backgroundColor: colors.card,
     borderRadius: 8,
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
   },
   progressBarBg: {
     flex: 1,
     height: 8,
-    backgroundColor: '#CCC',
+    backgroundColor: 'rgba(255,255,255,0.1)',
     borderRadius: 4,
     marginRight: 12,
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: '#555',
+    backgroundColor: colors.secondary,
     borderRadius: 4,
   },
   progressText: {
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.white,
   },
   jogosHeader: {
     flexDirection: 'row',
@@ -536,19 +620,21 @@ const styles = StyleSheet.create({
   verticalBar: {
     width: 4,
     height: 16,
-    backgroundColor: '#000',
+    backgroundColor: colors.secondary,
     marginRight: 8,
   },
   jogosTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#000',
+    color: colors.white,
   },
   jogoCard: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: colors.card,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
   },
   jogoCardTop: {
     flexDirection: 'row',
@@ -559,21 +645,25 @@ const styles = StyleSheet.create({
   grupoText: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#555',
+    color: colors.white,
   },
   dataText: {
     fontSize: 10,
-    color: '#999',
+    color: colors.grey,
   },
   teamsCircleRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  teamCircle: {
+  teamIconWrapper: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#666',
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   abertoBadge: {
     backgroundColor: colors.secondary,
@@ -582,7 +672,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   abertoText: {
-    color: '#FFF',
+    color: colors.primaryDark,
     fontSize: 10,
     fontWeight: 'bold',
   },
@@ -598,12 +688,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   oddBoxDark: {
-    backgroundColor: '#1E3A8A',
-    borderColor: '#1E3A8A',
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   oddBoxLight: {
-    backgroundColor: '#E5E7EB',
-    borderColor: '#CCC',
+    backgroundColor: 'rgba(56,230,125,0.12)',
+    borderColor: colors.secondary,
   },
   oddValue: {
     color: '#FFF',
@@ -611,16 +701,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   oddLabel: {
-    color: '#FFF',
+    color: colors.white,
     fontSize: 10,
   },
   oddValueLight: {
-    color: '#000',
+    color: colors.secondary,
     fontWeight: 'bold',
     fontSize: 14,
   },
   oddLabelLight: {
-    color: '#666',
+    color: colors.white,
     fontSize: 10,
   },
   premiosList: {
@@ -628,14 +718,16 @@ const styles = StyleSheet.create({
   },
   premioRow: {
     flexDirection: 'row',
-    backgroundColor: '#E5E5E5',
+    backgroundColor: colors.card,
     borderRadius: 8,
     padding: 12,
     alignItems: 'center',
     marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
   },
   acertosBadge: {
-    backgroundColor: '#888',
+    backgroundColor: 'rgba(255,255,255,0.1)',
     padding: 8,
     borderRadius: 4,
     alignItems: 'center',
@@ -643,112 +735,129 @@ const styles = StyleSheet.create({
     minWidth: 48,
   },
   acertosTitle: { color: '#FFF', fontWeight: 'bold', fontSize: 12 },
-  acertosSub: { color: '#FFF', fontSize: 10 },
-  premioTitle: { color: '#333', fontSize: 14, fontWeight: '500' },
-  premioValue: { color: '#000', fontSize: 14, fontWeight: 'bold' },
-  playerSquare: {
-    width: 24, height: 24, backgroundColor: '#999', borderRadius: 4, marginBottom: 4,
+  acertosSub: { color: colors.grey, fontSize: 10 },
+  premioTitle: { color: colors.grey, fontSize: 14, fontWeight: '500' },
+  premioValue: { color: colors.white, fontSize: 14, fontWeight: 'bold' },
+  playerIconBox: {
+    width: 28, height: 28, alignItems: 'center', justifyContent: 'center', marginBottom: 2,
   },
-  playersText: { color: '#666', fontSize: 10 },
+  playersText: { color: colors.grey, fontSize: 10 },
   premioTotalBox: {
-    backgroundColor: '#777',
+    backgroundColor: 'rgba(56,230,125,0.12)',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 16,
+    borderWidth: 1,
+    borderColor: colors.secondary,
   },
-  premioTotalTitle: { color: '#FFF', fontSize: 12 },
-  premioTotalValue: { color: '#FFF', fontSize: 18, fontWeight: 'bold', marginVertical: 4 },
-  premioTotalSubtitle: { color: '#FFF', fontSize: 12 },
+  premioTotalTitle: { color: colors.secondary, fontSize: 12 },
+  premioTotalValue: { color: colors.secondary, fontSize: 18, fontWeight: 'bold', marginVertical: 4 },
+  premioTotalSubtitle: { color: colors.secondary, fontSize: 12, opacity: 0.8 },
   rankingRow: {
     flexDirection: 'row',
-    backgroundColor: '#E5E5E5',
+    backgroundColor: colors.card,
     borderRadius: 8,
     padding: 12,
     alignItems: 'center',
     marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
   },
   rankBadge: {
-    backgroundColor: '#888',
+    backgroundColor: 'rgba(255,255,255,0.1)',
     padding: 6,
     borderRadius: 4,
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: 40,
   },
-  rankNum: { color: '#FFF', fontWeight: 'bold', fontSize: 14 },
-  rankSub: { color: '#FFF', fontSize: 10 },
-  avatarCircle: {
-    width: 24, height: 24, borderRadius: 12, backgroundColor: '#000', marginHorizontal: 12,
+  rankNum: { color: colors.white, fontWeight: 'bold', fontSize: 14 },
+  rankSub: { color: colors.grey, fontSize: 10 },
+  avatarIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
-  rankInfo: { flex: 1, paddingLeft: 12 },
-  rankName: { color: '#333', fontWeight: 'bold', fontSize: 14 },
-  rankStats: { color: '#666', fontSize: 12, marginTop: 2 },
-  rankPointsNum: { color: '#000', fontWeight: 'bold', fontSize: 14 },
-  rankPointsLabel: { color: '#666', fontSize: 10 },
+  rankInfo: { flex: 1, paddingLeft: 0 },
+  rankName: { color: colors.white, fontWeight: 'bold', fontSize: 14 },
+  rankStats: { color: colors.grey, fontSize: 12, marginTop: 2 },
+  rankPointsNum: { color: colors.white, fontWeight: 'bold', fontSize: 14 },
+  rankPointsLabel: { color: colors.grey, fontSize: 10 },
   salaHighlightBox: {
-    backgroundColor: '#E5E5E5',
+    backgroundColor: colors.card,
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
     marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
   },
   salaHighlightTitle: {
-    fontWeight: 'bold', fontSize: 16, color: '#000', marginBottom: 8,
+    fontWeight: 'bold', fontSize: 16, color: colors.white, marginBottom: 8,
   },
   salaHighlightSub: {
-    color: '#666', fontSize: 12, textAlign: 'center', lineHeight: 18,
+    color: colors.grey, fontSize: 12, textAlign: 'center', lineHeight: 18,
   },
   inputLabel: {
-    color: '#333', fontSize: 14, marginBottom: 8,
+    color: colors.white, fontSize: 14, marginBottom: 8,
   },
   inputBox: {
-    backgroundColor: '#E5E5E5',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     padding: 12,
     borderRadius: 4,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#CCC',
+    borderColor: 'rgba(255,255,255,0.1)',
+    color: colors.white,
   },
   actionBtn: {
-    backgroundColor: '#666',
+    backgroundColor: colors.secondary,
     padding: 14,
     borderRadius: 4,
     alignItems: 'center',
     marginTop: 8,
   },
   actionBtnText: {
-    color: '#FFF', fontWeight: 'bold', fontSize: 14,
+    color: colors.primaryDark, fontWeight: 'bold', fontSize: 14,
   },
   orRow: {
     flexDirection: 'row', alignItems: 'center', marginVertical: 24,
   },
   orLine: {
-    flex: 1, height: 1, backgroundColor: '#CCC',
+    flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.2)',
   },
   orText: {
-    marginHorizontal: 12, color: '#666', fontSize: 12,
+    marginHorizontal: 12, color: colors.grey, fontSize: 12,
   },
   enterRoomRow: {
     flexDirection: 'row', gap: 12,
   },
   enterBtn: {
-    backgroundColor: '#777',
+    backgroundColor: colors.secondary,
     paddingHorizontal: 20,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 4,
   },
   enterBtnText: {
-    color: '#FFF', fontWeight: 'bold', fontSize: 14,
+    color: colors.primaryDark, fontWeight: 'bold', fontSize: 14,
   },
   featurePill: {
-    backgroundColor: '#E5E5E5',
+    backgroundColor: colors.card,
     paddingVertical: 12,
     borderRadius: 20,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
   },
   featurePillText: {
-    color: '#555', fontSize: 12, fontWeight: 'bold',
+    color: colors.white, fontSize: 12, fontWeight: 'bold',
   },
 });

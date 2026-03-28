@@ -836,7 +836,6 @@ function PromoBanner({ onPlay }: { onPlay: () => void }) {
 
   const animatedButtonStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
-    shadowOpacity: glow.value,
   }));
   const flatListRef = useRef<FlatList>(null);
 

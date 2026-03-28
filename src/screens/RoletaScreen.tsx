@@ -622,7 +622,7 @@ export default function RoletaScreen() {
       </View>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 88 + (insets.bottom || 10) + 60 }}
+        contentContainerStyle={{ paddingBottom: 160 + (insets.bottom || 0) }}
       >
         <View style={{ height: 16 }} />
         <BannerSlider />

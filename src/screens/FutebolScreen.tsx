@@ -1094,7 +1094,7 @@ export default function FutebolScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.scroll, { paddingBottom: 88 + (insets.bottom || 10) + 60 }]}
+        contentContainerStyle={[styles.scroll, { paddingBottom: 160 + (insets.bottom || 0) }]}
       >
         <View style={{ height: 16 }} />
 

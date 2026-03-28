@@ -185,7 +185,7 @@ export default function PrevisoesScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Como Funciona Card */}
         <LinearGradient
-          colors={['rgba(56, 230, 125, 0.25)', 'rgba(2, 51, 151, 0.4)']}
+          colors={['rgba(56, 230, 125, 0.3)', 'rgba(2, 51, 151, 0.5)']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.infoCard}
@@ -242,7 +242,7 @@ export default function PrevisoesScreen() {
             <ProgressBarRow
               label="NÃO"
               value={33}
-              color="#007BFF"
+              color={colors.cardLight}
               isActive={isSelected('Bitcoin vai ultrapassar R$ 500k até dez/25?', 'NÃO')}
               onPress={() => openBetSlip({
                 matchLabel: 'Bitcoin vai ultrapassar R$ 500k até dez/25?',
@@ -270,7 +270,7 @@ export default function PrevisoesScreen() {
             <ProgressBarRow
               label="NÃO"
               value={33}
-              color="#007BFF"
+              color={colors.cardLight}
               isActive={isSelected('EUA entrarão em recessão em 2025?', 'NÃO')}
               onPress={() => openBetSlip({
                 matchLabel: 'EUA entrarão em recessão em 2025?',
@@ -306,6 +306,7 @@ export default function PrevisoesScreen() {
             >
               <Text style={[
                 styles.voteButtonText,
+                { color: colors.primaryDark },
                 isSelected('A China invadirá Taiwan até o final de 2026?', 'SIM') && styles.voteButtonTextActive
               ]}>SIM</Text>
             </Pressable>
@@ -351,6 +352,7 @@ export default function PrevisoesScreen() {
               >
                 <Text style={[
                   styles.voteButtonText,
+                  { color: colors.primaryDark },
                   isSelected('Kanye vai liberar o VALENTÃO até?...', 'SIM') && styles.voteButtonTextActive
                 ]}>SIM</Text>
               </Pressable>
@@ -394,7 +396,7 @@ export default function PrevisoesScreen() {
             <ProgressBarRow
               label="NÃO"
               value={33}
-              color="#007BFF"
+              color={colors.cardLight}
               isActive={isSelected('O petróleo bruto atingirá até o final de março?', 'NÃO')}
               onPress={() => openBetSlip({
                 matchLabel: 'O petróleo bruto atingirá até o final de março?',
@@ -431,6 +433,7 @@ export default function PrevisoesScreen() {
             >
               <Text style={[
                 styles.voteButtonText,
+                { color: colors.primaryDark },
                 isSelected('BTC 5 Minute Up or Down', 'Pra cima') && styles.voteButtonTextActive
               ]}>Pra cima</Text>
             </Pressable>
@@ -456,7 +459,7 @@ export default function PrevisoesScreen() {
         </View>
         
         {/* Tabbar Padding */}
-        <View style={{ height: 120 }} />
+        <View style={{ height: 160 }} />
 
       </ScrollView>
     </GradientBackground>
@@ -476,13 +479,13 @@ function ProgressBarRow({ label, value, color, onPress, isActive }: { label: str
     >
       <View style={[
         styles.progressBg, 
-        { backgroundColor: color + '33' },
+        { backgroundColor: color + '55' },
         isActive && { borderColor: color, borderWidth: 1 }
       ]}>
         <View style={[styles.progressFill, { width: `${value}%`, backgroundColor: color }]}>
           <Text style={[
             styles.progressLabelInside,
-            isActive && { color: '#000' }
+            label === 'NÃO' ? { color: colors.white } : { color: colors.primaryDark }
           ]}>{label}</Text>
         </View>
       </View>
@@ -617,12 +620,12 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 12,
-    backgroundColor: 'rgba(2, 51, 151, 0.3)',
+    backgroundColor: 'rgba(2, 51, 151, 0.35)',
     borderWidth: 1,
     borderColor: 'rgba(56, 230, 125, 0.4)',
   },
   catPillActive: {
-    backgroundColor: 'rgba(2, 51, 151, 0.6)',
+    backgroundColor: 'rgba(2, 51, 151, 0.7)',
     borderColor: colors.secondary,
   },
   catText: {
@@ -654,11 +657,11 @@ const styles = StyleSheet.create({
   },
   predictCard: {
     flex: 1,
-    backgroundColor: 'rgba(2, 51, 151, 0.2)',
+    backgroundColor: 'rgba(4, 43, 122, 0.45)', // colors.card with lower opacity
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: 'rgba(56, 230, 125, 0.3)',
+    borderColor: 'rgba(56, 230, 125, 0.2)',
   },
   predictCardFull: {
     flex: undefined,
@@ -689,9 +692,9 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
   },
   progressLabelInside: {
-    color: '#000',
+    color: colors.primaryDark,
     fontSize: 11,
-    fontWeight: 'bold',
+    fontWeight: '900',
   },
   progressPercentage: {
     color: colors.white,
@@ -707,23 +710,24 @@ const styles = StyleSheet.create({
   voteButton: {
     flex: 1,
     paddingVertical: 10,
-    borderRadius: 8,
+    borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
   },
   voteButtonGreen: {
-    backgroundColor: 'rgba(56, 230, 125, 0.15)',
-    borderColor: 'rgba(56, 230, 125, 0.6)',
+    backgroundColor: colors.secondary,
+    borderColor: colors.secondary,
   },
   voteButtonBlue: {
-    backgroundColor: 'rgba(0, 123, 255, 0.15)',
-    borderColor: 'rgba(0, 123, 255, 0.6)',
+    backgroundColor: colors.cardLight, 
+    borderColor: colors.cardLight,
   },
   voteButtonText: {
     color: colors.white,
-    fontWeight: 'bold',
-    fontSize: 13,
+    fontWeight: '900',
+    fontSize: 14,
+    letterSpacing: 0.5,
   },
   subText: {
     color: 'rgba(255,255,255,0.5)',
@@ -751,8 +755,8 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   voteButtonActive: {
-    backgroundColor: colors.secondary,
-    borderColor: colors.secondary,
+    backgroundColor: colors.white,
+    borderColor: colors.white,
   },
   voteButtonTextActive: {
     color: colors.primaryDark,

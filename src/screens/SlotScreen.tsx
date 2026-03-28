@@ -658,7 +658,7 @@ export default function SlotScreen() {
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top, backgroundColor: colors.primary, zIndex: 100 }} />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.scroll, { paddingBottom: 88 + (insets.bottom || 10) + 60 }]}
+        contentContainerStyle={[styles.scroll, { paddingBottom: 160 + (insets.bottom || 0) }]}
         style={{ flex: 1 }} // Garante que o ScrollView ocupe o espaço e receba toques corretamente
       >
         <Header />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dimensions,
   Image,
@@ -116,28 +116,63 @@ export default function BolaoScreen() {
 
 // --- Content Components ---
 
-function MeusPalpitesContent() {
+function HeaderTimer() {
+  const [timeLeft, setTimeLeft] = useState({ d: 3, h: 5, m: 24, s: 45 });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev.s > 0) return { ...prev, s: prev.s - 1 };
+        if (prev.m > 0) return { ...prev, m: prev.m - 1, s: 59 };
+        if (prev.h > 0) return { ...prev, h: prev.h - 1, m: 59, s: 59 };
+        if (prev.d > 0) return { ...prev, d: prev.d - 1, h: 23, m: 59, s: 59 };
+        return prev;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <View style={styles.tabSection}>
-      <Text style={styles.timerText}>Faltam 3 dias para acabar</Text>
+    <>
+      <Text style={styles.timerText}>Faltam {timeLeft.d} dias para acabar</Text>
       
-      {/* Score squares */}
       <View style={styles.scoreSquaresContainer}>
-        <View style={styles.scoreSquare} />
+        <View style={styles.scoreSquare}>
+          <Text style={styles.scoreSquareText}>{String(timeLeft.h).padStart(2, '0')[0]}</Text>
+        </View>
+        <View style={styles.scoreSquare}>
+          <Text style={styles.scoreSquareText}>{String(timeLeft.h).padStart(2, '0')[1]}</Text>
+        </View>
         <Text style={styles.colon}>:</Text>
-        <View style={styles.scoreSquare} />
-        <View style={{ width: 16 }} />
-        <View style={styles.scoreSquare} />
-        <View style={styles.scoreSquare} />
+        <View style={styles.scoreSquare}>
+          <Text style={styles.scoreSquareText}>{String(timeLeft.m).padStart(2, '0')[0]}</Text>
+        </View>
+        <View style={styles.scoreSquare}>
+          <Text style={styles.scoreSquareText}>{String(timeLeft.m).padStart(2, '0')[1]}</Text>
+        </View>
+        <Text style={styles.colon}>:</Text>
+        <View style={styles.scoreSquare}>
+          <Text style={styles.scoreSquareText}>{String(timeLeft.s).padStart(2, '0')[0]}</Text>
+        </View>
+        <View style={styles.scoreSquare}>
+          <Text style={styles.scoreSquareText}>{String(timeLeft.s).padStart(2, '0')[1]}</Text>
+        </View>
       </View>
 
-      {/* Progress */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBarBg}>
           <View style={[styles.progressBarFill, { width: '62.5%' }]} />
         </View>
         <Text style={styles.progressText}>5/8</Text>
       </View>
+    </>
+  );
+}
+
+function MeusPalpitesContent() {
+  return (
+    <View style={styles.tabSection}>
+      <HeaderTimer />
 
       {/* Jogos da rodada */}
       <View style={styles.jogosHeader}>
@@ -184,17 +219,7 @@ function MeusPalpitesContent() {
 function PremiosContent() {
   return (
     <View style={styles.tabSection}>
-      <Text style={styles.timerText}>Faltam 3 dias para acabar</Text>
-      
-      {/* Score squares */}
-      <View style={styles.scoreSquaresContainer}>
-        <View style={styles.scoreSquare} />
-        <Text style={styles.colon}>:</Text>
-        <View style={styles.scoreSquare} />
-        <View style={{ width: 16 }} />
-        <View style={styles.scoreSquare} />
-        <View style={styles.scoreSquare} />
-      </View>
+      <HeaderTimer />
 
       <View style={styles.premiosList}>
         <PremioRow acertos="8/8" title="Prêmio Máximo" value="RS 500,00" players="3 jogadores" />
@@ -234,16 +259,7 @@ function PremioRow({ acertos, title, value, players }: { acertos: string; title:
 function RankingContent() {
   return (
     <View style={styles.tabSection}>
-      <Text style={styles.timerText}>Faltam 3 dias para acabar</Text>
-      
-      <View style={styles.scoreSquaresContainer}>
-        <View style={styles.scoreSquare} />
-        <Text style={styles.colon}>:</Text>
-        <View style={styles.scoreSquare} />
-        <View style={{ width: 16 }} />
-        <View style={styles.scoreSquare} />
-        <View style={styles.scoreSquare} />
-      </View>
+      <HeaderTimer />
 
       <View style={styles.jogosHeader}>
         <View style={styles.verticalBar} />
@@ -300,7 +316,7 @@ function RankingItem({ place, name }: { place: string; name: string }) {
 function MinhasSalasContent() {
   return (
     <View style={styles.tabSection}>
-      <Text style={styles.timerText}>Faltam 3 dias para acabar</Text>
+      <HeaderTimer />
 
       <View style={styles.salaHighlightBox}>
         <Text style={styles.salaHighlightTitle}>Crie sua sala privada</Text>
@@ -475,11 +491,18 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   scoreSquare: {
-    width: 40,
-    height: 40,
-    backgroundColor: '#777',
-    borderRadius: 4,
+    width: 36,
+    height: 42,
+    backgroundColor: '#4B4B4B',
+    borderRadius: 8,
     marginRight: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scoreSquareText: {
+    color: '#FFF',
+    fontSize: 20,
+    fontWeight: '800',
   },
   progressContainer: {
     backgroundColor: '#E5E5E5',

@@ -290,6 +290,67 @@ const POPULARES_MATCHES: MegaCotacaoMatch[] = [
   { id: 'p17', date: 'Hoje', time: '17:00', homeTeam: 'LOUD', HomeIcon: BrasilIcon, awayTeam: 'Leviatán', AwayIcon: FluminenseIcon, league: 'Valorant VCT', odd: 2.10, sportId: 'sp5' },
 ];
 
+function BolaoChallenge() {
+  const navigation = useNavigation<any>();
+  const [timeLeft, setTimeLeft] = useState({ d: 3, h: 5, m: 24, s: 45 });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev.s > 0) return { ...prev, s: prev.s - 1 };
+        if (prev.m > 0) return { ...prev, m: prev.m - 1, s: 59 };
+        if (prev.h > 0) return { ...prev, h: prev.h - 1, m: 59, s: 59 };
+        if (prev.d > 0) return { ...prev, d: prev.d - 1, h: 23, m: 59, s: 59 };
+        return prev;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <Pressable style={styles.bolaoCard} onPress={() => navigation.navigate('Bolao')}>
+      <View style={styles.bolaoHeader}>
+        <Text style={styles.bolaoLabel}>PARTICIPE DO BOLÃO</Text>
+        <View style={styles.bolaoBadge}>
+          <Text style={styles.bolaoBadgeText}>ATIVO</Text>
+        </View>
+      </View>
+      
+      <Text style={styles.bolaoTimerText}>Faltam {timeLeft.d} dias para acabar</Text>
+      
+      <View style={styles.bolaoTimerRow}>
+        <View style={styles.bolaoSquare}>
+          <Text style={styles.bolaoSquareText}>{String(timeLeft.h).padStart(2, '0')[0]}</Text>
+        </View>
+        <View style={styles.bolaoSquare}>
+          <Text style={styles.bolaoSquareText}>{String(timeLeft.h).padStart(2, '0')[1]}</Text>
+        </View>
+        <Text style={styles.bolaoColon}>:</Text>
+        <View style={styles.bolaoSquare}>
+          <Text style={styles.bolaoSquareText}>{String(timeLeft.m).padStart(2, '0')[0]}</Text>
+        </View>
+        <View style={styles.bolaoSquare}>
+          <Text style={styles.bolaoSquareText}>{String(timeLeft.m).padStart(2, '0')[1]}</Text>
+        </View>
+        <Text style={styles.bolaoColon}>:</Text>
+        <View style={styles.bolaoSquare}>
+          <Text style={styles.bolaoSquareText}>{String(timeLeft.s).padStart(2, '0')[0]}</Text>
+        </View>
+        <View style={styles.bolaoSquare}>
+          <Text style={styles.bolaoSquareText}>{String(timeLeft.s).padStart(2, '0')[1]}</Text>
+        </View>
+      </View>
+
+      <View style={styles.bolaoProgressContainer}>
+        <View style={styles.bolaoProgressBarBg}>
+          <View style={[styles.bolaoProgressBarFill, { width: '62.5%' }]} />
+        </View>
+        <Text style={styles.bolaoProgressText}>5/8</Text>
+      </View>
+    </Pressable>
+  );
+}
+
 const LIVE_MATCHES = [
   {
     id: 'l1',
@@ -1040,6 +1101,7 @@ export default function FutebolScreen() {
             <StoriesBar />
             <PromoBanner onPlay={handleGamePress} />
             <ChampionshipsBar />
+            <BolaoChallenge />
             <View style={styles.sectionHeader}>
               <View style={styles.sectionTitleBar} />
               <Text style={styles.sectionTitle}>Ao Vivo</Text>
@@ -1174,8 +1236,97 @@ const styles = StyleSheet.create({
   scroll: {
     paddingBottom: 0,
   },
-
-  /* ── Header ── */
+  /* ── Bolao Challenge ── */
+  bolaoCard: {
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 16,
+    marginTop: 8,
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  bolaoHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  bolaoLabel: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#1A1A1A',
+    letterSpacing: 0.5,
+  },
+  bolaoBadge: {
+    backgroundColor: '#38E67D',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 4,
+  },
+  bolaoBadgeText: {
+    color: '#0A1128',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  bolaoTimerText: {
+    fontSize: 14,
+    color: '#444',
+    fontWeight: '600',
+    marginBottom: 10,
+  },
+  bolaoTimerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  bolaoSquare: {
+    width: 38,
+    height: 42,
+    backgroundColor: '#333',
+    borderRadius: 8,
+    marginRight: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bolaoSquareText: {
+    color: '#FFF',
+    fontSize: 22,
+    fontWeight: '900',
+  },
+  bolaoColon: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginHorizontal: 4,
+    color: '#333',
+  },
+  bolaoProgressContainer: {
+    backgroundColor: '#F0F0F0',
+    borderRadius: 12,
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  bolaoProgressBarBg: {
+    flex: 1,
+    height: 8,
+    backgroundColor: '#D1D1D1',
+    borderRadius: 4,
+    marginRight: 12,
+  },
+  bolaoProgressBarFill: {
+    height: '100%',
+    backgroundColor: '#333',
+    borderRadius: 4,
+  },
+  bolaoProgressText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#333',
+  },
   headerContainer: {
     backgroundColor: colors.primary,
     paddingBottom: 10,

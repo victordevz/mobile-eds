@@ -27,6 +27,8 @@ import { colors } from '../theme';
 import Logotipo from '../../assets/logotipo.svg';
 import { useAuth } from '../context/AuthContext';
 
+import StoriesBar from '../components/StoriesBar';
+
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
@@ -617,6 +619,7 @@ export default function SlotScreen() {
         style={{ flex: 1 }} // Garante que o ScrollView ocupe o espaço e receba toques corretamente
       >
         <Header />
+        <StoriesBar />
         <PromoBanner onPlay={handleGamePress} games={popular.data} />
         <CategoryPills active={activeCategory} onChange={handleCategoryChange} />
 

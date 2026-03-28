@@ -1,8 +1,19 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import FutebolScreen from '../../screens/FutebolScreen';
+import MatchDetailsScreen from '../../screens/MatchDetailsScreen';
 
-const Stack = createNativeStackNavigator();
+export type FutebolStackParamList = {
+  FutebolHome: undefined;
+  MatchDetails: {
+    matchId?: string;
+    league?: string;
+    homeTeam?: string;
+    awayTeam?: string;
+  };
+};
+
+const Stack = createNativeStackNavigator<FutebolStackParamList>();
 
 export default function FutebolStack() {
   return (
@@ -14,6 +25,10 @@ export default function FutebolStack() {
       <Stack.Screen
         name="FutebolHome"
         component={FutebolScreen}
+      />
+      <Stack.Screen
+        name="MatchDetails"
+        component={MatchDetailsScreen}
       />
     </Stack.Navigator>
   );

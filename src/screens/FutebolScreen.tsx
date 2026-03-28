@@ -25,7 +25,7 @@ import Animated2, {
 import { useVideoPlayer, VideoView } from 'expo-video';
 import * as VideoThumbnails from 'expo-video-thumbnails';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Line, Path, Rect } from 'react-native-svg';
 import { colors } from '../theme';
@@ -1080,9 +1080,10 @@ interface BetSlipPanelProps {
   onChangeBet: (v: string) => void;
   onClose: () => void;
   onConfirm: () => void;
+  onExpand?: () => void; // New prop for '+' button
 }
 
-function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetSlipPanelProps) {
+function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm, onExpand }: BetSlipPanelProps) {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const translateY = useSharedValue(-300); // Começa acima da tela
 
@@ -1151,6 +1152,11 @@ function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetS
           <Text style={styles.betSlipOddBadgeLabel}>ODD</Text>
           <Text style={styles.betSlipOddValue}>{data.oddValue.toFixed(2)}</Text>
         </View>
+        {onExpand && (
+          <Pressable onPress={onExpand} style={styles.betSlipExpandBtn} hitSlop={12}>
+            <Text style={styles.betSlipExpandText}>+</Text>
+          </Pressable>
+        )}
         <Pressable onPress={onClose} style={styles.betSlipClose} hitSlop={12}>
           <Text style={styles.betSlipCloseText}>✕</Text>
         </Pressable>
@@ -1206,6 +1212,7 @@ function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm }: BetS
 export default function FutebolScreen() {
   const insets = useSafeAreaInsets();
   const { isAuthenticated, openAuthModal } = useAuth();
+  const navigation = useNavigation<any>();
 
   const [selectedSport, setSelectedSport] = useState<SportType>('todos');
   const [showDropdown, setShowDropdown] = useState(false);
@@ -1241,6 +1248,18 @@ export default function FutebolScreen() {
     setShowDropdown(false);
     closeBetSlip();
   }
+  function handleExpandBet() {
+    if (!betSlip) return;
+    const parts = betSlip.matchLabel.split(' vs ');
+    const homeTeam = parts[0];
+    const awayTeam = parts[1];
+    closeBetSlip();
+    navigation.navigate('MatchDetails', {
+      league: betSlip.league,
+      homeTeam: homeTeam || 'Internacional',
+      awayTeam: awayTeam || 'Chapecoense'
+    });
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: sport.bg }]}>
@@ -1256,7 +1275,7 @@ export default function FutebolScreen() {
 
       {/* BetSlip */}
       {betSlip && !showDropdown && (
-        <BetSlipPanel data={betSlip} betAmount={betAmount} onChangeBet={setBetAmount} onClose={closeBetSlip} onConfirm={handleConfirmBet} />
+        <BetSlipPanel data={betSlip} betAmount={betAmount} onChangeBet={setBetAmount} onClose={closeBetSlip} onConfirm={handleConfirmBet} onExpand={handleExpandBet} />
       )}
 
       <ScrollView
@@ -1448,6 +1467,15 @@ const styles = StyleSheet.create({
   },
   betSlipOddBadgeLabel: { color: colors.grey, fontSize: 9, fontWeight: '700', textTransform: 'uppercase' },
   betSlipOddValue: { color: colors.white, fontSize: 18, fontWeight: '900' },
+  betSlipExpandBtn: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  betSlipExpandText: { color: colors.white, fontSize: 22, fontWeight: '800', lineHeight: 28 },
   betSlipClose: { padding: 4 },
   betSlipCloseText: { color: colors.grey, fontSize: 18 },
 

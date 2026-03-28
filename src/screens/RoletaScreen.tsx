@@ -188,8 +188,8 @@ function Header() {
       <View style={styles.headerActions}>
         <Pressable style={styles.balancePill} onPress={openDepositModal}>
           <View style={styles.depositCircle}>
-            <View style={styles.plusH} />
-            <View style={styles.plusV} />
+            <View style={styles.plusHorizontal} />
+            <View style={styles.plusVertical} />
           </View>
           <Text style={styles.balanceValue}>{balanceLabel}</Text>
         </Pressable>
@@ -637,15 +637,38 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   depositCircle: {
-    width: 36, height: 36, borderRadius: 18,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: colors.secondary,
-    alignItems: 'center', justifyContent: 'center',
-    shadowColor: colors.secondary, shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.7, shadowRadius: 8, elevation: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.7,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  plusH: { position: 'absolute', width: 16, height: 2.5, borderRadius: 2, backgroundColor: colors.primaryDark },
-  plusV: { position: 'absolute', width: 2.5, height: 16, borderRadius: 2, backgroundColor: colors.primaryDark },
-  balanceValue: { color: colors.secondary, fontSize: 15, fontWeight: '800' },
+  plusHorizontal: {
+    position: 'absolute',
+    width: 16,
+    height: 2.5,
+    borderRadius: 2,
+    backgroundColor: colors.primaryDark,
+  },
+  plusVertical: {
+    position: 'absolute',
+    width: 2.5,
+    height: 16,
+    borderRadius: 2,
+    backgroundColor: colors.primaryDark,
+  },
+  balanceValue: {
+    color: colors.secondary,
+    fontSize: 15,
+    fontWeight: '800',
+    letterSpacing: 0.3,
+  },
   menuBtn: { gap: 5, justifyContent: 'center', alignItems: 'flex-end', padding: 4 },
   menuBar: { width: 22, height: 2.5, borderRadius: 2, backgroundColor: colors.white },
 

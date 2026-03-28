@@ -13,10 +13,11 @@ import Animated, {
   useSharedValue,
   useAnimatedProps,
 } from 'react-native-reanimated';
-import Svg, { Path, Defs, RadialGradient, Stop } from 'react-native-svg';
+import Svg, { Path, Defs, RadialGradient, LinearGradient, Stop } from 'react-native-svg';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { colors } from '../theme';
 import { tabConfig } from '../navigation/tabConfig';
+import { BetCupomBar } from './BetCupomDrawer';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
@@ -52,8 +53,9 @@ export default function CustomTabBar({
 
   const animatedStrokeProps = useAnimatedProps(() => {
     const x = xShared.value;
+    // Only draw the curve portion (no flat horizontal lines on both sides)
     return {
-      d: `M -1000 0 L ${x - 70} 0 C ${x - 35} 0, ${x - 35} ${waveHeight}, ${x} ${waveHeight} C ${x + 35} ${waveHeight}, ${x + 35} 0, ${x + 70} 0 L 3000 0`,
+      d: `M ${x - 70} 0 C ${x - 35} 0, ${x - 35} ${waveHeight}, ${x} ${waveHeight} C ${x + 35} ${waveHeight}, ${x + 35} 0, ${x + 70} 0`,
     };
   });
 
@@ -66,12 +68,14 @@ export default function CustomTabBar({
   const xPos = (state.index + 0.5) * tabWidth;
 
   return (
-    <View
-      style={[
-        styles.container,
-        { paddingBottom: (insets.bottom || 0) + 32 },
-      ]}
-    >
+    <>
+      <BetCupomBar />
+      <View
+        style={[
+          styles.container,
+          { paddingBottom: (insets.bottom || 0) + 32 },
+        ]}
+      >
       {/* Background SVG wave */}
       <View style={StyleSheet.absoluteFill}>
         <Svg width={width} height={200}>
@@ -87,6 +91,12 @@ export default function CustomTabBar({
               <Stop offset="10%" stopColor={colors.primary} stopOpacity="1" />
               <Stop offset="100%" stopColor={colors.primary} stopOpacity="1" />
             </RadialGradient>
+            {/* Stroke gradient: transparent up top, green at the wave bottom */}
+            <LinearGradient id="strokeGrad" x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0%" stopColor={colors.secondary} stopOpacity="0" />
+              <Stop offset="50%" stopColor={colors.secondary} stopOpacity="0.5" />
+              <Stop offset="100%" stopColor={colors.secondary} stopOpacity="1" />
+            </LinearGradient>
           </Defs>
           <AnimatedPath
             animatedProps={animatedPathProps}
@@ -95,7 +105,7 @@ export default function CustomTabBar({
           <AnimatedPath
             animatedProps={animatedStrokeProps}
             fill="none"
-            stroke={colors.secondary}
+            stroke="url(#strokeGrad)"
             strokeWidth={2.5}
           />
         </Svg>
@@ -133,6 +143,7 @@ export default function CustomTabBar({
         );
       })}
     </View>
+    </>
   );
 }
 

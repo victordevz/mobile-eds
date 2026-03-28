@@ -5,6 +5,16 @@ export interface BetSlipData {
   league: string;
 }
 
+// Nova estrutura para múltiplas apostas no cupom
+export interface BetSelection {
+  id: string;
+  matchLabel: string;   // ex: "EUA vs Bélgica"
+  oddLabel: string;     // ex: "Resultado Final"
+  choiceLabel: string;  // ex: "EUA"  
+  oddValue: number;
+  league: string;
+}
+
 export type SportType = 'todos' | 'futebol' | 'basquete' | 'tenis' | 'volei' | 'esports';
 
 export interface SportTheme {

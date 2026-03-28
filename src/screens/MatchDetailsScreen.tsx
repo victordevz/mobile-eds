@@ -4,24 +4,17 @@ import {
   Dimensions,
   Pressable,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import Svg, { Path, Circle } from 'react-native-svg';
-import Animated2, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withRepeat, 
-  withTiming, 
-  withSpring 
-} from 'react-native-reanimated';
+import Svg, { Path } from 'react-native-svg';
 import { colors } from '../theme';
-import { GradientBackground } from '../components/GradientBackground';
-
+import { useBetCupom } from '../context/BetCupomContext';
+import { BetSelection } from '../types/sports';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
@@ -52,24 +45,19 @@ function PulseDot() {
   return (
     <Animated.View
       style={{
-        width: 8,
-        height: 8,
+        width: 7,
+        height: 7,
         borderRadius: 4,
         backgroundColor: '#FF3B3B',
-        marginRight: 6,
+        marginRight: 5,
         opacity: pulse,
-        shadowColor: '#FF3B3B',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.5,
-        shadowRadius: 4,
-        elevation: 2,
       }}
     />
   );
 }
 
 // ─────────────────────────────────────────
-// FAKE DATA / MOCKS
+// DATA
 // ─────────────────────────────────────────
 const STATS = [
   { label: 'Escanteios', value: '7' },
@@ -81,8 +69,120 @@ const STATS = [
 const TABS = ['Resultado', 'Gols', 'Cartões', 'Escanteios', '1º Tempo'];
 
 // ─────────────────────────────────────────
-// COMPONENTES AUXILIARES DE MERCADO
+// Odds clickable box
 // ─────────────────────────────────────────
+function OddBox({
+  id,
+  label,
+  odd,
+  market,
+  matchLabel,
+  league,
+}: {
+  id: string;
+  label: string;
+  odd: string;
+  market: string;
+  matchLabel: string;
+  league: string;
+}) {
+  const { addSelection, hasSelection, openCupom } = useBetCupom();
+  const selected = hasSelection(id);
+
+  function handlePress() {
+    const sel: BetSelection = {
+      id,
+      matchLabel,
+      oddLabel: market,
+      choiceLabel: label,
+      oddValue: parseFloat(odd),
+      league,
+    };
+    addSelection(sel);
+    openCupom();
+  }
+
+  return (
+    <TouchableOpacity
+      style={[styles.oddBox, selected && styles.oddBoxSelected]}
+      onPress={handlePress}
+    >
+      <Text style={styles.oddLabelGrid}>{label}</Text>
+      <Text style={[styles.oddVal, selected && styles.oddValSelected]}>{odd}</Text>
+      {selected && (
+        <View style={{ position: 'absolute', top: 4, right: 6 }}>
+          <Text style={{ color: '#0AF43D', fontSize: 10 }}>▲</Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+}
+
+function OddsGrid3({
+  options,
+  market,
+  matchLabel,
+  league,
+}: {
+  options: { id: string; label: string; odd: string }[];
+  market: string;
+  matchLabel: string;
+  league: string;
+}) {
+  return (
+    <View style={styles.oddsRow}>
+      {options.map((opt) => (
+        <OddBox key={opt.id} {...opt} market={market} matchLabel={matchLabel} league={league} />
+      ))}
+    </View>
+  );
+}
+
+function OddsGrid2({
+  options,
+  market,
+  matchLabel,
+  league,
+}: {
+  options: { id: string; label: string; odd: string }[];
+  market: string;
+  matchLabel: string;
+  league: string;
+}) {
+  return (
+    <View style={styles.oddsRow}>
+      {options.map((opt) => (
+        <OddBox key={opt.id} {...opt} market={market} matchLabel={matchLabel} league={league} />
+      ))}
+    </View>
+  );
+}
+
+function OverUnderRow({
+  label,
+  over,
+  under,
+  market,
+  matchLabel,
+  league,
+}: {
+  label: string;
+  over: { id: string; val: string };
+  under: { id: string; val: string };
+  market: string;
+  matchLabel: string;
+  league: string;
+}) {
+  return (
+    <View style={styles.ouRow}>
+      <View style={styles.ouLabelBox}>
+        <Text style={styles.ouLabel}>{label}</Text>
+      </View>
+      <OddBox id={over.id} label="↑ Mais" odd={over.val} market={market} matchLabel={matchLabel} league={league} />
+      <OddBox id={under.id} label="↓ Menos" odd={under.val} market={market} matchLabel={matchLabel} league={league} />
+    </View>
+  );
+}
 
 function MarketSection({ title, cashout, children }: { title: string; cashout?: boolean; children: React.ReactNode }) {
   return (
@@ -101,184 +201,118 @@ function MarketSection({ title, cashout, children }: { title: string; cashout?: 
   );
 }
 
-function OddsGrid3({ options }: { options: { label: string; odd: string; active?: boolean; alignRight?: boolean }[] }) {
-  return (
-    <View style={styles.oddsRow}>
-      {options.map((opt, i) => (
-        <View key={i} style={[styles.oddBox, opt.active && styles.oddBoxActive]}>
-          <Text style={styles.oddLabelGrid}>{opt.label}</Text>
-          <Text style={[styles.oddVal, opt.active && styles.oddValActive]}>{opt.odd}</Text>
-          {opt.alignRight && opt.active && (
-            <View style={{ position: 'absolute', top: 4, right: 6 }}>
-              <Text style={{ color: '#0AF43D', fontSize: 10 }}>▲</Text>
-            </View>
-          )}
-        </View>
-      ))}
-    </View>
-  );
-}
-
-function OddsGrid2({ options }: { options: { label: string; odd: string; active?: boolean }[] }) {
-  return (
-    <View style={styles.oddsRow}>
-      {options.map((opt, i) => (
-        <View key={i} style={[styles.oddBox, opt.active && styles.oddBoxActive, { paddingVertical: 14 }]}>
-          <Text style={styles.oddLabelGrid}>{opt.label}</Text>
-          <Text style={[styles.oddVal, opt.active && styles.oddValActive]}>{opt.odd}</Text>
-        </View>
-      ))}
-    </View>
-  );
-}
-
-function OverUnderRow({ label, over, under }: { label: string; over: { val: string; active?: boolean }; under: { val: string; active?: boolean } }) {
-  return (
-    <View style={styles.ouRow}>
-      <View style={styles.ouLabelBox}>
-        <Text style={styles.ouLabel}>{label}</Text>
-      </View>
-      <View style={[styles.ouOddBox, over.active && styles.oddBoxActive]}>
-        <Text style={[styles.ouOddDir, over.active && { color: '#0AF43D' }]}>↑ Mais</Text>
-        <Text style={[styles.oddVal, over.active && styles.oddValActive]}>{over.val}</Text>
-      </View>
-      <View style={[styles.ouOddBox, under.active && styles.oddBoxActive]}>
-        <Text style={[styles.ouOddDir, under.active && { color: '#ff4d4d' }]}>↓ Menos</Text>
-        <Text style={[styles.oddVal, under.active && styles.oddValActive]}>{under.val}</Text>
-      </View>
-    </View>
-  );
-}
-
 // ─────────────────────────────────────────
-// CONTEÚDO DAS ABAS
+// TAB CONTENT
 // ─────────────────────────────────────────
-
-function ResultadoTab() {
+function ResultadoTab({ matchLabel, league }: { matchLabel: string; league: string }) {
   return (
     <View style={styles.tabContent}>
       <MarketSection title="RESULTADO FINAL" cashout>
-        <OddsGrid3 options={[
-          { label: 'Internacional', odd: '1.73' },
-          { label: 'Empate', odd: '3.40' },
-          { label: 'Chapecoense', odd: '4.50', alignRight: true },
-        ]} />
+        <OddsGrid3
+          market="Resultado Final"
+          matchLabel={matchLabel}
+          league={league}
+          options={[
+            { id: 'rf-home', label: 'Bragantino', odd: '1.73' },
+            { id: 'rf-draw', label: 'Empate', odd: '3.40' },
+            { id: 'rf-away', label: 'Botafogo', odd: '4.50' },
+          ]}
+        />
       </MarketSection>
 
       <MarketSection title="DUPLA CHANCE">
-        <OddsGrid3 options={[
-          { label: 'Casa ou Emp.', odd: '1.18' },
-          { label: 'Casa ou Fora', odd: '1.12' },
-          { label: 'Emp. ou Fora', odd: '2.10' },
-        ]} />
-      </MarketSection>
-
-      <MarketSection title="HANDICAP ASIÁTICO" cashout>
-        <View style={styles.ouRow}>
-          <View style={styles.ouLabelBox}><Text style={styles.ouLabel}>-0.5</Text></View>
-          <View style={styles.ouOddBox}><Text style={styles.ouOddDir}>↑ Internacional</Text><Text style={styles.oddVal}>1.88</Text></View>
-          <View style={styles.ouOddBox}><Text style={styles.ouOddDir}>↑ Chapecoense</Text><Text style={styles.oddVal}>1.88</Text></View>
-        </View>
-        <View style={styles.ouRow}>
-          <View style={styles.ouLabelBox}><Text style={styles.ouLabel}>-1.5</Text></View>
-          <View style={styles.ouOddBox}><Text style={styles.ouOddDir}>↑ Internacional</Text><Text style={styles.oddVal}>2.60</Text></View>
-          <View style={styles.ouOddBox}><Text style={styles.ouOddDir}>↑ Chapecoense</Text><Text style={styles.oddVal}>1.45</Text></View>
-        </View>
+        <OddsGrid3
+          market="Dupla Chance"
+          matchLabel={matchLabel}
+          league={league}
+          options={[
+            { id: 'dc-1', label: 'Casa ou emp.', odd: '1.18' },
+            { id: 'dc-2', label: 'Casa ou Fora', odd: '1.12' },
+            { id: 'dc-3', label: 'Emp. ou Fora', odd: '4.50' },
+          ]}
+        />
       </MarketSection>
     </View>
   );
 }
 
-function GolsTab() {
+function GolsTab({ matchLabel, league }: { matchLabel: string; league: string }) {
   return (
     <View style={styles.tabContent}>
-      <MarketSection title="TOTAL DE GOLS" cashout>
-        <OverUnderRow label="+0.5" over={{ val: '1.15' }} under={{ val: '5.20' }} />
-        <OverUnderRow label="+1.5" over={{ val: '1.62' }} under={{ val: '2.15' }} />
-        <OverUnderRow label="+2.5" over={{ val: '2.80', active: true }} under={{ val: '1.38' }} />
-        <OverUnderRow label="+3.5" over={{ val: '5.10' }} under={{ val: '1.12', active: true }} />
-      </MarketSection>
-
       <MarketSection title="AMBAS MARCAM" cashout>
-        <OddsGrid2 options={[
-          { label: 'Sim', odd: '1.95' },
-          { label: 'Não', odd: '1.82' },
-        ]} />
+        <OddsGrid2
+          market="Ambas Marcam"
+          matchLabel={matchLabel}
+          league={league}
+          options={[
+            { id: 'am-sim', label: 'SIM', odd: '1.73' },
+            { id: 'am-nao', label: 'NÃO', odd: '1.73' },
+          ]}
+        />
+      </MarketSection>
+
+      <MarketSection title="TOTAL DE GOLS" cashout>
+        <OverUnderRow label="+0.5" over={{ id: 'g1-over', val: '1.15' }} under={{ id: 'g1-under', val: '5.20' }} market="Total de Gols" matchLabel={matchLabel} league={league} />
+        <OverUnderRow label="+1.5" over={{ id: 'g2-over', val: '1.83' }} under={{ id: 'g2-under', val: '2.15' }} market="Total de Gols" matchLabel={matchLabel} league={league} />
+        <OverUnderRow label="+2.5" over={{ id: 'g3-over', val: '2.80' }} under={{ id: 'g3-under', val: '1.32' }} market="Total de Gols" matchLabel={matchLabel} league={league} />
       </MarketSection>
     </View>
   );
 }
 
-function CartoesTab() {
+function CartoesTab({ matchLabel, league }: { matchLabel: string; league: string }) {
   return (
     <View style={styles.tabContent}>
-      <Text style={styles.centerSubLabel}>TOTAL DA PARTIDA</Text>
-      
-      <MarketSection title="🟨 AMARELOS — MAIS/MENOS" cashout>
-        <OverUnderRow label="+1.5" over={{ val: '1.28' }} under={{ val: '3.60' }} />
-        <OverUnderRow label="+2.5" over={{ val: '1.75' }} under={{ val: '2.00' }} />
-        <OverUnderRow label="+3.5" over={{ val: '2.40' }} under={{ val: '1.55' }} />
-        <OverUnderRow label="+4.5" over={{ val: '3.80' }} under={{ val: '1.22' }} />
-      </MarketSection>
-
-      <MarketSection title="🟥 CARTÃO VERMELHO">
+      <MarketSection title="CARTÃO VERMELHO" cashout>
         <Text style={styles.marketDesc}>Algum jogador vai ser expulso nessa partida?</Text>
-        <View style={styles.oddsRow}>
-          <View style={styles.oddBox}><Text style={{ color: '#0AF43D', fontWeight: '800', marginBottom: 4 }}>SIM</Text><Text style={styles.oddVal}>2.35</Text></View>
-          <View style={styles.oddBox}><Text style={{ color: '#FF3B3B', fontWeight: '800', marginBottom: 4 }}>NÃO</Text><Text style={styles.oddVal}>1.58</Text></View>
-        </View>
+        <OddsGrid2
+          market="Cartão Vermelho"
+          matchLabel={matchLabel}
+          league={league}
+          options={[
+            { id: 'cv-sim', label: 'SIM', odd: '1.73' },
+            { id: 'cv-nao', label: 'NÃO', odd: '1.73' },
+          ]}
+        />
       </MarketSection>
 
-      <MarketSection title="🟨 2º AMARELO = VERMELHO">
-        <Text style={styles.marketDesc}>Algum jogador vai tomar dois amarelos e ser expulso?</Text>
-        <View style={styles.oddsRow}>
-          <View style={styles.oddBox}><Text style={{ color: '#0AF43D', fontWeight: '800', marginBottom: 4 }}>SIM</Text><Text style={styles.oddVal}>3.10</Text></View>
-          <View style={styles.oddBox}><Text style={{ color: '#FF3B3B', fontWeight: '800', marginBottom: 4 }}>NÃO</Text><Text style={styles.oddVal}>1.32</Text></View>
-        </View>
-      </MarketSection>
-      
-      <Text style={styles.centerSubLabel}>POR TIME</Text>
-
-      <MarketSection title="🟨 AMARELOS — INTERNACIONAL">
-        <OverUnderRow label="+0.5" over={{ val: '1.55' }} under={{ val: '2.30' }} />
-        <OverUnderRow label="+1.5" over={{ val: '2.20' }} under={{ val: '1.65' }} />
+      <MarketSection title="CARTÃO VERMELHO">
+        <Text style={styles.marketDesc}>Algum jogador vai ser expulso nessa partida?</Text>
+        <OddsGrid2
+          market="Cartão Vermelho 2"
+          matchLabel={matchLabel}
+          league={league}
+          options={[
+            { id: 'cv2-sim', label: 'SIM', odd: '1.73' },
+            { id: 'cv2-nao', label: 'NÃO', odd: '1.73' },
+          ]}
+        />
       </MarketSection>
 
-      <MarketSection title="🟨 AMARELOS — CHAPECOENSE">
-        <OverUnderRow label="+0.5" over={{ val: '1.48' }} under={{ val: '2.50' }} />
-        <OverUnderRow label="+1.5" over={{ val: '2.10' }} under={{ val: '1.72' }} />
+      <MarketSection title="🟨 AMARELOS — MAIS/MENOS">
+        <OverUnderRow label="+1.5" over={{ id: 'am1-over', val: '1.15' }} under={{ id: 'am1-under', val: '5.20' }} market="Amarelos" matchLabel={matchLabel} league={league} />
+        <OverUnderRow label="+2.5" over={{ id: 'am2-over', val: '1.83' }} under={{ id: 'am2-under', val: '2.15' }} market="Amarelos" matchLabel={matchLabel} league={league} />
+        <OverUnderRow label="+3.5" over={{ id: 'am3-over', val: '2.80' }} under={{ id: 'am3-under', val: '1.32' }} market="Amarelos" matchLabel={matchLabel} league={league} />
       </MarketSection>
-
-      <Text style={styles.centerSubLabel}>QUEM LEVA MAIS</Text>
-      
-      <MarketSection title="🟨 TIME COM MAIS CARTÕES">
-        <OddsGrid3 options={[
-          { label: 'Internacional', odd: '2.05' },
-          { label: 'Empate', odd: '4.80' },
-          { label: 'Chapecoense', odd: '1.88' },
-        ]} />
-      </MarketSection>
-
     </View>
   );
 }
 
-function EscanteiosTab() {
+function EscanteiosTab({ matchLabel, league }: { matchLabel: string; league: string }) {
   return (
     <View style={styles.tabContent}>
       <MarketSection title="TOTAL DE ESCANTEIOS" cashout>
-        <OverUnderRow label="+7.5" over={{ val: '1.55' }} under={{ val: '2.30' }} />
-        <OverUnderRow label="+8.5" over={{ val: '1.88' }} under={{ val: '1.88' }} />
-        <OverUnderRow label="+10.5" over={{ val: '2.62' }} under={{ val: '1.42' }} />
+        <OverUnderRow label="+7.5" over={{ id: 'e1-over', val: '1.55' }} under={{ id: 'e1-under', val: '2.30' }} market="Escanteios" matchLabel={matchLabel} league={league} />
+        <OverUnderRow label="+8.5" over={{ id: 'e2-over', val: '1.88' }} under={{ id: 'e2-under', val: '1.88' }} market="Escanteios" matchLabel={matchLabel} league={league} />
+        <OverUnderRow label="+10.5" over={{ id: 'e3-over', val: '2.62' }} under={{ id: 'e3-under', val: '1.42' }} market="Escanteios" matchLabel={matchLabel} league={league} />
       </MarketSection>
     </View>
   );
 }
 
 // ─────────────────────────────────────────
-// TELA PRINCIPAL
+// MAIN SCREEN
 // ─────────────────────────────────────────
-
 type MatchDetailsRouteProps = {
   params: {
     matchId?: string;
@@ -292,43 +326,23 @@ export default function MatchDetailsScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const route = useRoute<RouteProp<MatchDetailsRouteProps, 'params'>>();
+  const { selections, openCupom } = useBetCupom();
 
   const [activeTab, setActiveTab] = useState('Resultado');
 
-  const glow = useSharedValue(0.5);
-  const scale = useSharedValue(1);
-
-  useEffect(() => {
-    glow.value = withRepeat(
-      withTiming(0.9, { duration: 1200 }),
-      -1,
-      true
-    );
-  }, []);
-
-  const animatedButtonStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    shadowOpacity: glow.value,
-  }));
-
-  // Valores mock ou vindos dos params se possível
-  const homeTeam = route.params?.homeTeam || 'Internacional';
-  const awayTeam = route.params?.awayTeam || 'Chapecoense';
-  const league = route.params?.league || 'BRASILEIRÃO SÉRIE A • RODADA 5';
+  const homeTeam = route.params?.homeTeam || 'Bragantino';
+  const awayTeam = route.params?.awayTeam || 'Botafogo';
+  const league = route.params?.league || 'Brasileirão série A - Rodada 5';
+  const matchLabel = `${homeTeam} vs ${awayTeam}`;
 
   return (
-    <GradientBackground style={[styles.container, { paddingTop: insets.top }]}>
-      <StatusBar barStyle="light-content" backgroundColor="#0D1E50" />
-      
-      {/* HEADER TELA */}
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* HEADER */}
       <View style={styles.header}>
         <Pressable hitSlop={15} onPress={() => navigation.goBack()} style={styles.backBtn}>
           <ArrowLeftIcon />
         </Pressable>
-        <View style={styles.leagueBox}>
-          <View style={styles.bolaVerde} />
-          <Text style={styles.leagueText}>{league.toUpperCase()}</Text>
-        </View>
+        <Text style={styles.leagueText} numberOfLines={1}>{league}</Text>
         <View style={styles.aoVivoBadge}>
           <PulseDot />
           <Text style={styles.aoVivoText}>AO VIVO</Text>
@@ -338,42 +352,38 @@ export default function MatchDetailsScreen() {
       {/* PLACAR */}
       <View style={styles.scoreboard}>
         <View style={styles.teamSide}>
-          <View style={[styles.shieldMock, { backgroundColor: '#E63946' }]}>
-            <Text style={styles.shieldText}>{homeTeam.substring(0,2).toUpperCase()}</Text>
+          <View style={[styles.shieldMock, { backgroundColor: '#BB1C1C' }]}>
+            <Text style={styles.shieldText}>{homeTeam.substring(0, 2).toUpperCase()}</Text>
           </View>
           <Text style={styles.teamName}>{homeTeam}</Text>
           <View style={styles.formRow}>
-            <View style={[styles.formDot, { backgroundColor: '#0AF43D' }]}/>
-            <View style={[styles.formDot, { backgroundColor: '#0AF43D' }]}/>
-            <View style={[styles.formDot, { backgroundColor: '#0AF43D' }]}/>
-            <View style={[styles.formDot, { backgroundColor: '#FF3B3B' }]}/>
-            <View style={[styles.formDot, { backgroundColor: '#FF3B3B' }]}/>
+            {['#0AF43D', '#0AF43D', '#0AF43D', '#FF3B3B', '#FF3B3B'].map((c, i) => (
+              <View key={i} style={[styles.formDot, { backgroundColor: c }]} />
+            ))}
           </View>
         </View>
 
         <View style={styles.scoreCenter}>
-          <Text style={styles.scoreText}>1 - 0</Text>
+          <Text style={styles.scoreText}>1 × 1</Text>
           <View style={styles.timePill}>
             <Text style={styles.timeText}>38'</Text>
           </View>
         </View>
 
         <View style={styles.teamSide}>
-          <View style={[styles.shieldMock, { backgroundColor: '#2E8540' }]}>
-            <Text style={styles.shieldText}>{awayTeam.substring(0,2).toUpperCase()}</Text>
+          <View style={[styles.shieldMock, { backgroundColor: '#0B3D8C' }]}>
+            <Text style={styles.shieldText}>{awayTeam.substring(0, 2).toUpperCase()}</Text>
           </View>
           <Text style={styles.teamName}>{awayTeam}</Text>
           <View style={styles.formRow}>
-            <View style={[styles.formDot, { backgroundColor: '#FF3B3B' }]}/>
-            <View style={[styles.formDot, { backgroundColor: '#0AF43D' }]}/>
-            <View style={[styles.formDot, { backgroundColor: '#FF3B3B' }]}/>
-            <View style={[styles.formDot, { backgroundColor: '#FF3B3B' }]}/>
-            <View style={[styles.formDot, { backgroundColor: '#0AF43D' }]}/>
+            {['#FF3B3B', '#0AF43D', '#FF3B3B', '#FF3B3B', '#0AF43D'].map((c, i) => (
+              <View key={i} style={[styles.formDot, { backgroundColor: c }]} />
+            ))}
           </View>
         </View>
       </View>
 
-      {/* STATS BASE */}
+      {/* STATS */}
       <View style={styles.statsRow}>
         {STATS.map((s, i) => (
           <React.Fragment key={i}>
@@ -399,239 +409,152 @@ export default function MatchDetailsScreen() {
             );
           })}
         </ScrollView>
-        <View style={styles.tabBorderLines} />
+        <View style={styles.tabBorderLine} />
       </View>
 
       {/* TAB CONTENT */}
-      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: 240 }]}>
-        {activeTab === 'Resultado' && <ResultadoTab />}
-        {activeTab === 'Gols' && <GolsTab />}
-        {activeTab === 'Cartões' && <CartoesTab />}
-        {activeTab === 'Escanteios' && <EscanteiosTab />}
-        {activeTab === '1º Tempo' && <View style={styles.tabContent}><Text style={styles.centerSubLabel}>MERCADOS DO 1º TEMPO EM BREVE</Text></View>}
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: selections.length > 0 ? 160 : 100 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {activeTab === 'Resultado' && <ResultadoTab matchLabel={matchLabel} league={league} />}
+        {activeTab === 'Gols' && <GolsTab matchLabel={matchLabel} league={league} />}
+        {activeTab === 'Cartões' && <CartoesTab matchLabel={matchLabel} league={league} />}
+        {activeTab === 'Escanteios' && <EscanteiosTab matchLabel={matchLabel} league={league} />}
+        {activeTab === '1º Tempo' && (
+          <View style={styles.tabContent}>
+            <Text style={styles.centerSubLabel}>MERCADOS DO 1º TEMPO EM BREVE</Text>
+          </View>
+        )}
       </ScrollView>
 
-      {/* FLOAT BOTTOM BAR */}
-      <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <View style={styles.selectionCount}>
-          <Text style={styles.selectionNumber}>2</Text>
-        </View>
-        <Text style={styles.selectionLabel}>2 seleções</Text>
-        <View style={{ flex: 1 }} />
-        <Text style={styles.oddTotal}>Odd 3.14</Text>
-        {/* Quando clicado abriremos o verdadeiro BetSlipPanel com as odds escolhidas ou efetuará compra */}
-        <Pressable 
-          style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}
-          onPressIn={() => scale.value = withSpring(0.96)}
-          onPressOut={() => scale.value = withSpring(1)}
-        >
-          <Animated2.View style={[styles.apostarBtn, animatedButtonStyle]}>
-            <Text style={styles.apostarText}>Apostar</Text>
-          </Animated2.View>
-        </Pressable>
-      </View>
-
-    </GradientBackground>
+      {/* CUPOM FLOAT BAR */}
+      {selections.length > 0 && (
+        <TouchableOpacity style={[styles.cupomBar, { paddingBottom: Math.max(insets.bottom, 16) }]} onPress={openCupom}>
+          <View style={styles.cupomBadge}>
+            <Text style={styles.cupomBadgeText}>{selections.length}</Text>
+          </View>
+          <Text style={styles.cupomTotal}>{selections.reduce((a, s) => a * s.oddValue, 1).toFixed(2)}</Text>
+          <View style={{ flex: 1 }} />
+          <View style={styles.cupomBtn}>
+            <Text style={styles.cupomBtnText}>APOSTE JÁ</Text>
+          </View>
+        </TouchableOpacity>
+      )}
+    </View>
   );
 }
 
 // ─────────────────────────────────────────
-// ESTILOS
+// STYLES
 // ─────────────────────────────────────────
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0D1E50',
   },
+
+  /* HEADER */
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingVertical: 10,
+    gap: 8,
   },
-  backBtn: {
-    paddingRight: 12,
-  },
-  leagueBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: 6,
-  },
-  bolaVerde: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#C5F400',
-  },
+  backBtn: { paddingRight: 4 },
   leagueText: {
+    flex: 1,
     color: '#8A99BB',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '700',
-    letterSpacing: 0.5,
   },
   aoVivoBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,59,59,0.15)',
+    backgroundColor: 'rgba(255,59,59,0.12)',
     borderWidth: 1,
     borderColor: '#FF3B3B',
-    borderRadius: 12,
+    borderRadius: 10,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
-  aoVivoText: {
-    color: '#FF3B3B',
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
+  aoVivoText: { color: '#FF3B3B', fontSize: 10, fontWeight: '800' },
 
   /* SCOREBOARD */
   scoreboard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingHorizontal: 20,
     paddingBottom: 16,
   },
-  teamSide: {
-    alignItems: 'center',
-    width: 80,
-  },
+  teamSide: { alignItems: 'center', width: 90 },
   shieldMock: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.1)',
-    marginBottom: 8,
+    marginBottom: 6,
   },
-  shieldText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '900',
-  },
+  shieldText: { color: '#fff', fontSize: 16, fontWeight: '900' },
   teamName: {
     color: '#fff',
-    fontSize: 14,
-    fontWeight: '800',
+    fontSize: 13,
+    fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
-  formRow: {
-    flexDirection: 'row',
-    gap: 3,
-  },
-  formDot: {
-    width: 14,
-    height: 6,
-    borderRadius: 3,
-  },
-  scoreCenter: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scoreText: {
-    color: '#fff',
-    fontSize: 36,
-    fontWeight: '900',
-    letterSpacing: 2,
-  },
+  formRow: { flexDirection: 'row', gap: 3 },
+  formDot: { width: 14, height: 5, borderRadius: 3 },
+  scoreCenter: { alignItems: 'center' },
+  scoreText: { color: '#fff', fontSize: 32, fontWeight: '900', letterSpacing: 2 },
   timePill: {
     backgroundColor: 'rgba(255,255,255,0.08)',
     borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
     marginTop: 4,
   },
-  timeText: {
-    color: '#8A99BB',
-    fontSize: 12,
-    fontWeight: '700',
-  },
+  timeText: { color: '#8A99BB', fontSize: 12, fontWeight: '700' },
 
-  /* STATS BASE */
+  /* STATS */
   statsRow: {
     flexDirection: 'row',
     marginHorizontal: 16,
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: 'rgba(255,255,255,0.04)',
     borderRadius: 12,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    marginBottom: 16,
+    borderColor: 'rgba(255,255,255,0.06)',
+    marginBottom: 14,
   },
-  statBox: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statVal: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  statLabel: {
-    color: '#8A99BB',
-    fontSize: 10,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-  },
+  statBox: { flex: 1, alignItems: 'center' },
+  statVal: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  statLabel: { color: '#8A99BB', fontSize: 10, fontWeight: '600', marginTop: 2, textAlign: 'center' },
+  statDivider: { width: 1, backgroundColor: 'rgba(255,255,255,0.1)' },
 
   /* TABS */
-  tabsScroll: {
-    paddingHorizontal: 16,
-    paddingBottom: 0,
-  },
-  tabBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    position: 'relative',
-    marginRight: 8,
-  },
-  tabText: {
-    color: '#8A99BB',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  tabTextActive: {
-    color: '#0AF43D',
-  },
+  tabsScroll: { paddingHorizontal: 12 },
+  tabBtn: { paddingHorizontal: 14, paddingVertical: 12, position: 'relative', marginRight: 4 },
+  tabText: { color: '#8A99BB', fontSize: 14, fontWeight: '700' },
+  tabTextActive: { color: '#0AF43D' },
   tabIndicator: {
     position: 'absolute',
-    bottom: 0,
-    left: 16,
-    right: 16,
+    bottom: 0, left: 14, right: 14,
     height: 2,
     backgroundColor: '#0AF43D',
     borderTopLeftRadius: 2,
     borderTopRightRadius: 2,
   },
-  tabBorderLines: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+  tabBorderLine: {
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    zIndex: -1,
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
 
   /* CONTENT */
-  scrollContent: {
-    paddingTop: 16,
-  },
-  tabContent: {
-    paddingHorizontal: 12,
-  },
+  tabContent: { paddingHorizontal: 12, paddingTop: 12 },
   marketBox: {
     backgroundColor: '#13245B',
     borderRadius: 12,
@@ -645,176 +568,96 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 14,
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.05)',
   },
-  marketTitle: {
-    color: '#8A99BB',
-    fontSize: 13,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
+  marketTitle: { color: '#8A99BB', fontSize: 12, fontWeight: '800', letterSpacing: 0.4 },
   cashoutBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#FCA311',
-    borderRadius: 12,
+    borderRadius: 10,
     paddingHorizontal: 6,
     paddingVertical: 2,
     gap: 4,
   },
-  cashoutDot: {
-    width: 6, height: 6, borderRadius: 3, backgroundColor: '#FCA311'
-  },
-  cashoutText: {
-    color: '#FCA311',
-    fontSize: 9,
-    fontWeight: '800',
-  },
-  marketContent: {
-    padding: 10,
-    gap: 8,
-  },
-  marketDesc: {
-    color: '#8A99BB',
-    fontSize: 12,
-    marginHorizontal: 4,
-    marginBottom: 10,
-    fontWeight: '600'
-  },
+  cashoutDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: '#FCA311' },
+  cashoutText: { color: '#FCA311', fontSize: 9, fontWeight: '800' },
+  marketContent: { padding: 10, gap: 8 },
+  marketDesc: { color: '#8A99BB', fontSize: 12, marginHorizontal: 2, marginBottom: 8, fontWeight: '600' },
 
-  /* GRIDS ODDS */
-  oddsRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
+  /* ODDS */
+  oddsRow: { flexDirection: 'row', gap: 6 },
   oddBox: {
     flex: 1,
     backgroundColor: '#1C2F70',
     borderRadius: 10,
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 4,
     borderWidth: 1.5,
     borderColor: 'transparent',
+    gap: 4,
+    position: 'relative',
   },
-  oddBoxActive: {
-    backgroundColor: 'rgba(10,244,61,0.1)',
+  oddBoxSelected: {
+    backgroundColor: 'rgba(10,244,61,0.12)',
     borderColor: '#0AF43D',
   },
-  oddLabelGrid: {
-    color: '#8A99BB',
-    fontSize: 11,
-    fontWeight: '600',
-    marginBottom: 6,
-  },
-  oddVal: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '900',
-  },
-  oddValActive: {
-    color: '#0AF43D',
-  },
+  oddLabelGrid: { color: '#8A99BB', fontSize: 11, fontWeight: '600', textAlign: 'center' },
+  oddVal: { color: '#fff', fontSize: 16, fontWeight: '900' },
+  oddValSelected: { color: '#0AF43D' },
 
-  /* OVER UNDER */
-  ouRow: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    gap: 8,
-  },
+  /* OVER/UNDER */
+  ouRow: { flexDirection: 'row', alignItems: 'stretch', gap: 6 },
   ouLabelBox: {
     backgroundColor: '#1E3278',
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    width: 60,
+    width: 52,
+    paddingVertical: 12,
   },
-  ouLabel: {
-    color: '#8A99BB',
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  ouOddBox: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#1C2F70',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 14,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-  },
-  ouOddDir: {
-    color: '#8A99BB',
-    fontSize: 12,
-    fontWeight: '600',
-  },
+  ouLabel: { color: '#8A99BB', fontSize: 12, fontWeight: '700' },
 
   centerSubLabel: {
     color: '#34477A',
     fontSize: 11,
     fontWeight: '800',
     textAlign: 'center',
-    marginBottom: 12,
-    marginTop: 8,
-    letterSpacing: 0.5,
+    margin: 20,
   },
 
-  /* FLOAT BOTTOM BAR */
-  bottomBar: {
+  /* CUPOM FLOAT BAR */
+  cupomBar: {
     position: 'absolute',
-    bottom: 0, left: 0, right: 0,
-    backgroundColor: '#0D1E50',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#E63946',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.08)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 20,
-    zIndex: 10,
+    gap: 10,
   },
-  selectionCount: {
-    width: 28, height: 28,
+  cupomBadge: {
+    width: 28,
+    height: 28,
     borderRadius: 14,
-    backgroundColor: '#0AF43D',
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 10,
   },
-  selectionNumber: {
-    color: '#023397',
-    fontSize: 13,
-    fontWeight: '900',
+  cupomBadgeText: { color: '#E63946', fontSize: 13, fontWeight: '900' },
+  cupomTotal: { color: '#fff', fontSize: 18, fontWeight: '900' },
+  cupomBtn: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
   },
-  selectionLabel: {
-    color: '#8A99BB',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  oddTotal: {
-    color: '#0AF43D',
-    fontSize: 16,
-    fontWeight: '900',
-    marginRight: 12,
-  },
-  apostarBtn: {
-    backgroundColor: '#0AF43D',
-    borderRadius: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  apostarText: {
-    color: '#023397',
-    fontSize: 15,
-    fontWeight: '800',
-  },
+  cupomBtnText: { color: '#E63946', fontSize: 14, fontWeight: '900' },
 });

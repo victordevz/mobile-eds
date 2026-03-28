@@ -6,9 +6,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider } from './src/context/AuthContext';
+import { BetCupomProvider } from './src/context/BetCupomContext';
 import AuthModal from './src/components/AuthModal';
 import MenuSheet from './src/components/MenuSheet';
 import PixDepositModal from './src/components/PixDepositModal';
+import BetCupomDrawer from './src/components/BetCupomDrawer';
 import CustomTabBar from './src/components/CustomTabBar';
 import ChatScreen from './src/screens/ChatScreen';
 import RoletaStack from './src/navigation/stacks/RoletaStack';
@@ -41,37 +43,40 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <NavigationContainer ref={navigationRef}>
-          <Root.Navigator screenOptions={{ headerShown: false }}>
-            <Root.Screen name="Main" component={MainTabs} />
-            <Root.Screen
-              name="Suporte"
-              component={ChatScreen}
-              options={{
-                headerShown: true,
-                title: 'Suporte',
-                headerStyle: { backgroundColor: colors.primary },
-                headerTintColor: colors.white,
-                headerTitleStyle: { fontWeight: 'bold' },
-              }}
-            />
-            <Root.Screen
-              name="Historico"
-              component={HistoricoScreen}
-              options={{
-                headerShown: true,
-                title: 'Histórico',
-                headerStyle: { backgroundColor: colors.primary },
-                headerTintColor: colors.white,
-                headerTitleStyle: { fontWeight: 'bold' },
-              }}
-            />
-          </Root.Navigator>
-          <StatusBar style="light" />
-        </NavigationContainer>
-        <AuthModal />
-        <MenuSheet />
-        <PixDepositModal />
+        <BetCupomProvider>
+          <NavigationContainer ref={navigationRef}>
+            <Root.Navigator screenOptions={{ headerShown: false }}>
+              <Root.Screen name="Main" component={MainTabs} />
+              <Root.Screen
+                name="Suporte"
+                component={ChatScreen}
+                options={{
+                  headerShown: true,
+                  title: 'Suporte',
+                  headerStyle: { backgroundColor: colors.primary },
+                  headerTintColor: colors.white,
+                  headerTitleStyle: { fontWeight: 'bold' },
+                }}
+              />
+              <Root.Screen
+                name="Historico"
+                component={HistoricoScreen}
+                options={{
+                  headerShown: true,
+                  title: 'Histórico',
+                  headerStyle: { backgroundColor: colors.primary },
+                  headerTintColor: colors.white,
+                  headerTitleStyle: { fontWeight: 'bold' },
+                }}
+              />
+            </Root.Navigator>
+            <StatusBar style="light" />
+          </NavigationContainer>
+          <AuthModal />
+          <MenuSheet />
+          <PixDepositModal />
+          <BetCupomDrawer />
+        </BetCupomProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

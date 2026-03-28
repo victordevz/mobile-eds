@@ -590,12 +590,6 @@ function SectionHeader({
       <View style={{ flex: 1 }}>
         <View style={styles.sectionTitleRow}>
           <Text style={styles.sectionTitle}>{title}</Text>
-          {badge && (
-            <View style={styles.liveBadgeSmall}>
-              <AnimatedLiveDot style={styles.liveDotSmall} />
-              <Text style={styles.liveBadgeSmallText}>{badge}</Text>
-            </View>
-          )}
         </View>
         {subtitle && <Text style={styles.sectionSubtitle}>{subtitle}</Text>}
       </View>

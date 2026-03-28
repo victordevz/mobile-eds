@@ -703,7 +703,7 @@ function SearchIcon({ size = 20, color = '#FFF' }: { size?: number; color?: stri
   );
 }
 
-interface HeaderProps { sport: SportTheme; onToggleDropdown?: () => void; isDropdownOpen?: boolean; onCloseDropdown?: () => void; }
+interface HeaderProps {}
 
 function ChevronIcon({ size = 10, color = colors.secondary, isOpen = false }: { size?: number; color?: string; isOpen?: boolean }) {
   return (
@@ -743,17 +743,11 @@ function SportIconRenderer({ sportId, isEmoji = false, emoji = '', size = 18, co
   );
 }
 
-function Header({ sport, onToggleDropdown, isDropdownOpen, onCloseDropdown }: HeaderProps) {
+function Header() {
   const { openMenu, openDepositModal, balance, isAuthenticated } = useAuth();
   const [isSearchActive, setIsSearchActive] = useState(false);
 
-  useEffect(() => {
-    if (isDropdownOpen && isSearchActive) setIsSearchActive(false);
-  }, [isDropdownOpen]);
 
-  useEffect(() => {
-    if (isSearchActive && isDropdownOpen && onCloseDropdown) onCloseDropdown();
-  }, [isSearchActive]);
   const balanceLabel = isAuthenticated && balance !== null
     ? `R$ ${balance.toFixed(2).replace('.', ',')}`
     : 'R$ 0,00';
@@ -763,13 +757,6 @@ function Header({ sport, onToggleDropdown, isDropdownOpen, onCloseDropdown }: He
       <View style={styles.header}>
         <Image source={require('../../assets/logo.png')} style={{ width: 72, height: 24, resizeMode: 'contain', marginLeft: -8 }} />
 
-        <Pressable
-          style={[styles.sportSelector, { marginLeft: 8, zIndex: 20 }]}
-          onPress={onToggleDropdown}
-        >
-          <SportIconRenderer sportId={sport.id} emoji={sport.emoji} size={16} />
-          <ChevronIcon isOpen={isDropdownOpen} />
-        </Pressable>
         <View style={{ flex: 1 }} />
 
         <View style={styles.headerActions}>
@@ -1012,7 +999,6 @@ export default function FutebolScreen() {
   const [activeLiveIndex, setActiveLiveIndex] = useState(0);
   const [activeSportFilter, setActiveSportFilter] = useState('sp0');
 
-  const sport = SPORT_THEMES[selectedSport];
 
   const onLiveScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -1071,12 +1057,7 @@ export default function FutebolScreen() {
       {/* Fixed header */}
       <View style={[styles.headerWrapper, { paddingTop: insets.top }]}>
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top, backgroundColor: colors.primary }} />
-        <Header
-          sport={sport}
-          onToggleDropdown={() => setShowDropdown(!showDropdown)}
-          isDropdownOpen={showDropdown}
-          onCloseDropdown={() => setShowDropdown(false)}
-        />
+        <Header />
       </View>
 
       <BetCupomBar />
@@ -1675,9 +1656,9 @@ const styles = StyleSheet.create({
   liveDots: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: -8,
-    marginBottom: 8,
-    gap: 6,
+    marginTop: 12,
+    marginBottom: 16,
+    gap: 8,
   },
   /* ── Populares ── */
   popHeader: {

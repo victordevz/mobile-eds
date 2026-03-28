@@ -154,7 +154,7 @@ function Header() {
         <Image source={require('../../assets/logo.png')} style={{ width: 72, height: 24, resizeMode: 'contain', marginLeft: -8 }} />
 
         <View style={styles.headerActions}>
-          <View style={{ zIndex: 10, marginRight: 6 }}>
+          <View style={{ zIndex: 1, marginRight: 6 }}>
             <Pressable style={[styles.searchIconBtn, isSearchActive && styles.searchIconBtnActive]} onPress={() => setIsSearchActive(!isSearchActive)}>
               <SearchIcon size={24} />
             </Pressable>
@@ -171,7 +171,7 @@ function Header() {
             )}
           </View>
           {/* Pill unificada: botão + */}
-          <Pressable style={styles.balancePill} onPress={openDepositModal}>
+          <Pressable style={[styles.balancePill, { zIndex: 20 }]} onPress={openDepositModal}>
             <View style={styles.depositCircle}>
               <View style={styles.plusHorizontal} />
               <View style={styles.plusVertical} />
@@ -656,7 +656,7 @@ export default function SlotScreen() {
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top, backgroundColor: colors.primary, zIndex: 100 }} />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={[styles.scroll, { paddingBottom: 88 + (insets.bottom || 10) + 60 }]}
         style={{ flex: 1 }} // Garante que o ScrollView ocupe o espaço e receba toques corretamente
       >
         <Header />

@@ -619,11 +619,19 @@ function SearchIcon({ size = 20, color = '#FFF' }: { size?: number; color?: stri
   );
 }
 
-interface HeaderProps { sport: SportTheme; }
+interface HeaderProps { sport: SportTheme; onToggleDropdown?: () => void; isDropdownOpen?: boolean; onCloseDropdown?: () => void; }
 
-function Header({ sport }: HeaderProps) {
+function Header({ sport, onToggleDropdown, isDropdownOpen, onCloseDropdown }: HeaderProps) {
   const { openMenu, openDepositModal, balance, isAuthenticated } = useAuth();
   const [isSearchActive, setIsSearchActive] = useState(false);
+
+  useEffect(() => {
+    if (isDropdownOpen && isSearchActive) setIsSearchActive(false);
+  }, [isDropdownOpen]);
+
+  useEffect(() => {
+    if (isSearchActive && isDropdownOpen && onCloseDropdown) onCloseDropdown();
+  }, [isSearchActive]);
   const balanceLabel = isAuthenticated && balance !== null
     ? `R$ ${balance.toFixed(2).replace('.', ',')}`
     : 'R$ 0,00';
@@ -633,26 +641,33 @@ function Header({ sport }: HeaderProps) {
       <View style={styles.header}>
         <Image source={require('../../assets/logo.png')} style={{ width: 72, height: 24, resizeMode: 'contain', marginLeft: -8 }} />
 
-        {/* Sport selector pill removido conforme solicitado */}
+        <Pressable 
+          style={[styles.sportSelector, { marginLeft: 16, zIndex: 20 }]} 
+          onPress={onToggleDropdown}
+        >
+          <Text style={styles.sportSelectorEmoji}>{sport.emoji}</Text>
+          <Text style={[styles.sportSelectorArrow, { color: colors.secondary }]}>{isDropdownOpen ? '▲' : '▼'}</Text>
+        </Pressable>
+        <View style={{ flex: 1 }} />
 
         <View style={styles.headerActions}>
-          <View style={{ zIndex: 10, marginRight: 6 }}>
+          <View style={{ zIndex: 1, marginRight: 6 }}>
             <Pressable style={[styles.searchIconBtn, isSearchActive && styles.searchIconBtnActive]} onPress={() => setIsSearchActive(!isSearchActive)}>
               <SearchIcon size={24} />
             </Pressable>
             {isSearchActive && (
               <>
-                <View style={{ position: 'absolute', bottom: -10, left: 0, right: 0, height: 10, backgroundColor: '#042B7A' }} />
-                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, left: -30, width: 30, height: 30, backgroundColor: '#042B7A' }}>
+                <View style={{ position: 'absolute', bottom: -10, left: -6, right: -6, height: 10, backgroundColor: '#042B7A', zIndex: -1 }} />
+                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, left: -30, width: 30, height: 30, backgroundColor: '#042B7A', zIndex: -1 }}>
                   <View style={{ flex: 1, backgroundColor: colors.primary, borderBottomRightRadius: 30 }} />
                 </View>
-                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, right: -30, width: 30, height: 30, backgroundColor: '#042B7A' }}>
+                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, right: -30, width: 30, height: 30, backgroundColor: '#042B7A', zIndex: -1 }}>
                   <View style={{ flex: 1, backgroundColor: colors.primary, borderBottomLeftRadius: 30 }} />
                 </View>
               </>
             )}
           </View>
-          <Pressable style={styles.balancePill} onPress={openDepositModal}>
+          <Pressable style={[styles.balancePill, { zIndex: 20 }]} onPress={openDepositModal}>
             <View style={styles.depositCircle}>
               <View style={styles.plusHorizontal} />
               <View style={styles.plusVertical} />
@@ -795,24 +810,33 @@ function SportDropdown({
   useEffect(() => { translateY.value = withTiming(0, { duration: 200 }); }, []);
   const animStyle = useAnimatedStyle(() => ({ transform: [{ translateY: translateY.value }] }));
 
+  const filteredSports = SPORT_ORDER.filter(s => s !== 'todos' && s !== current);
+
   return (
     <>
-      {/* Backdrop */}
       <Pressable style={styles.dropBackdrop} onPress={onClose} />
-      <Animated2.View style={[styles.sportDropdown, animStyle, { maxHeight: 320, top: (insets.top || 0) + 56, zIndex: 18 }]}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {SPORT_ORDER.map(sid => {
+      <Animated2.View style={[styles.sportDropdown, animStyle, { maxHeight: 320, top: (insets.top || 0) + 72, zIndex: 18 }]}>
+        <ScrollView showsVerticalScrollIndicator={true} nestedScrollEnabled={true}>
+          
+          {/* Item selecionado atual, fixo no topo com separador abaixo */}
+          <Pressable style={styles.dropItem} onPress={onClose}>
+            <Text style={styles.dropEmoji}>{SPORT_THEMES[current].emoji}</Text>
+            <Text style={[styles.dropLabel, { color: SPORT_THEMES[current].accent }]}>{SPORT_THEMES[current].label}</Text>
+          </Pressable>
+
+          <View style={{ height: 1, backgroundColor: 'rgba(255,255,255,0.2)', marginHorizontal: 16, marginBottom: 4 }} />
+
+          {/* Demais esportes */}
+          {filteredSports.map(sid => {
             const t = SPORT_THEMES[sid];
-            const isActive = current === sid;
             return (
               <Pressable
                 key={sid}
-                style={[styles.dropItem, isActive && { backgroundColor: t.accent + '1A' }]}
+                style={styles.dropItem}
                 onPress={() => onSelect(sid)}
               >
                 <Text style={styles.dropEmoji}>{t.emoji}</Text>
-                <Text style={[styles.dropLabel, { color: isActive ? t.accent : '#fff' }]}>{t.label}</Text>
-                {isActive && <View style={[styles.dropCheck, { backgroundColor: t.accent }]} />}
+                <Text style={[styles.dropLabel, { color: '#10D166' }]}>{t.label}</Text>
               </Pressable>
             );
           })}
@@ -964,7 +988,7 @@ export default function FutebolScreen() {
   const { isAuthenticated, openAuthModal } = useAuth();
   const navigation = useNavigation<any>();
 
-  const [selectedSport, setSelectedSport] = useState<SportType>('todos');
+  const [selectedSport, setSelectedSport] = useState<SportType>('futebol');
   const [showDropdown, setShowDropdown] = useState(false);
   const [betSlip, setBetSlip] = useState<BetSlipData | null>(null);
   const [betAmount, setBetAmount] = useState('');
@@ -1016,7 +1040,12 @@ export default function FutebolScreen() {
       {/* Fixed header */}
       <View style={[styles.headerWrapper, { paddingTop: insets.top }]}>
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top, backgroundColor: colors.primary }} />
-        <Header sport={sport} />
+        <Header 
+          sport={sport} 
+          onToggleDropdown={() => setShowDropdown(!showDropdown)} 
+          isDropdownOpen={showDropdown} 
+          onCloseDropdown={() => setShowDropdown(false)}
+        />
       </View>
 
       {/* Dropdown */}
@@ -1031,14 +1060,9 @@ export default function FutebolScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.scroll, { paddingBottom: 88 + (insets.bottom || 10) + 24 }]}
+        contentContainerStyle={[styles.scroll, { paddingBottom: 88 + (insets.bottom || 10) + 60 }]}
       >
         <View style={{ height: 16 }} />
-
-        {/* ── TODOS ── */}
-        {selectedSport === 'todos' && (
-          <TodosContent onBetPress={openBetSlip} onSportSelect={handleSportSelect} />
-        )}
 
         {/* ── FUTEBOL ── */}
         {selectedSport === 'futebol' && (
@@ -1143,7 +1167,7 @@ const styles = StyleSheet.create({
   /* ── Sport Selector ── */
   sportSelector: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    borderWidth: 1.5, borderRadius: 20,
+    borderRadius: 20,
     paddingHorizontal: 12, paddingVertical: 6,
     backgroundColor: 'rgba(0,0,0,0.2)',
   },

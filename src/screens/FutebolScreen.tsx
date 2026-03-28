@@ -55,6 +55,7 @@ import InglaterraIcon from '../../assets/inglaterra.svg';
 import PalmeirasIcon from '../../assets/palmeiras.svg';
 import RealMadridIcon from '../../assets/realmadrid.svg';
 import VascoIcon from '../../assets/vasco.svg';
+import SubtractIcon from '../../assets/Subtract.svg';
 
 function Fighter1Icon({ width = 48, height = 48 }: { width?: number; height?: number }) {
   return <Image source={require('../../assets/fighter_one.png')} style={{ width: width * 0.8, height: height * 0.8, borderRadius: (width * 0.8) / 2 }} />;
@@ -71,15 +72,19 @@ const BANNER_W = SCREEN_W - 32;
 const BANNER_H = 160;
 
 
-const BANNERS = [
+const BANNERS: any[] = [
   {
     id: 'b0',
-    badge: '',
-    game: '',
-    multiplier: '',
-    image: require('../../assets/rumo-ao-hexa.png'),
+    badge: 'EM DESTAQUE',
+    badgeIcon: SubtractIcon,
+    game: 'Copa do\nMundo ',
+    gameHighlight: '26',
+    subtitle: 'ODDS Turbinadas',
+    buttonText: 'Criar Aposta',
+    image: require('../../assets/copadomundo.png'),
     accent: '#38E67D',
-    hideOverlay: true,
+    hideOverlay: false,
+    hideInfoButton: true,
   },
   {
     id: 'b1',
@@ -732,22 +737,38 @@ function PromoBanner() {
                   colors={['transparent', 'rgba(0,0,0,0.82)']}
                   style={styles.bannerGradient}
                 />
-                <View style={styles.bannerContent}>
-                  <View style={[styles.bannerBadge, { borderColor: item.accent }]}>
+                <View style={[styles.bannerContent, { justifyContent: 'center' }]}>
+                  <View style={[styles.bannerBadge, { borderColor: item.accent }, item.badgeIcon && { flexDirection: 'row', alignItems: 'center', paddingRight: 6 }]}>
                     <Text style={[styles.bannerBadgeText, { color: item.accent }]}>{item.badge}</Text>
+                    {item.badgeIcon && (
+                      <item.badgeIcon width={12} height={12} fill={item.accent} style={{ marginLeft: 6 }} />
+                    )}
                   </View>
-                  <Text style={styles.bannerTitle}>{item.game}</Text>
-                  <Text style={styles.bannerSubtitle}>
-                    Multiplicador até{' '}
-                    <Text style={[styles.bannerMultiplier, { color: colors.secondary }]}>{item.multiplier}</Text>
+                  <Text style={styles.bannerTitle}>
+                    {item.game}
+                    {item.gameHighlight && <Text style={{ color: item.accent }}>{item.gameHighlight}</Text>}
                   </Text>
+                  {item.subtitle ? (
+                    <Text style={[styles.bannerSubtitle, { fontSize: 16, fontWeight: '600', color: '#fff' }]}>{item.subtitle}</Text>
+                  ) : (
+                    <Text style={styles.bannerSubtitle}>
+                      Multiplicador até{' '}
+                      <Text style={[styles.bannerMultiplier, { color: colors.secondary }]}>{item.multiplier}</Text>
+                    </Text>
+                  )}
                   <View style={styles.bannerButtons}>
-                    <Pressable style={styles.bannerBtnPlay}>
-                      <Text style={styles.bannerBtnPlayText}>▶  Jogar</Text>
+                    <Pressable style={[styles.bannerBtnPlay, item.buttonText && { backgroundColor: item.accent }]}>
+                      {item.buttonText ? (
+                        <Text style={[styles.bannerBtnPlayText, { color: '#0A1128' }]}>▶  {item.buttonText}</Text>
+                      ) : (
+                        <Text style={styles.bannerBtnPlayText}>▶  Jogar</Text>
+                      )}
                     </Pressable>
-                    <Pressable style={styles.bannerBtnInfo}>
-                      <Text style={styles.bannerBtnInfoText}>+ Info</Text>
-                    </Pressable>
+                    {!item.hideInfoButton && (
+                      <Pressable style={styles.bannerBtnInfo}>
+                        <Text style={styles.bannerBtnInfoText}>+ Info</Text>
+                      </Pressable>
+                    )}
                   </View>
                 </View>
               </>
@@ -1434,7 +1455,7 @@ const styles = StyleSheet.create({
   bannerBadge: {
     alignSelf: 'flex-start',
     borderWidth: 1,
-    borderRadius: 6,
+    borderRadius: 16,
     paddingHorizontal: 10,
     paddingVertical: 4,
     backgroundColor: 'rgba(0,0,0,0.35)',

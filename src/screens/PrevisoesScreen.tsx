@@ -133,6 +133,10 @@ export default function PrevisoesScreen() {
     // Previsões não navegam para match details por enquanto
   };
 
+  const isSelected = (matchLabel: string, oddLabel: string) => {
+    return betSlip?.matchLabel === matchLabel && betSlip?.oddLabel === oddLabel;
+  };
+
   return (
     <GradientBackground style={styles.container}>
       {/* Fixed header Wrapper */}
@@ -227,6 +231,7 @@ export default function PrevisoesScreen() {
               label="SIM"
               value={67}
               color={colors.secondary}
+              isActive={isSelected('Bitcoin vai ultrapassar R$ 500k até dez/25?', 'SIM')}
               onPress={() => openBetSlip({
                 matchLabel: 'Bitcoin vai ultrapassar R$ 500k até dez/25?',
                 oddLabel: 'SIM',
@@ -238,6 +243,7 @@ export default function PrevisoesScreen() {
               label="NÃO"
               value={33}
               color="#007BFF"
+              isActive={isSelected('Bitcoin vai ultrapassar R$ 500k até dez/25?', 'NÃO')}
               onPress={() => openBetSlip({
                 matchLabel: 'Bitcoin vai ultrapassar R$ 500k até dez/25?',
                 oddLabel: 'NÃO',
@@ -253,6 +259,7 @@ export default function PrevisoesScreen() {
               label="SIM"
               value={67}
               color={colors.secondary}
+              isActive={isSelected('EUA entrarão em recessão em 2025?', 'SIM')}
               onPress={() => openBetSlip({
                 matchLabel: 'EUA entrarão em recessão em 2025?',
                 oddLabel: 'SIM',
@@ -264,6 +271,7 @@ export default function PrevisoesScreen() {
               label="NÃO"
               value={33}
               color="#007BFF"
+              isActive={isSelected('EUA entrarão em recessão em 2025?', 'NÃO')}
               onPress={() => openBetSlip({
                 matchLabel: 'EUA entrarão em recessão em 2025?',
                 oddLabel: 'NÃO',
@@ -284,7 +292,11 @@ export default function PrevisoesScreen() {
           <Text style={styles.predictTitle}>A China invadirá Taiwan até o final de 2026?</Text>
           <View style={styles.buttonsRow}>
             <Pressable
-              style={[styles.voteButton, styles.voteButtonGreen]}
+              style={[
+                styles.voteButton, 
+                styles.voteButtonGreen,
+                isSelected('A China invadirá Taiwan até o final de 2026?', 'SIM') && styles.voteButtonActive
+              ]}
               onPress={() => openBetSlip({
                 matchLabel: 'A China invadirá Taiwan até o final de 2026?',
                 oddLabel: 'SIM',
@@ -292,10 +304,17 @@ export default function PrevisoesScreen() {
                 league: 'Mundo'
               })}
             >
-              <Text style={styles.voteButtonText}>SIM</Text>
+              <Text style={[
+                styles.voteButtonText,
+                isSelected('A China invadirá Taiwan até o final de 2026?', 'SIM') && styles.voteButtonTextActive
+              ]}>SIM</Text>
             </Pressable>
             <Pressable
-              style={[styles.voteButton, styles.voteButtonBlue]}
+              style={[
+                styles.voteButton, 
+                styles.voteButtonBlue,
+                isSelected('A China invadirá Taiwan até o final de 2026?', 'NÃO') && styles.voteButtonActive
+              ]}
               onPress={() => openBetSlip({
                 matchLabel: 'A China invadirá Taiwan até o final de 2026?',
                 oddLabel: 'NÃO',
@@ -303,7 +322,10 @@ export default function PrevisoesScreen() {
                 league: 'Mundo'
               })}
             >
-              <Text style={styles.voteButtonText}>NÃO</Text>
+              <Text style={[
+                styles.voteButtonText,
+                isSelected('A China invadirá Taiwan até o final de 2026?', 'NÃO') && styles.voteButtonTextActive
+              ]}>NÃO</Text>
             </Pressable>
           </View>
         </View>
@@ -314,7 +336,12 @@ export default function PrevisoesScreen() {
             <Text style={styles.predictTitle}>Kanye vai liberar o VALENTÃO até?...</Text>
             <View style={styles.buttonsRow}>
               <Pressable
-                style={[styles.voteButton, styles.voteButtonGreen, { paddingVertical: 8 }]}
+                style={[
+                  styles.voteButton, 
+                  styles.voteButtonGreen, 
+                  { paddingVertical: 8 },
+                  isSelected('Kanye vai liberar o VALENTÃO até?...', 'SIM') && styles.voteButtonActive
+                ]}
                 onPress={() => openBetSlip({
                   matchLabel: 'Kanye vai liberar o VALENTÃO até?...',
                   oddLabel: 'SIM',
@@ -322,10 +349,18 @@ export default function PrevisoesScreen() {
                   league: 'Mundo'
                 })}
               >
-                <Text style={styles.voteButtonText}>SIM</Text>
+                <Text style={[
+                  styles.voteButtonText,
+                  isSelected('Kanye vai liberar o VALENTÃO até?...', 'SIM') && styles.voteButtonTextActive
+                ]}>SIM</Text>
               </Pressable>
               <Pressable
-                style={[styles.voteButton, styles.voteButtonBlue, { paddingVertical: 8 }]}
+                style={[
+                  styles.voteButton, 
+                  styles.voteButtonBlue, 
+                  { paddingVertical: 8 },
+                  isSelected('Kanye vai liberar o VALENTÃO até?...', 'NÃO') && styles.voteButtonActive
+                ]}
                 onPress={() => openBetSlip({
                   matchLabel: 'Kanye vai liberar o VALENTÃO até?...',
                   oddLabel: 'NÃO',
@@ -333,7 +368,10 @@ export default function PrevisoesScreen() {
                   league: 'Mundo'
                 })}
               >
-                <Text style={styles.voteButtonText}>NÃO</Text>
+                <Text style={[
+                  styles.voteButtonText,
+                  isSelected('Kanye vai liberar o VALENTÃO até?...', 'NÃO') && styles.voteButtonTextActive
+                ]}>NÃO</Text>
               </Pressable>
             </View>
             <Text style={styles.subText}>Data te de 2026</Text>
@@ -345,6 +383,7 @@ export default function PrevisoesScreen() {
               label="SIM"
               value={67}
               color={colors.secondary}
+              isActive={isSelected('O petróleo bruto atingirá até o final de março?', 'SIM')}
               onPress={() => openBetSlip({
                 matchLabel: 'O petróleo bruto atingirá até o final de março?',
                 oddLabel: 'SIM',
@@ -356,6 +395,7 @@ export default function PrevisoesScreen() {
               label="NÃO"
               value={33}
               color="#007BFF"
+              isActive={isSelected('O petróleo bruto atingirá até o final de março?', 'NÃO')}
               onPress={() => openBetSlip({
                 matchLabel: 'O petróleo bruto atingirá até o final de março?',
                 oddLabel: 'NÃO',
@@ -377,7 +417,11 @@ export default function PrevisoesScreen() {
           </View>
           <View style={styles.buttonsRow}>
             <Pressable
-              style={[styles.voteButton, styles.voteButtonGreen]}
+              style={[
+                styles.voteButton, 
+                styles.voteButtonGreen,
+                isSelected('BTC 5 Minute Up or Down', 'Pra cima') && styles.voteButtonActive
+              ]}
               onPress={() => openBetSlip({
                 matchLabel: 'BTC 5 Minute Up or Down',
                 oddLabel: 'Pra cima',
@@ -385,10 +429,17 @@ export default function PrevisoesScreen() {
                 league: 'Cripto'
               })}
             >
-              <Text style={styles.voteButtonText}>Pra cima</Text>
+              <Text style={[
+                styles.voteButtonText,
+                isSelected('BTC 5 Minute Up or Down', 'Pra cima') && styles.voteButtonTextActive
+              ]}>Pra cima</Text>
             </Pressable>
             <Pressable
-              style={[styles.voteButton, styles.voteButtonBlue]}
+              style={[
+                styles.voteButton, 
+                styles.voteButtonBlue,
+                isSelected('BTC 5 Minute Up or Down', 'Pra baixo') && styles.voteButtonActive
+              ]}
               onPress={() => openBetSlip({
                 matchLabel: 'BTC 5 Minute Up or Down',
                 oddLabel: 'Pra baixo',
@@ -396,7 +447,10 @@ export default function PrevisoesScreen() {
                 league: 'Cripto'
               })}
             >
-              <Text style={styles.voteButtonText}>Pra baixo</Text>
+              <Text style={[
+                styles.voteButtonText,
+                isSelected('BTC 5 Minute Up or Down', 'Pra baixo') && styles.voteButtonTextActive
+              ]}>Pra baixo</Text>
             </Pressable>
           </View>
         </View>
@@ -411,15 +465,31 @@ export default function PrevisoesScreen() {
 
 // --- Components Internos Auxiliares ---
 
-function ProgressBarRow({ label, value, color, onPress }: { label: string, value: number, color: string, onPress?: () => void }) {
+function ProgressBarRow({ label, value, color, onPress, isActive }: { label: string, value: number, color: string, onPress?: () => void, isActive?: boolean }) {
   return (
-    <Pressable style={styles.progressRow} onPress={onPress}>
-      <View style={[styles.progressBg, { backgroundColor: color + '33' }]}>
+    <Pressable 
+      style={[
+        styles.progressRow,
+        isActive && { padding: 2, borderRadius: 6, backgroundColor: 'rgba(56, 230, 125, 0.1)' }
+      ]} 
+      onPress={onPress}
+    >
+      <View style={[
+        styles.progressBg, 
+        { backgroundColor: color + '33' },
+        isActive && { borderColor: color, borderWidth: 1 }
+      ]}>
         <View style={[styles.progressFill, { width: `${value}%`, backgroundColor: color }]}>
-          <Text style={styles.progressLabelInside}>{label}</Text>
+          <Text style={[
+            styles.progressLabelInside,
+            isActive && { color: '#000' }
+          ]}>{label}</Text>
         </View>
       </View>
-      <Text style={styles.progressPercentage}>{value}%</Text>
+      <Text style={[
+        styles.progressPercentage,
+        isActive && { color: colors.secondary }
+      ]}>{value}%</Text>
     </Pressable>
   );
 }
@@ -679,5 +749,12 @@ const styles = StyleSheet.create({
   livePrice: {
     color: 'rgba(255,255,255,0.6)',
     fontSize: 11,
+  },
+  voteButtonActive: {
+    backgroundColor: colors.secondary,
+    borderColor: colors.secondary,
+  },
+  voteButtonTextActive: {
+    color: colors.primaryDark,
   },
 });

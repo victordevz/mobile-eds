@@ -11,12 +11,13 @@ import {
   Text,
   View,
   Animated,
+  TextInput,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Ellipse, Line, Path, Polygon, Rect, G } from 'react-native-svg';
 import { colors } from '../theme';
-import Logotipo from '../../assets/logotipo.svg';
+// import Logotipo from '../../assets/logotipo.svg';
 import { useAuth } from '../context/AuthContext';
 
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -132,11 +133,11 @@ const ALL_GAMES: CasinoGame[] = [
 
 /* ─────────────── SVG Ícones ─────────────── */
 
-function SearchIcon() {
+function SearchIcon({ size = 20, color = '#FFF' }: { size?: number; color?: string }) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-      <Circle cx="11" cy="11" r="7" stroke="#FFF" strokeWidth="2" />
-      <Line x1="16.5" y1="16.5" x2="22" y2="22" stroke="#FFF" strokeWidth="2" strokeLinecap="round" />
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx="11" cy="11" r="7" stroke={color} strokeWidth="2" />
+      <Line x1="16.5" y1="16.5" x2="22" y2="22" stroke={color} strokeWidth="2" strokeLinecap="round" />
     </Svg>
   );
 }
@@ -177,28 +178,48 @@ function AnimatedLiveDot({ style }: { style?: any }) {
 
 function Header() {
   const { openMenu, openDepositModal, balance, isAuthenticated } = useAuth();
+  const [isSearchActive, setIsSearchActive] = useState(false);
+
   const balanceLabel =
     isAuthenticated && balance !== null
       ? `R$ ${balance.toFixed(2).replace('.', ',')}`
       : 'R$ 0,00';
 
   return (
-    <View style={styles.header}>
-      <Logotipo width={80} height={28} />
-      <View style={styles.headerActions}>
-        <Pressable style={styles.balancePill} onPress={openDepositModal}>
-          <View style={styles.depositCircle}>
-            <View style={styles.plusHorizontal} />
-            <View style={styles.plusVertical} />
-          </View>
-          <Text style={styles.balanceValue}>{balanceLabel}</Text>
-        </Pressable>
-        <Pressable style={styles.menuBtn} onPress={openMenu}>
-          <View style={styles.menuBar} />
-          <View style={[styles.menuBar, { width: 16 }]} />
-          <View style={styles.menuBar} />
-        </Pressable>
+    <View style={styles.headerContainer}>
+      <View style={styles.header}>
+        <Image source={require('../../assets/logo.png')} style={{ width: 72, height: 24, resizeMode: 'contain', marginLeft: -8 }} />
+        <View style={styles.headerActions}>
+          <Pressable style={styles.searchIconBtn} onPress={() => setIsSearchActive(!isSearchActive)}>
+            <SearchIcon size={24} />
+          </Pressable>
+          <Pressable style={styles.balancePill} onPress={openDepositModal}>
+            <View style={styles.depositCircle}>
+              <View style={styles.plusHorizontal} />
+              <View style={styles.plusVertical} />
+            </View>
+            <Text style={styles.balanceValue}>{balanceLabel}</Text>
+          </Pressable>
+          <Pressable style={styles.menuBtn} onPress={openMenu}>
+            <View style={styles.menuBar} />
+            <View style={[styles.menuBar, { width: 16 }]} />
+            <View style={styles.menuBar} />
+          </Pressable>
+        </View>
       </View>
+
+      {isSearchActive && (
+        <View style={styles.searchRow}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar..."
+            placeholderTextColor={colors.secondary}
+          />
+          <Pressable onPress={() => setIsSearchActive(false)}>
+            <Text style={styles.searchCancelText}>Cancelar</Text>
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 }
@@ -612,20 +633,45 @@ const styles = StyleSheet.create({
   },
 
   /* ── Header ── */
+  headerContainer: {
+    backgroundColor: colors.primaryDark,
+    paddingBottom: 10,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingTop: 14,
-    paddingBottom: 10,
   },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
-  searchBtn: { padding: 6 },
+  searchIconBtn: { padding: 6, marginRight: 6 },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginTop: 10,
+    gap: 12,
+  },
+  searchInput: {
+    flex: 1,
+    backgroundColor: '#042B7A',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    color: colors.secondary,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  searchCancelText: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
   balancePill: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -460,10 +460,9 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   closeBtnText: {
-    color: '#3B82F6', // optional, adjust if needed (image suggests close button is not visible or maybe very dark)
-    fontSize: 20,
+    color: colors.white,
+    fontSize: 24,
     fontWeight: '600',
-    opacity: 0, // usually we might hide it if it's not strictly in the image, or keep it visible
   },
 
   /* ─── Profile ─── */

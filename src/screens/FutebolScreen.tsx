@@ -56,7 +56,6 @@ import PalmeirasIcon from '../../assets/palmeiras.svg';
 import RealMadridIcon from '../../assets/realmadrid.svg';
 import VascoIcon from '../../assets/vasco.svg';
 import SubtractIcon from '../../assets/Subtract.svg';
-
 function Fighter1Icon({ width = 48, height = 48 }: { width?: number; height?: number }) {
   return <Image source={require('../../assets/fighter_one.png')} style={{ width: width * 0.8, height: height * 0.8, borderRadius: (width * 0.8) / 2 }} />;
 }
@@ -101,9 +100,9 @@ const BANNERS: any[] = [
 
 interface Championship {
   id: string;
-  label: string;
-  Icon?: React.FC<{ size?: number; color?: string }>;
-  image?: any;
+  bgUrl?: any;
+  logoUrl?: any;
+  isDestaque?: boolean;
 }
 
 interface MegaCotacaoMatch {
@@ -135,14 +134,10 @@ const MEGA_COTACAO: MegaCotacaoMatch[] = [
 ];
 
 const CHAMPIONSHIPS: Championship[] = [
-  { id: 'c1', label: 'Copa do\nNordeste', image: require('../../assets/league_icon.png') },
-  { id: 'c2', label: 'Brasileirão', image: require('../../assets/league_icon.png') },
-  { id: 'c3', label: 'Copa do\nBrasil', image: require('../../assets/league_icon.png') },
-  { id: 'c4', label: 'Libertadores', image: require('../../assets/league_icon.png') },
-  { id: 'c5', label: 'Champions\nLeague', image: require('../../assets/league_icon.png') },
-  { id: 'c6', label: 'Premier\nLeague', image: require('../../assets/league_icon.png') },
-  { id: 'c7', label: 'La Liga', image: require('../../assets/league_icon.png') },
-  { id: 'c8', label: 'Serie A', image: require('../../assets/league_icon.png') },
+  { id: 'c1', bgUrl: require('../../assets/bg_nordestecup.png'), logoUrl: require('../../assets/logo_nordestecup.png'), isDestaque: true },
+  { id: 'c2', bgUrl: require('../../assets/bg_brasilcup.png'), logoUrl: require('../../assets/logo_brasilcup.png'), isDestaque: false },
+  { id: 'c3', bgUrl: require('../../assets/bg_worldcup.png'), logoUrl: require('../../assets/logo_worldcup.png'), isDestaque: true },
+  { id: 'c4', bgUrl: require('../../assets/bg_championscup.png'), logoUrl: require('../../assets/logo_championscup.png'), isDestaque: false },
 ];
 
 interface SportCategory {
@@ -589,17 +584,16 @@ function ChampionshipsBar() {
         const isActive = active === item.id;
         return (
           <Pressable key={item.id} style={styles.champItem} onPress={() => setActive(item.id)}>
-            <View style={[styles.champCard, isActive && styles.champCardActive]}>
-              <View style={[styles.champCircle, isActive && styles.champCircleActive]}>
-                {item.image ? (
-                  <Image source={item.image} style={{ width: 44, height: 44 }} resizeMode="cover" />
-                ) : item.Icon ? (
-                  <item.Icon size={24} color={isActive ? colors.secondary : colors.white} />
-                ) : null}
+            <View style={styles.champImageWrapper}>
+              <View style={[styles.champNativeCard, isActive && styles.champNativeCardActive]}>
+                {item.bgUrl && <Image source={item.bgUrl} style={styles.champBgImg} resizeMode="cover" />}
+                <View style={styles.champNativeOverlay} />
+                {item.logoUrl && (
+                  <View style={styles.champLogoContainer}>
+                    <Image source={item.logoUrl} style={styles.champLogoImg} resizeMode="contain" />
+                  </View>
+                )}
               </View>
-              <Text style={[styles.champLabel, isActive && styles.champLabelActive]} numberOfLines={2}>
-                {item.label}
-              </Text>
             </View>
           </Pressable>
         );
@@ -1589,62 +1583,69 @@ const styles = StyleSheet.create({
   /* ── Championships ── */
   champContainer: {
     paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 8,
+    paddingTop: 16,
+    paddingBottom: 12,
     gap: 10,
   },
   champItem: {
     alignItems: 'center',
   },
-  champCard: {
-    width: 76,
-    height: 96,
-    alignItems: 'center',
+  champImageWrapper: {
+    position: 'relative',
+    width: 175,
+    height: 120,
     justifyContent: 'center',
-    paddingTop: 10,
-    paddingBottom: 10,
-    paddingHorizontal: 6,
-    borderRadius: 16,
-    backgroundColor: colors.card,
-    gap: 8,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-  },
-  champCardActive: {
-    borderColor: colors.secondary,
-    shadowColor: colors.secondary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  champCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.cardLight,
     alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  champNativeCard: {
+    width: 175,
+    height: 120,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: 'rgba(56, 230, 125, 0.3)',
     overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#000',
+    // Glow effect for the card
+    shadowColor: '#38E67D',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  champCircleActive: {
-    borderColor: colors.secondary,
-    backgroundColor: 'rgba(56,230,125,0.12)',
+  champNativeCardActive: {
+    borderColor: '#38E67D',
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 10,
   },
-  champLabel: {
-    color: colors.grey,
-    fontSize: 10.5,
-    fontWeight: '600',
-    textAlign: 'center',
-    letterSpacing: 0.2,
-    lineHeight: 14,
-    minHeight: 28,
-    textAlignVertical: 'top',
+  champBgImg: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    opacity: 0.5, // Darker background
   },
-  champLabelActive: {
-    color: colors.white,
+  champNativeOverlay: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.7)', // Much darker overlay
+  },
+  champLogoContainer: {
+    width: 110,
+    height: 110,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // Glow effect for the cup itself
+    shadowColor: '#fff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 15,
+  },
+  champLogoImg: {
+    width: 110, // Larger logo (cup)
+    height: 110,
   },
 
 

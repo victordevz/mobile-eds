@@ -238,6 +238,29 @@ function ControllerIcon({ size = 16, color = '#fff' }: { size?: number; color?: 
   );
 }
 
+function VoleiIcon({ size = 16, color = '#fff' }: { size?: number; color?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth="1.8" />
+      <Path d="M12 2a11.9 11.9 0 0 0-8 3" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+      <Path d="M12 2a11.9 11.9 0 0 1 8 3" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+      <Path d="M4 17a11.9 11.9 0 0 0 8 5" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+      <Path d="M20 17a11.9 11.9 0 0 1-8 5" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
+      <Path d="M12 2v20M2 12h20" stroke={color} strokeWidth="1" strokeOpacity="0.3" />
+    </Svg>
+  );
+}
+
+function AllSportsIcon({ size = 16, color = '#fff' }: { size?: number; color?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth="1.8" />
+      <Circle cx="12" cy="12" r="6" stroke={color} strokeWidth="1.5" />
+      <Circle cx="12" cy="12" r="2" fill={color} />
+    </Svg>
+  );
+}
+
 const SPORT_CATEGORIES: SportCategory[] = [
   { id: 'sp1', label: 'Futebol', Icon: SoccerIcon },
   { id: 'sp2', label: 'Tênis', Icon: TennisIcon },
@@ -619,6 +642,44 @@ function SearchIcon({ size = 20, color = '#FFF' }: { size?: number; color?: stri
 
 interface HeaderProps { sport: SportTheme; onToggleDropdown?: () => void; isDropdownOpen?: boolean; onCloseDropdown?: () => void; }
 
+function ChevronIcon({ size = 10, color = colors.secondary, isOpen = false }: { size?: number; color?: string; isOpen?: boolean }) {
+  return (
+    <Svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      style={{ 
+        transform: [{ rotate: isOpen ? '180deg' : '0deg' }],
+        marginLeft: 2
+      }}
+    >
+      <Path d="M6 9l6 6 6-6" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
+function SportIconRenderer({ sportId, isEmoji = false, emoji = '', size = 18, color = colors.white }: { sportId: SportType; isEmoji?: boolean; emoji?: string; size?: number; color?: string }) {
+  if (sportId === 'futebol') return <SoccerIcon size={size} color={color} />;
+  if (sportId === 'basquete') return <BasketballIcon size={size} color={color} />;
+  if (sportId === 'tenis') return <TennisIcon size={size} color={color} />;
+  if (sportId === 'volei') return <VoleiIcon size={size} color={color} />;
+  if (sportId === 'esports') return <ControllerIcon size={size} color={color} />;
+  if (sportId === 'todos') return <AllSportsIcon size={size} color={color} />;
+  
+  // Fallback para emojis se as constantes mudarem ou faltar ícone
+  return (
+    <Text style={{ 
+      fontSize: size, 
+      fontFamily: 'System', 
+      color: color,
+      textAlignVertical: 'center'
+    }}>
+      {emoji}
+    </Text>
+  );
+}
+
 function Header({ sport, onToggleDropdown, isDropdownOpen, onCloseDropdown }: HeaderProps) {
   const { openMenu, openDepositModal, balance, isAuthenticated } = useAuth();
   const [isSearchActive, setIsSearchActive] = useState(false);
@@ -640,16 +701,16 @@ function Header({ sport, onToggleDropdown, isDropdownOpen, onCloseDropdown }: He
         <Image source={require('../../assets/logo.png')} style={{ width: 72, height: 24, resizeMode: 'contain', marginLeft: -8 }} />
 
         <Pressable 
-          style={[styles.sportSelector, { marginLeft: 16, zIndex: 20 }]} 
+          style={[styles.sportSelector, { marginLeft: 8, zIndex: 20 }]} 
           onPress={onToggleDropdown}
         >
-          <Text style={styles.sportSelectorEmoji}>{sport.emoji}</Text>
-          <Text style={[styles.sportSelectorArrow, { color: colors.secondary }]}>{isDropdownOpen ? '▲' : '▼'}</Text>
+          <SportIconRenderer sportId={sport.id} emoji={sport.emoji} size={16} />
+          <ChevronIcon isOpen={isDropdownOpen} />
         </Pressable>
         <View style={{ flex: 1 }} />
 
         <View style={styles.headerActions}>
-          <View style={{ zIndex: 1, marginRight: 6 }}>
+          <View style={{ zIndex: 1, marginRight: 2 }}>
             <Pressable style={[styles.searchIconBtn, isSearchActive && styles.searchIconBtnActive]} onPress={() => setIsSearchActive(!isSearchActive)}>
               <SearchIcon size={24} />
             </Pressable>
@@ -843,7 +904,7 @@ function SportDropdown({
           
           {/* Item selecionado atual, fixo no topo com separador abaixo */}
           <Pressable style={styles.dropItem} onPress={onClose}>
-            <Text style={styles.dropEmoji}>{SPORT_THEMES[current].emoji}</Text>
+            <SportIconRenderer sportId={current} emoji={SPORT_THEMES[current].emoji} size={20} color={SPORT_THEMES[current].accent} />
             <Text style={[styles.dropLabel, { color: SPORT_THEMES[current].accent }]}>{SPORT_THEMES[current].label}</Text>
           </Pressable>
 
@@ -858,7 +919,7 @@ function SportDropdown({
                 style={styles.dropItem}
                 onPress={() => onSelect(sid)}
               >
-                <Text style={styles.dropEmoji}>{t.emoji}</Text>
+                <SportIconRenderer sportId={sid} emoji={t.emoji} size={20} color={colors.white} />
                 <Text style={[styles.dropLabel, { color: '#10D166' }]}>{t.label}</Text>
               </Pressable>
             );
@@ -1208,9 +1269,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12, paddingVertical: 6,
     backgroundColor: 'rgba(0,0,0,0.2)',
   },
-  sportSelectorEmoji: { fontSize: 14 },
+  sportSelectorEmoji: { flex: 0, alignItems: 'center', justifyContent: 'center' },
   sportSelectorLabel: { fontSize: 13, fontWeight: '800' },
-  sportSelectorArrow: { fontSize: 12, fontWeight: '700' },
+  sportSelectorArrow: { flex: 0, alignItems: 'center', justifyContent: 'center' },
 
   /* ── Sport Dropdown ── */
   dropBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 17 },
@@ -1351,28 +1412,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     paddingTop: 14,
   },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
   },
   balancePill: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.card,
     borderRadius: 50,
-    paddingVertical: 6,
-    paddingRight: 18,
-    paddingLeft: 6,
-    gap: 10,
+    paddingVertical: 5,
+    paddingRight: 12,
+    paddingLeft: 5,
+    gap: 6,
   },
   depositCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
@@ -1412,10 +1473,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
   menuBtn: {
-    gap: 5,
+    gap: 4,
     justifyContent: 'center',
     alignItems: 'flex-end',
-    padding: 4,
+    padding: 2,
   },
   menuBar: {
     width: 22,

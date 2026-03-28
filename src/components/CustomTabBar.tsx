@@ -5,6 +5,7 @@ import {
   Text,
   View,
   useWindowDimensions,
+  Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
@@ -116,7 +117,7 @@ export default function CustomTabBar({
 
         if (!config) return null;
 
-        const { label, showLabel, icon: Icon } = config;
+        const { label, showLabel, icon: Icon, imageIcon } = config;
 
         const onPress = () => {
           const event = navigation.emit({
@@ -137,6 +138,7 @@ export default function CustomTabBar({
             label={label}
             showLabel={showLabel ?? false}
             Icon={Icon}
+            imageIcon={imageIcon}
             onPress={onPress}
           />
         );
@@ -150,11 +152,12 @@ interface TabBarItemProps {
   isFocused: boolean;
   label: string;
   showLabel: boolean;
-  Icon: React.FC<import('react-native-svg').SvgProps>;
+  Icon?: React.FC<import('react-native-svg').SvgProps>;
+  imageIcon?: import('react-native').ImageSourcePropType;
   onPress: () => void;
 }
 
-function TabBarItem({ isFocused, label, Icon, onPress }: TabBarItemProps) {
+function TabBarItem({ isFocused, label, Icon, imageIcon, onPress }: TabBarItemProps) {
   const animatedWrapper = useAnimatedStyle(() => ({
     width: withSpring(isFocused ? 70 : INACTIVE_CIRCLE, SPRING_CONFIG),
     height: withSpring(isFocused ? 70 : INACTIVE_CIRCLE, SPRING_CONFIG),
@@ -185,12 +188,19 @@ function TabBarItem({ isFocused, label, Icon, onPress }: TabBarItemProps) {
           borderColor: colors.secondary
         }
       ]}>
-        <Icon
-          width={ICON_SIZE}
-          height={ICON_SIZE}
-          fill={colors.white}
-          color={colors.white}
-        />
+        {imageIcon ? (
+          <Image 
+            source={imageIcon} 
+            style={{ width: ICON_SIZE, height: ICON_SIZE, resizeMode: 'contain' }} 
+          />
+        ) : Icon ? (
+          <Icon
+            width={ICON_SIZE}
+            height={ICON_SIZE}
+            fill={colors.white}
+            color={colors.white}
+          />
+        ) : null}
       </Animated.View>
       
       <Animated.Text

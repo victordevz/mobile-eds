@@ -17,6 +17,7 @@ import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 import BotafogoIcon from '../../assets/botafogo.svg';
 import BragatinoIcon from '../../assets/bragatino.svg';
+import SubtractIcon from '../../assets/Subtract.svg';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
@@ -26,6 +27,64 @@ function SearchIcon({ size = 20, color = '#FFF' }: { size?: number; color?: stri
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Circle cx="11" cy="11" r="7" stroke={color} strokeWidth="2" />
       <Line x1="16.5" y1="16.5" x2="22" y2="22" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+function UsersIcon({ size = 18, color = colors.grey }: { size?: number; color?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45768C17.623 10.1593 16.8604 10.6597 16 10.88"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function PersonIcon({ size = 18, color = colors.grey }: { size?: number; color?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Circle
+        cx="12"
+        cy="7"
+        r="4"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </Svg>
   );
 }
@@ -137,7 +196,10 @@ function HeaderTimer() {
 
   return (
     <>
-      <Text style={styles.timerText}>Faltam {timeLeft.d} dias para acabar</Text>
+      <View style={styles.timerHeaderRow}>
+        <SubtractIcon width={16} height={16} style={{ marginRight: 6 }} />
+        <Text style={styles.timerText}>Faltam {timeLeft.d} dias para acabar</Text>
+      </View>
       
       <View style={styles.scoreSquaresContainer}>
         <View style={styles.scoreSquare}>
@@ -256,7 +318,9 @@ function PremioRow({ acertos, title, value, players }: { acertos: string; title:
         <Text style={styles.premioValue}>{value}</Text>
       </View>
       <View style={{ alignItems: 'center' }}>
-        <View style={styles.playerSquare} />
+        <View style={styles.playerIconBox}>
+          <UsersIcon size={22} color={colors.grey} />
+        </View>
         <Text style={styles.playersText}>{players}</Text>
       </View>
     </View>
@@ -307,7 +371,9 @@ function RankingItem({ place, name }: { place: string; name: string }) {
         <Text style={styles.rankNum}>{place}</Text>
         <Text style={styles.rankSub}>Lugar</Text>
       </View>
-      <View style={styles.avatarCircle} />
+      <View style={styles.avatarIconBox}>
+        <PersonIcon size={20} color={colors.white} />
+      </View>
       <View style={styles.rankInfo}>
         <Text style={styles.rankName}>{name}</Text>
         <Text style={styles.rankStats}>5/8 acertos • Rodada perfeita</Text>
@@ -483,11 +549,15 @@ const styles = StyleSheet.create({
   tabSection: {
     paddingHorizontal: 16,
   },
+  timerHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
   timerText: {
     fontSize: 14,
     color: colors.white,
     fontWeight: '500',
-    marginBottom: 12,
   },
   scoreSquaresContainer: {
     flexDirection: 'row',
@@ -668,8 +738,8 @@ const styles = StyleSheet.create({
   acertosSub: { color: colors.grey, fontSize: 10 },
   premioTitle: { color: colors.grey, fontSize: 14, fontWeight: '500' },
   premioValue: { color: colors.white, fontSize: 14, fontWeight: 'bold' },
-  playerSquare: {
-    width: 24, height: 24, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 4, marginBottom: 4,
+  playerIconBox: {
+    width: 28, height: 28, alignItems: 'center', justifyContent: 'center', marginBottom: 2,
   },
   playersText: { color: colors.grey, fontSize: 10 },
   premioTotalBox: {
@@ -704,10 +774,18 @@ const styles = StyleSheet.create({
   },
   rankNum: { color: colors.white, fontWeight: 'bold', fontSize: 14 },
   rankSub: { color: colors.grey, fontSize: 10 },
-  avatarCircle: {
-    width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.15)', marginHorizontal: 12,
+  avatarIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
-  rankInfo: { flex: 1, paddingLeft: 12 },
+  rankInfo: { flex: 1, paddingLeft: 0 },
   rankName: { color: colors.white, fontWeight: 'bold', fontSize: 14 },
   rankStats: { color: colors.grey, fontSize: 12, marginTop: 2 },
   rankPointsNum: { color: colors.white, fontWeight: 'bold', fontSize: 14 },

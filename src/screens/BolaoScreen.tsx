@@ -15,6 +15,9 @@ import { GradientBackground } from '../components/GradientBackground';
 import { useAuth } from '../context/AuthContext';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
+import BotafogoIcon from '../../assets/botafogo.svg';
+import BragatinoIcon from '../../assets/bragatino.svg';
+
 const { width: SCREEN_W } = Dimensions.get('window');
 
 // --- Icons Auxiliares ---
@@ -188,9 +191,13 @@ function MeusPalpitesContent() {
             <Text style={styles.dataText}>26/03 • 19:30</Text>
           </View>
           <View style={styles.teamsCircleRow}>
-            <View style={styles.teamCircle} />
+            <View style={styles.teamIconWrapper}>
+              <BragatinoIcon width={32} height={32} />
+            </View>
             <Text style={{ marginHorizontal: 8, color: '#999', fontWeight: 'bold' }}>X</Text>
-            <View style={styles.teamCircle} />
+            <View style={styles.teamIconWrapper}>
+              <BotafogoIcon width={32} height={32} />
+            </View>
           </View>
           <View style={styles.abertoBadge}>
             <Text style={styles.abertoText}>ABERTO</Text>
@@ -569,11 +576,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  teamCircle: {
+  teamIconWrapper: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#666',
+    backgroundColor: '#FFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#EEE',
   },
   abertoBadge: {
     backgroundColor: colors.secondary,

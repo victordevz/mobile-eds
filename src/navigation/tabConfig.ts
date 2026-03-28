@@ -2,7 +2,7 @@ import React from 'react';
 import { SvgProps } from 'react-native-svg';
 import { ImageSourcePropType } from 'react-native';
 
-import CopasIcon from '../../assets/copas.svg';
+import VectorIcon from '../../assets/Vector.svg';
 import SlotIcon from '../../assets/slot.svg';
 import FutebolIcon from '../../assets/futebol.svg';
 import PrevisoesIcon from '../../assets/previsoes.svg';
@@ -18,7 +18,7 @@ export interface TabItem {
 
 export const tabConfig: TabItem[] = [
   { routeName: 'Previsoes', label: 'PREVISÕES', showLabel: true, icon: PrevisoesIcon },
-  { routeName: 'Roleta', label: 'CASSINO', showLabel: true, icon: CopasIcon },
+  { routeName: 'Roleta', label: 'CASSINO', showLabel: true, icon: VectorIcon },
   { routeName: 'Futebol', label: 'ESPORTES', showLabel: true, icon: FutebolIcon },
   { routeName: 'Slot', label: 'SLOT', showLabel: true, icon: SlotIcon },
   { routeName: 'Bolao', label: 'BOLÃO', showLabel: true, icon: BolaoIcon },

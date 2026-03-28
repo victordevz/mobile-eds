@@ -13,6 +13,7 @@ import Animated, {
   useSharedValue,
   withSpring,
   withTiming,
+  Easing,
 } from 'react-native-reanimated';
 import { colors } from '../theme';
 import { BetSlipData } from '../types/sports';
@@ -28,10 +29,13 @@ interface BetSlipPanelProps {
 
 export function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm, onExpand }: BetSlipPanelProps) {
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const translateY = useSharedValue(-300);
+  const translateY = useSharedValue(-400);
 
   useEffect(() => {
-    translateY.value = withSpring(0, { damping: 14, stiffness: 140 });
+    translateY.value = withTiming(0, {
+      duration: 350,
+      easing: Easing.out(Easing.cubic),
+    });
   }, []);
 
   const pan = useRef(

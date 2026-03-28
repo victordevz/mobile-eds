@@ -649,9 +649,22 @@ function Header({ sport }: HeaderProps) {
         {/* Sport selector pill removido conforme solicitado */}
 
         <View style={styles.headerActions}>
-          <Pressable style={styles.searchIconBtn} onPress={() => setIsSearchActive(!isSearchActive)}>
-            <SearchIcon size={24} />
-          </Pressable>
+          <View style={{ zIndex: 10, marginRight: 6 }}>
+            <Pressable style={[styles.searchIconBtn, isSearchActive && styles.searchIconBtnActive]} onPress={() => setIsSearchActive(!isSearchActive)}>
+              <SearchIcon size={24} />
+            </Pressable>
+            {isSearchActive && (
+              <>
+                <View style={{ position: 'absolute', bottom: -10, left: 0, right: 0, height: 10, backgroundColor: '#042B7A' }} />
+                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, left: -12, width: 12, height: 12, backgroundColor: '#042B7A' }}>
+                  <View style={{ flex: 1, backgroundColor: colors.primary, borderBottomRightRadius: 12 }} />
+                </View>
+                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, right: -12, width: 12, height: 12, backgroundColor: '#042B7A' }}>
+                  <View style={{ flex: 1, backgroundColor: colors.primary, borderBottomLeftRadius: 12 }} />
+                </View>
+              </>
+            )}
+          </View>
           <Pressable style={styles.balancePill} onPress={openDepositModal}>
             <View style={styles.depositCircle}>
               <View style={styles.plusHorizontal} />
@@ -998,7 +1011,7 @@ export default function FutebolScreen() {
   return (
     <View style={[styles.container, { backgroundColor: sport.bg }]}>
       {/* Fixed header */}
-      <View style={[styles.headerWrapper, { backgroundColor: sport.bg, paddingTop: insets.top }]}>
+      <View style={[styles.headerWrapper, { backgroundColor: colors.primary, paddingTop: insets.top }]}>
         <Header sport={sport} />
       </View>
 
@@ -1268,7 +1281,7 @@ const styles = StyleSheet.create({
 
   /* ── Header ── */
   headerContainer: {
-    backgroundColor: colors.primaryDark,
+    backgroundColor: colors.primary,
     paddingBottom: 10,
   },
   header: {
@@ -1350,13 +1363,19 @@ const styles = StyleSheet.create({
 
   searchIconBtn: {
     padding: 6,
-    marginRight: 6,
+  },
+  searchIconBtnActive: {
+    backgroundColor: '#042B7A',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
   },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginTop: 10,
+    marginTop: 4,
     gap: 12,
   },
   searchInput: {

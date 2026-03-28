@@ -65,7 +65,7 @@ export default function App() {
               }}
             />
           </Root.Navigator>
-          <StatusBar style="dark" />
+          <StatusBar style="light" />
         </NavigationContainer>
         <AuthModal />
         <MenuSheet />

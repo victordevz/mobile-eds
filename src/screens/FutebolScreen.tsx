@@ -898,9 +898,13 @@ function SportDropdown({
   const filteredSports = SPORT_ORDER.filter(s => s !== 'todos' && s !== current);
 
   return (
-    <>
+    <Modal visible transparent animationType="none" statusBarTranslucent onRequestClose={onClose}>
       <Pressable style={styles.dropBackdrop} onPress={onClose} />
-      <Animated2.View style={[styles.sportDropdown, animStyle, { maxHeight: 320, top: (insets.top || 0) + 72, zIndex: 18 }]}>
+      <Animated2.View style={[
+        styles.sportDropdown,
+        animStyle,
+        { top: (insets.top || 0) + 72 },
+      ]}>
         <ScrollView showsVerticalScrollIndicator={true} nestedScrollEnabled={true}>
 
           {/* Item selecionado atual, fixo no topo com separador abaixo */}
@@ -927,7 +931,7 @@ function SportDropdown({
           })}
         </ScrollView>
       </Animated2.View>
-    </>
+    </Modal>
   );
 }
 
@@ -1066,12 +1070,14 @@ export default function FutebolScreen() {
                     suggestionDetail: match.suggestionDetail,
                     defaultSelected: match.defaultSelected,
                   }}
-                  onBetPress={() => openBetSlip({
-                    matchLabel: `${match.homeTeam} vs ${match.awayTeam}`,
-                    oddLabel: match.odds.find(o => o.key === match.defaultSelected)?.label || 'Empate',
-                    oddValue: match.odds.find(o => o.key === match.defaultSelected)?.odd || 1.00,
-                    league: match.league,
-                  })}
+                  onBetPress={() => {
+                    if (!isAuthenticated) { openAuthModal('login'); return; }
+                    navigation.navigate('MatchDetails', {
+                      league: match.league,
+                      homeTeam: match.homeTeam,
+                      awayTeam: match.awayTeam,
+                    });
+                  }}
                 />
               ))}
             </ScrollView>
@@ -1142,13 +1148,13 @@ const styles = StyleSheet.create({
   sportSelectorArrow: { flex: 0, alignItems: 'center', justifyContent: 'center' },
 
   /* ── Sport Dropdown ── */
-  dropBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 17 },
+  dropBackdrop: { ...StyleSheet.absoluteFillObject },
   sportDropdown: {
-    position: 'absolute', top: 56, left: 16, zIndex: 18,
+    position: 'absolute', left: 16, right: 16,
     backgroundColor: '#0D1E50', borderRadius: 16,
-    paddingVertical: 6, minWidth: 200,
+    paddingVertical: 6, maxHeight: 340,
     shadowColor: '#000', shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4, shadowRadius: 12, elevation: 16,
+    shadowOpacity: 0.5, shadowRadius: 16, elevation: 20,
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
   },
   dropItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 13, gap: 12 },

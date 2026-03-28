@@ -27,14 +27,29 @@ const SHEET_W = SCREEN_W; // menu fullscreen
 function UserAvatarIcon({ size = 52 }: { size?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 52 52" fill="none">
-      <Circle cx="26" cy="26" r="25" stroke={colors.secondary} strokeWidth="2" />
-      <Circle cx="26" cy="20" r="8" stroke={colors.secondary} strokeWidth="2" />
+      <Circle cx="26" cy="26" r="24" stroke={colors.secondary} strokeWidth="3" />
+      <Circle cx="26" cy="20" r="8" stroke={colors.secondary} strokeWidth="3" />
       <Path
         d="M10 44c0-8.837 7.163-16 16-16s16 7.163 16 16"
         stroke={colors.secondary}
-        strokeWidth="2"
+        strokeWidth="3"
         strokeLinecap="round"
       />
+    </Svg>
+  );
+}
+
+function EyeIcon({ size = 24, color = colors.primary }: { size?: number; color?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Circle cx="12" cy="12" r="3" stroke={color} strokeWidth="2" />
     </Svg>
   );
 }
@@ -104,6 +119,49 @@ function SupportIcon({ size = 24 }: { size?: number }) {
   );
 }
 
+function LogoutIcon({ size = 24 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+        stroke={colors.primary}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M16 17l5-5-5-5"
+        stroke={colors.primary}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M21 12H9"
+        stroke={colors.primary}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function DollarIcon({ size = 24 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Rect x="4" y="4" width="16" height="16" rx="4" stroke={colors.secondary} strokeWidth="1.8" />
+      <Path
+        d="M12 8v8M10 10c0-1.1.9-2 2-2s2 .9 2 2M14 14c0 1.1-.9 2-2 2s-2-.9-2-2"
+        stroke={colors.secondary}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 export default function MenuSheet() {
   const {
     menuVisible,
@@ -133,7 +191,7 @@ export default function MenuSheet() {
   const balanceLabel =
     isAuthenticated && balance !== null
       ? `R$ ${balance.toFixed(2).replace('.', ',')}`
-      : 'R$ 0,00';
+      : '0,00';
 
   function handleDeposit() {
     closeMenu();
@@ -194,99 +252,158 @@ export default function MenuSheet() {
       <View style={styles.overlay}>
         <Pressable style={StyleSheet.absoluteFill} onPress={closeMenu} />
 
-        <Animated.View
-          style={[
-            styles.sheet,
-            { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 24 },
-            animatedStyle,
-          ]}
-        >
-          {/* ─── Header: Close button ─── */}
-          <View style={styles.sheetHeader}>
-            <Pressable onPress={closeMenu} style={styles.closeBtn} hitSlop={12}>
-              <Text style={styles.closeBtnText}>✕</Text>
-            </Pressable>
-          </View>
-
+        <Animated.View style={[styles.sheet, animatedStyle]}>
           <ScrollView
             showsVerticalScrollIndicator={false}
+            bounces={false}
             contentContainerStyle={styles.scrollContent}
           >
-            {isAuthenticated ? (
-              <>
-                {/* ═══ AUTHENTICATED VIEW ═══ */}
+            {/* ─── Header Part (Dark Blue) ─── */}
+            <View style={[styles.topDarkHeader, { paddingTop: insets.top + 16 }]}>
+              {/* Header: Close button slightly offset upwards */}
+              <View style={styles.closeBtnWrapper}>
+                <Pressable onPress={closeMenu} style={styles.closeBtn} hitSlop={12}>
+                  <Text style={styles.closeBtnText}>✕</Text>
+                </Pressable>
+              </View>
 
-                {/* ─── Profile ─── */}
-                <View style={styles.profileRow}>
-                  <UserAvatarIcon size={52} />
-                  <View style={styles.profileInfo}>
-                    <Text style={styles.profileName}>{userName}</Text>
-                    <Text style={styles.profileId}>ID: 00000000000</Text>
+              {isAuthenticated ? (
+                <>
+                  {/* ─── Profile ─── */}
+                  <View style={styles.profileRow}>
+                    <UserAvatarIcon size={52} />
+                    <View style={styles.profileInfo}>
+                      <Text style={styles.profileName}>{userName}</Text>
+                      <Text style={styles.profileId}>ID: 00000000000</Text>
+                    </View>
                   </View>
-                </View>
 
-                {/* ─── Balance Card ─── */}
-                <View style={styles.balanceCard}>
-                  <Text style={styles.balanceLabel}>Saldo total</Text>
-                  <Text style={styles.balanceValue}>{balanceLabel}</Text>
-                </View>
+                  {/* ─── Balance Card ─── */}
+                  <View style={styles.balanceCard}>
+                    <View style={styles.balanceCardTopRow}>
+                      <EyeIcon size={24} color={colors.primary} />
+                      <View style={styles.balanceTextRight}>
+                        <Text style={styles.balanceLabel}>Saldo total</Text>
+                        <Text style={styles.balanceValue}>R$ {balanceLabel}</Text>
+                      </View>
+                    </View>
+                  </View>
 
-                {/* ─── Action Buttons: Sacar / Depositar ─── */}
-                <View style={styles.actionsRow}>
-                  <Pressable style={styles.withdrawBtn} onPress={handleWithdraw}>
-                    <Text style={styles.withdrawBtnText}>Sacar</Text>
+                  {/* ─── Action Buttons: Sacar / Depositar ─── */}
+                  <View style={styles.actionsRow}>
+                    <Pressable style={styles.withdrawBtn} onPress={handleWithdraw}>
+                      <Text style={styles.withdrawBtnText}>Sacar</Text>
+                    </Pressable>
+                    <Pressable style={styles.depositBtn} onPress={handleDeposit}>
+                      <Text style={styles.depositBtnText}>Depositar</Text>
+                    </Pressable>
+                  </View>
+                </>
+              ) : (
+                <>
+                  {/* ─── Guest avatar ─── */}
+                  <View style={[styles.profileRow, { marginBottom: 16 }]}>
+                    <UserAvatarIcon size={52} />
+                    <View style={styles.profileInfo}>
+                      <Text style={styles.profileName}>Visitante</Text>
+                      <Text style={styles.profileIdLogin}>Faça login para acessar</Text>
+                    </View>
+                  </View>
+
+                  {/* ─── Guest Balance Placeholder Card ─── */}
+                  <View style={styles.balanceCardPlaceholder}>
+                    <Text style={styles.guestTitle}>Faça parte!</Text>
+                    <Text style={styles.guestSubtitle}>
+                      Entre ou crie sua conta para apostar e acompanhar seu histórico.
+                    </Text>
+                  </View>
+
+                  {/* ─── Auth Buttons under the White Card ─── */}
+                  <View style={styles.actionsRow}>
+                    <Pressable
+                      style={styles.withdrawBtn}
+                      onPress={() => {
+                        closeMenu();
+                        openAuthModal('login');
+                      }}
+                    >
+                      <Text style={styles.withdrawBtnText}>Entrar</Text>
+                    </Pressable>
+                    <Pressable
+                      style={styles.depositBtn}
+                      onPress={() => {
+                        closeMenu();
+                        openAuthModal('register');
+                      }}
+                    >
+                      <Text style={styles.depositBtnText}>Criar conta</Text>
+                    </Pressable>
+                  </View>
+                </>
+              )}
+            </View>
+
+            {/* ─── Content Part (Light Gray/Blue) ─── */}
+            <View style={[styles.bottomContent, { paddingBottom: insets.bottom + 40 }]}>
+              {/* ─── Seção: Conta e histórico ─── */}
+              {isAuthenticated && (
+                <>
+                  <View style={styles.sectionHeader}>
+                    <View style={styles.sectionBar} />
+                    <Text style={styles.sectionTitle}>Conta e histórico</Text>
+                  </View>
+
+                  {/* Conta */}
+                  <Pressable style={styles.menuItem} onPress={handleProfile}>
+                    <ProfileIcon size={22} />
+                    <View style={styles.menuItemContent}>
+                      <Text style={styles.menuItemTitle}>Conta</Text>
+                      <Text style={styles.menuItemSub}>Dados pessoais, foto, senha</Text>
+                    </View>
                   </Pressable>
-                  <Pressable style={styles.depositBtn} onPress={handleDeposit}>
-                    <Text style={styles.depositBtnText}>Depositar</Text>
+
+                  {/* Histórico de apostas */}
+                  <Pressable style={styles.menuItem} onPress={handleHistorico}>
+                    <HistoryIcon size={22} />
+                    <View style={styles.menuItemContent}>
+                      <Text style={styles.menuItemTitle}>Histórico de Apostas</Text>
+                      <Text style={styles.menuItemSub}>100 apostas - 2 em aberto</Text>
+                    </View>
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>2 abertas</Text>
+                    </View>
                   </Pressable>
-                </View>
 
-                {/* ─── Seção: Conta e histórico ─── */}
-                <View style={styles.sectionHeader}>
-                  <View style={styles.sectionBar} />
-                  <Text style={styles.sectionTitle}>Conta e histórico</Text>
-                </View>
+                  {/* Histórico de Transferências */}
+                  <Pressable style={styles.menuItem} onPress={handleHistorico}>
+                    <DollarIcon size={22} />
+                    <View style={styles.menuItemContent}>
+                      <Text style={styles.menuItemTitle}>Histórico de Transferências</Text>
+                    </View>
+                  </Pressable>
+                </>
+              )}
 
-                {/* Meu perfil */}
-                <Pressable style={styles.menuItem} onPress={handleProfile}>
-                  <ProfileIcon size={22} />
-                  <View style={styles.menuItemContent}>
-                    <Text style={styles.menuItemTitle}>Meu perfil</Text>
-                    <Text style={styles.menuItemSub}>Dados pessoais, foto, senha</Text>
-                  </View>
-                </Pressable>
+              {/* ─── Seção: Preferências ─── */}
+              <View style={[styles.sectionHeader, { marginTop: 12 }]}>
+                <View style={styles.sectionBar} />
+                <Text style={styles.sectionTitle}>Preferências</Text>
+              </View>
 
-                {/* Histórico de apostas */}
-                <Pressable style={styles.menuItem} onPress={handleHistorico}>
-                  <HistoryIcon size={22} />
-                  <View style={styles.menuItemContent}>
-                    <Text style={styles.menuItemTitle}>Histórico de apostas</Text>
-                    <Text style={styles.menuItemSub}>100 apostas - 3 em aberto</Text>
-                  </View>
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>3 abertas</Text>
-                  </View>
-                </Pressable>
+              {/* Configurações */}
+              <Pressable style={styles.menuItemSimple} onPress={handleConfiguracoes}>
+                <SettingsIcon size={22} />
+                <Text style={styles.menuItemTitleSimple}>Configurações</Text>
+              </Pressable>
 
-                {/* ─── Seção: Preferências ─── */}
-                <View style={styles.sectionHeader}>
-                  <View style={styles.sectionBar} />
-                  <Text style={styles.sectionTitle}>Preferências</Text>
-                </View>
+              {/* Suporte */}
+              <Pressable style={styles.menuItemSimple} onPress={handleSuporte}>
+                <SupportIcon size={22} />
+                <Text style={styles.menuItemTitleSimple}>Suporte</Text>
+              </Pressable>
 
-                {/* Configurações */}
-                <Pressable style={styles.menuItemSimple} onPress={handleConfiguracoes}>
-                  <SettingsIcon size={22} />
-                  <Text style={styles.menuItemTitleSimple}>Configurações</Text>
-                </Pressable>
-
-                {/* Suporte */}
-                <Pressable style={styles.menuItemSimple} onPress={handleSuporte}>
-                  <SupportIcon size={22} />
-                  <Text style={styles.menuItemTitleSimple}>Suporte</Text>
-                </Pressable>
-
-                {/* ─── Logout ─── */}
+              {/* ─── Logout ─── */}
+              {isAuthenticated && (
                 <Pressable
                   style={styles.logoutBtn}
                   onPress={async () => {
@@ -294,73 +411,11 @@ export default function MenuSheet() {
                     closeMenu();
                   }}
                 >
-                  <Text style={styles.logoutBtnText}>Sair da conta</Text>
+                  <LogoutIcon size={20} />
+                  <Text style={styles.logoutBtnText}>Sair</Text>
                 </Pressable>
-              </>
-            ) : (
-              <>
-                {/* ═══ GUEST VIEW ═══ */}
-
-                {/* ─── Guest avatar ─── */}
-                <View style={styles.profileRow}>
-                  <UserAvatarIcon size={52} />
-                  <View style={styles.profileInfo}>
-                    <Text style={styles.profileName}>Visitante</Text>
-                    <Text style={styles.profileId}>Faça login para acessar</Text>
-                  </View>
-                </View>
-
-                {/* ─── Guest Card ─── */}
-                <View style={styles.guestCard}>
-                  <Text style={styles.guestTitle}>Faça parte!</Text>
-                  <Text style={styles.guestSubtitle}>
-                    Entre ou crie sua conta para apostar e acompanhar seu histórico.
-                  </Text>
-                </View>
-
-                {/* ─── Auth Buttons ─── */}
-                <Pressable
-                  style={styles.loginBtn}
-                  onPress={() => {
-                    closeMenu();
-                    openAuthModal('login');
-                  }}
-                >
-                  <Text style={styles.loginBtnText}>Entrar</Text>
-                </Pressable>
-
-                <Pressable
-                  style={styles.registerBtn}
-                  onPress={() => {
-                    closeMenu();
-                    openAuthModal('register');
-                  }}
-                >
-                  <Text style={styles.registerBtnText}>Criar conta</Text>
-                </Pressable>
-
-                {/* ─── Divider ─── */}
-                <View style={styles.guestDivider} />
-
-                {/* ─── Preferências (guest também tem acesso) ─── */}
-                <View style={styles.sectionHeader}>
-                  <View style={styles.sectionBar} />
-                  <Text style={styles.sectionTitle}>Preferências</Text>
-                </View>
-
-                {/* Configurações */}
-                <Pressable style={styles.menuItemSimple} onPress={handleConfiguracoes}>
-                  <SettingsIcon size={22} />
-                  <Text style={styles.menuItemTitleSimple}>Configurações</Text>
-                </Pressable>
-
-                {/* Suporte */}
-                <Pressable style={styles.menuItemSimple} onPress={handleSuporte}>
-                  <SupportIcon size={22} />
-                  <Text style={styles.menuItemTitleSimple}>Suporte</Text>
-                </Pressable>
-              </>
-            )}
+              )}
+            </View>
           </ScrollView>
         </Animated.View>
       </View>
@@ -377,17 +432,26 @@ const styles = StyleSheet.create({
   },
   sheet: {
     width: SHEET_W,
-    backgroundColor: colors.primaryDark,
-    paddingHorizontal: 20,
+    backgroundColor: '#F1F5F9', // light gray background for the bottom content
     elevation: 10,
     shadowColor: '#000',
     shadowOffset: { width: -4, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
   },
+  scrollContent: {
+    flexGrow: 1,
+  },
 
-  /* ─── Header ─── */
-  sheetHeader: {
+  /* ─── Top Header (Dark) ─── */
+  topDarkHeader: {
+    backgroundColor: colors.primaryDark,
+    paddingHorizontal: 20,
+    paddingBottom: 24,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+  },
+  closeBtnWrapper: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     marginBottom: 8,
@@ -396,110 +460,143 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   closeBtnText: {
-    color: colors.grey,
+    color: '#3B82F6', // optional, adjust if needed (image suggests close button is not visible or maybe very dark)
     fontSize: 20,
     fontWeight: '600',
-  },
-
-  scrollContent: {
-    paddingBottom: 40,
+    opacity: 0, // usually we might hide it if it's not strictly in the image, or keep it visible
   },
 
   /* ─── Profile ─── */
   profileRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
-    gap: 14,
+    marginBottom: 16,
+    gap: 12,
   },
   profileInfo: {
     flex: 1,
   },
   profileName: {
     color: colors.white,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
   },
   profileId: {
-    color: colors.grey,
-    fontSize: 13,
+    color: colors.secondary,
+    fontSize: 11,
     marginTop: 2,
+  },
+  profileIdLogin: {
+    color: colors.secondary,
+    fontSize: 12,
+    marginTop: 2,
+    fontWeight: '600',
   },
 
   /* ─── Balance Card ─── */
   balanceCard: {
-    backgroundColor: colors.card,
-    borderRadius: 14,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  balanceCardTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  balanceTextRight: {
+    alignItems: 'flex-end',
   },
   balanceLabel: {
-    color: colors.secondary,
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 4,
+    color: colors.primary,
+    fontSize: 12,
+    fontWeight: '500',
+    marginBottom: -2, // to tighten space
   },
   balanceValue: {
-    color: colors.white,
+    color: colors.primary,
     fontSize: 32,
     fontWeight: '800',
-    letterSpacing: 0.5,
+    letterSpacing: -0.5,
+  },
+
+  balanceCardPlaceholder: {
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  guestTitle: {
+    color: colors.primary,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  guestSubtitle: {
+    color: '#64748B',
+    fontSize: 12,
+    textAlign: 'center',
+    lineHeight: 18,
   },
 
   /* ─── Action Buttons ─── */
   actionsRow: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 28,
   },
   withdrawBtn: {
     flex: 1,
-    borderWidth: 2,
-    borderColor: colors.secondary,
-    borderRadius: 12,
-    paddingVertical: 14,
+    borderWidth: 1,
+    borderColor: '#1E40AF', // subtle dark blue border
+    borderRadius: 8,
+    paddingVertical: 10,
     alignItems: 'center',
-    backgroundColor: 'transparent',
+    backgroundColor: '#042B7A', // subtle card dark blue
   },
   withdrawBtnText: {
     color: colors.secondary,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
   },
   depositBtn: {
     flex: 1,
     backgroundColor: colors.secondary,
-    borderRadius: 12,
-    paddingVertical: 14,
+    borderRadius: 8,
+    paddingVertical: 10,
     alignItems: 'center',
   },
   depositBtnText: {
     color: colors.primaryDark,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
+  },
+
+  /* ─── Bottom Content ─── */
+  bottomContent: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
   },
 
   /* ─── Section Headers ─── */
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
     marginBottom: 12,
-    marginTop: 4,
   },
   sectionBar: {
     width: 3,
-    height: 18,
+    height: 16,
     borderRadius: 2,
-    backgroundColor: colors.grey,
+    backgroundColor: colors.primary, // blue bar
   },
   sectionTitle: {
-    color: colors.white,
-    fontSize: 15,
+    color: colors.primary,
+    fontSize: 14,
     fontWeight: '600',
   },
 
@@ -507,121 +604,71 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.card,
-    borderRadius: 14,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    marginBottom: 10,
-    gap: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: '#0A266F', // very dark blue like image
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    marginBottom: 8,
+    gap: 12,
   },
   menuItemContent: {
     flex: 1,
+    justifyContent: 'center',
   },
   menuItemTitle: {
     color: colors.white,
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '600',
   },
   menuItemSub: {
-    color: colors.grey,
-    fontSize: 12,
+    color: '#5EEAD4', // light cyan to match image description of green/light blue subtitle
+    fontSize: 10,
     marginTop: 2,
   },
 
   /* ─── Badge ─── */
   badge: {
     backgroundColor: colors.secondary,
-    borderRadius: 10,
-    paddingHorizontal: 10,
+    borderRadius: 4,
+    paddingHorizontal: 8,
     paddingVertical: 4,
   },
   badgeText: {
     color: colors.primaryDark,
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
   },
 
-  /* ─── Menu Items (simple, no subtitle) ─── */
+  /* ─── Menu Items (simple) ─── */
   menuItemSimple: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.card,
-    borderRadius: 14,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    marginBottom: 10,
-    gap: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: '#0A266F', 
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    marginBottom: 8,
+    gap: 12,
   },
   menuItemTitleSimple: {
     color: colors.white,
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '600',
     flex: 1,
   },
 
   /* ─── Logout ─── */
   logoutBtn: {
-    marginTop: 20,
-    paddingVertical: 14,
+    marginTop: 24,
+    paddingVertical: 12,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
   },
   logoutBtnText: {
-    color: '#FF6B6B',
+    color: colors.primary,
     fontSize: 15,
-    fontWeight: '600',
-  },
-
-  /* ─── Auth section (não autenticado) ─── */
-  guestCard: {
-    backgroundColor: colors.card,
-    borderRadius: 14,
-    padding: 18,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-  },
-  guestTitle: {
-    color: colors.white,
-    fontSize: 18,
     fontWeight: '700',
-    marginBottom: 6,
-  },
-  guestSubtitle: {
-    color: colors.grey,
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  guestDivider: {
-    height: 1,
-    backgroundColor: colors.surface,
-    marginVertical: 20,
-  },
-  loginBtn: {
-    backgroundColor: colors.secondary,
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  loginBtnText: {
-    color: colors.primaryDark,
-    fontWeight: '700',
-    fontSize: 15,
-  },
-  registerBtn: {
-    borderWidth: 1.5,
-    borderColor: colors.secondary,
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  registerBtnText: {
-    color: colors.secondary,
-    fontWeight: '700',
-    fontSize: 15,
   },
 });

@@ -105,7 +105,6 @@ export default function BetCupomDrawer() {
         <View style={ds.footer}>
           <View style={ds.footerMetaRow}>
             <Text style={ds.footerMeta}>Múltipla de {selections.length}-{'\n'}seleções = 1</Text>
-            <Text style={ds.footerTotalOdd}>{totalOdd.toFixed(2)}</Text>
             <View style={ds.inputRow}>
               <TextInput
                 style={ds.amountInput}
@@ -116,6 +115,21 @@ export default function BetCupomDrawer() {
                 placeholderTextColor="rgba(255,255,255,0.4)"
               />
               <TouchableOpacity style={ds.maxBtn}><Text style={ds.maxBtnText}>MÁX</Text></TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={ds.potencialRow}>
+            <View style={ds.potencialItem}>
+              <Text style={ds.potencialLabel}>Odds</Text>
+              <Text style={ds.potencialValue}>{totalOdd.toFixed(2)}</Text>
+            </View>
+            <View style={ds.potencialItem}>
+              <Text style={ds.potencialLabel}>Aposta</Text>
+              <Text style={ds.potencialValue}>R$ {numBet > 0 ? numBet.toFixed(2).replace('.', ',') : '0,00'}</Text>
+            </View>
+            <View style={ds.potencialItem}>
+              <Text style={ds.potencialLabel}>Ganho Potencial</Text>
+              <Text style={[ds.potencialValue, { color: colors.secondary, fontSize: 16 }]}>R$ {gain}</Text>
             </View>
           </View>
           <TouchableOpacity style={ds.apostBtn}>
@@ -134,31 +148,36 @@ export function BetCupomBar() {
 
   if (selections.length === 0 || isCupomOpen) return null;
 
+  const formatVal = (val: number) => {
+    if (val >= 1000) return `${Math.floor(val / 1000)}K`;
+    return val.toFixed(2).replace('.', ',');
+  };
+
   const numBet = parseFloat(betAmount.replace(',', '.')) || 0;
-  const gain = numBet > 0 ? (numBet * totalOdd).toFixed(2).replace('.', ',') : '0,00';
+  const currentGain = numBet > 0 ? (numBet * totalOdd) : (totalOdd * 20);
+  const displayAposta = numBet > 0 ? numBet : 20;
 
   return (
     <View style={bs.container}>
       <View style={bs.stats}>
         <View style={bs.stat}>
-          <Text style={bs.statLabel}>ODDS</Text>
-          <Text style={bs.statValue}>{totalOdd.toFixed(2)}</Text>
+          <Text style={bs.statLabel} numberOfLines={1} adjustsFontSizeToFit>ODDS</Text>
+          <Text style={bs.statValue} numberOfLines={1} adjustsFontSizeToFit>{totalOdd.toFixed(2)}</Text>
         </View>
         <View style={bs.divider} />
         <View style={bs.stat}>
-          <Text style={bs.statLabel}>APOSTA</Text>
-          <Text style={bs.statValue}>R$ {numBet > 0 ? numBet.toFixed(2).replace('.', ',') : '20,00'}</Text>
+          <Text style={bs.statLabel} numberOfLines={1} adjustsFontSizeToFit>APOSTA</Text>
+          <Text style={bs.statValue} numberOfLines={1} adjustsFontSizeToFit>R$ {formatVal(displayAposta)}</Text>
         </View>
         <View style={bs.divider} />
         <View style={bs.stat}>
-          <Text style={bs.statLabel}>GANHO POTENCIAL</Text>
-          <Text style={bs.statValue}>R$ {numBet > 0 ? gain : (totalOdd * 20).toFixed(2).replace('.', ',')}</Text>
+          <Text style={bs.statLabel} numberOfLines={2} adjustsFontSizeToFit>GANHO{"\n"}POTENCIAL</Text>
+          <Text style={bs.statValue} numberOfLines={1} adjustsFontSizeToFit>R$ {formatVal(currentGain)}</Text>
         </View>
       </View>
       <View style={bs.rightActions}>
         <TouchableOpacity style={bs.todasBtn} onPress={openCupom}>
-          <Text style={bs.todasBtnIcon}>🎟</Text>
-          <Text style={bs.todasBtnText}>TODAS</Text>
+          <Text style={bs.todasBtnText}>VER TODAS</Text>
           <View style={bs.badge}><Text style={bs.badgeText}>{selections.length}</Text></View>
         </TouchableOpacity>
         <TouchableOpacity style={bs.plusBtn} onPress={openCupom}>
@@ -208,13 +227,18 @@ const ds = StyleSheet.create({
   selMatch: { color: 'rgba(255,255,255,0.5)', fontSize: 12 },
 
   footer: { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)' },
-  footerMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
-  footerMeta: { color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: '600', flex: 1 },
-  footerTotalOdd: { color: colors.secondary, fontSize: 18, fontWeight: '900' },
+  footerMetaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
+  footerMeta: { color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: '600', flex: 1 },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  amountInput: { backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, color: '#fff', fontSize: 14, minWidth: 90 },
+  amountInput: { backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, color: '#fff', fontSize: 14, minWidth: 100 },
   maxBtn: { backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
   maxBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
+
+  potencialRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: 'rgba(0,0,0,0.2)', padding: 12, borderRadius: 12, marginBottom: 16 },
+  potencialItem: { flex: 1, alignItems: 'center' },
+  potencialLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 10, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 },
+  potencialValue: { color: '#fff', fontSize: 14, fontWeight: '800' },
+
   apostBtn: { backgroundColor: colors.secondary, borderRadius: 12, paddingVertical: 16, alignItems: 'center' },
   apostBtnText: { color: colors.primaryDark, fontSize: 16, fontWeight: '900', letterSpacing: 0.5 },
 });
@@ -225,15 +249,15 @@ const bs = StyleSheet.create({
     backgroundColor: colors.secondary,
     paddingTop: 10, paddingBottom: 10, paddingHorizontal: 12,
     flexDirection: 'row', alignItems: 'center', gap: 8,
+    borderBottomLeftRadius: 16, borderBottomRightRadius: 16,
   },
   stats: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 },
   stat: { flex: 1 },
   divider: { width: 1, height: 28, backgroundColor: 'rgba(1,24,79,0.25)' },
   statLabel: { color: colors.primaryDark, fontSize: 9, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.4, opacity: 0.7 },
-  statValue: { color: colors.primaryDark, fontSize: 14, fontWeight: '900', letterSpacing: 0.2 },
+  statValue: { color: colors.primaryDark, fontSize: 13, fontWeight: '900', letterSpacing: 0.2 },
   rightActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  todasBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.primary, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 7, gap: 5 },
-  todasBtnIcon: { fontSize: 13 },
+  todasBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.primary, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8, gap: 6 },
   todasBtnText: { color: colors.white, fontSize: 11, fontWeight: '800' },
   badge: { backgroundColor: colors.secondary, borderRadius: 9, width: 16, height: 16, alignItems: 'center', justifyContent: 'center' },
   badgeText: { color: colors.primaryDark, fontSize: 9, fontWeight: '900' },

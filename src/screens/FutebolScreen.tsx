@@ -316,9 +316,9 @@ function BolaoChallenge() {
           <Text style={styles.bolaoBadgeText}>ATIVO</Text>
         </View>
       </View>
-      
+
       <Text style={styles.bolaoTimerText}>Faltam {timeLeft.d} dias para acabar</Text>
-      
+
       <View style={styles.bolaoTimerRow}>
         <View style={styles.bolaoSquare}>
           <Text style={styles.bolaoSquareText}>{String(timeLeft.h).padStart(2, '0')[0]}</Text>
@@ -760,17 +760,17 @@ function Header() {
         <View style={{ flex: 1 }} />
 
         <View style={styles.headerActions}>
-          <View style={{ zIndex: 1, marginRight: 2 }}>
+          <View style={{ zIndex: 1, marginRight: 6 }}>
             <Pressable style={[styles.searchIconBtn, isSearchActive && styles.searchIconBtnActive]} onPress={() => setIsSearchActive(!isSearchActive)}>
               <SearchIcon size={24} />
             </Pressable>
             {isSearchActive && (
               <>
-                <View style={{ position: 'absolute', bottom: -10, left: -6, right: -6, height: 10, backgroundColor: '#042B7A', zIndex: -1 }} />
-                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, left: -30, width: 30, height: 30, backgroundColor: '#042B7A', zIndex: -1 }}>
+                <View style={{ position: 'absolute', bottom: -10, left: 0, right: 0, height: 10, backgroundColor: '#042B7A' }} />
+                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, left: -30, width: 30, height: 30, backgroundColor: '#042B7A' }}>
                   <View style={{ flex: 1, backgroundColor: colors.primary, borderBottomRightRadius: 30 }} />
                 </View>
-                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, right: -30, width: 30, height: 30, backgroundColor: '#042B7A', zIndex: -1 }}>
+                <View pointerEvents="none" style={{ position: 'absolute', bottom: -10, right: -30, width: 30, height: 30, backgroundColor: '#042B7A' }}>
                   <View style={{ flex: 1, backgroundColor: colors.primary, borderBottomLeftRadius: 30 }} />
                 </View>
               </>
@@ -1221,7 +1221,7 @@ const styles = StyleSheet.create({
   },
   /* ── Bolao Challenge ── */
   bolaoCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.primary,
     marginHorizontal: 16,
     marginTop: 8,
     borderRadius: 16,
@@ -1241,23 +1241,23 @@ const styles = StyleSheet.create({
   bolaoLabel: {
     fontSize: 12,
     fontWeight: '900',
-    color: '#1A1A1A',
+    color: '#FFF',
     letterSpacing: 0.5,
   },
   bolaoBadge: {
-    backgroundColor: '#38E67D',
+    backgroundColor: colors.secondary,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,
   },
   bolaoBadgeText: {
-    color: '#0A1128',
+    color: colors.primary,
     fontSize: 10,
     fontWeight: '800',
   },
   bolaoTimerText: {
     fontSize: 14,
-    color: '#444',
+    color: '#FFF',
     fontWeight: '600',
     marginBottom: 10,
   },
@@ -1269,14 +1269,14 @@ const styles = StyleSheet.create({
   bolaoSquare: {
     width: 38,
     height: 42,
-    backgroundColor: '#333',
+    backgroundColor: colors.secondary,
     borderRadius: 8,
     marginRight: 4,
     alignItems: 'center',
     justifyContent: 'center',
   },
   bolaoSquareText: {
-    color: '#FFF',
+    color: colors.primary,
     fontSize: 22,
     fontWeight: '900',
   },
@@ -1284,10 +1284,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginHorizontal: 4,
-    color: '#333',
+    color: '#FFF',
   },
   bolaoProgressContainer: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 12,
     padding: 10,
     flexDirection: 'row',
@@ -1296,19 +1296,19 @@ const styles = StyleSheet.create({
   bolaoProgressBarBg: {
     flex: 1,
     height: 8,
-    backgroundColor: '#D1D1D1',
+    backgroundColor: 'rgba(56, 230, 125, 0.2)',
     borderRadius: 4,
     marginRight: 12,
   },
   bolaoProgressBarFill: {
     height: '100%',
-    backgroundColor: '#333',
+    backgroundColor: colors.secondary,
     borderRadius: 4,
   },
   bolaoProgressText: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#333',
+    color: '#FFF',
   },
   headerContainer: {
     backgroundColor: colors.primary,

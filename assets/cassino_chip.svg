@@ -1,0 +1,15 @@
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="15" cy="15" r="13" stroke="currentColor" stroke-width="2" opacity="0.9"/>
+  <circle cx="15" cy="15" r="7" stroke="currentColor" stroke-width="1.2" opacity="0.8"/>
+  <circle cx="15" cy="15" r="2.5" fill="currentColor"/>
+  <g stroke="currentColor" stroke-width="3" stroke-linecap="butt">
+    <path d="M15 2V5" />
+    <path d="M15 25V28" />
+    <path d="M2 15H5" />
+    <path d="M25 15H28" />
+    <path d="M5.8 5.8L7.9 7.9" />
+    <path d="M22.1 22.1L24.2 24.2" />
+    <path d="M5.8 24.2L7.9 22.1" />
+    <path d="M22.1 5.8L24.2 7.9" />
+  </g>
+</svg>

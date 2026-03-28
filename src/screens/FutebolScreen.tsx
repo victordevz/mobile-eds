@@ -1012,7 +1012,21 @@ export default function FutebolScreen() {
     setBetAmount('');
   }
   function closeBetSlip() { setBetSlip(null); setBetAmount(''); }
-  function handleConfirmBet() { closeBetSlip(); }
+  function handleConfirmBet() {
+    if (!betSlip) return;
+    const data = { ...betSlip };
+    const parts = data.matchLabel.split(' vs ');
+    closeBetSlip();
+    
+    // Pequeno delay para garantir que o modal fechou suavemente antes da transição de tela
+    setTimeout(() => {
+      navigation.navigate('MatchDetails', {
+        league: data.league,
+        homeTeam: parts[0] || 'Internacional',
+        awayTeam: parts[1] || 'Chapecoense'
+      });
+    }, 100);
+  }
   function handleGamePress() {
     if (!isAuthenticated) { openAuthModal('login'); return; }
     openBetSlip({ matchLabel: 'Bragantino vs Botafogo', oddLabel: 'Empate', oddValue: 3.30, league: 'Brasileirão' });

@@ -593,10 +593,6 @@ function RecentWins() {
           <Text style={styles.tickerStar}>★</Text>
           <Text style={styles.tickerTitle}>Ganhos em Tempo Real</Text>
         </View>
-        <Animated.View style={[styles.tickerLiveBadge, { opacity: blinkAnim }]}>
-          <View style={styles.tickerLiveDot} />
-          <Text style={styles.tickerLiveText}>AO VIVO</Text>
-        </Animated.View>
       </View>
 
       <View style={{ overflow: 'hidden' }}>

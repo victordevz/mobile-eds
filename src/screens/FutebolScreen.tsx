@@ -165,33 +165,33 @@ function SoccerIcon({ size = 16, color = '#fff' }: { size?: number; color?: stri
 function LeagueIcon({ size = 24, color = '#fff' }: { size?: number; color?: string }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path 
-        d="M6 9H4.5C3.67 9 3 8.33 3 7.5V6.5C3 5.67 3.67 5 4.5 5H6" 
-        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      <Path
+        d="M6 9H4.5C3.67 9 3 8.33 3 7.5V6.5C3 5.67 3.67 5 4.5 5H6"
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
       />
-      <Path 
-        d="M18 9H19.5C20.33 9 21 8.33 21 7.5V6.5C21 5.67 20.33 5 19.5 5H18" 
-        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      <Path
+        d="M18 9H19.5C20.33 9 21 8.33 21 7.5V6.5C21 5.67 20.33 5 19.5 5H18"
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
       />
-      <Path 
-        d="M4 22H20" 
-        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      <Path
+        d="M4 22H20"
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
       />
-      <Path 
-        d="M10 22V18" 
-        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      <Path
+        d="M10 22V18"
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
       />
-      <Path 
-        d="M14 22V18" 
-        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      <Path
+        d="M14 22V18"
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
       />
-      <Path 
-        d="M18 4H6V11C6 14.31 8.69 17 12 17C15.31 17 18 14.31 18 11V4Z" 
-        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" 
+      <Path
+        d="M18 4H6V11C6 14.31 8.69 17 12 17C15.31 17 18 14.31 18 11V4Z"
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
       />
-      <Path 
-        d="M12 7.5L13.2 10.2H16L13.8 11.8L14.6 14.5L12 13L9.4 14.5L10.2 11.8L8 10.2H10.8L12 7.5Z" 
-        fill={color} 
+      <Path
+        d="M12 7.5L13.2 10.2H16L13.8 11.8L14.6 14.5L12 13L9.4 14.5L10.2 11.8L8 10.2H10.8L12 7.5Z"
+        fill={color}
       />
     </Svg>
   );
@@ -394,7 +394,7 @@ function PulseDot() {
   }, []);
 
   return (
-    <Animated.View 
+    <Animated.View
       style={{
         width: 6,
         height: 6,
@@ -407,7 +407,7 @@ function PulseDot() {
         shadowOpacity: 0.5,
         shadowRadius: 4,
         elevation: 2,
-      }} 
+      }}
     />
   );
 }
@@ -570,28 +570,28 @@ function PopularesSection({ onPress, activeSport, setActiveSport }: { onPress: (
                   </>
                 )}
               </View>
-            <View style={styles.megaMatchArea}>
-              <View style={styles.megaTeam}>
-                <TeamIcon Icon={match.HomeIcon} />
-                <Text style={styles.megaTeamName} numberOfLines={1}>{match.homeTeam}</Text>
+              <View style={styles.megaMatchArea}>
+                <View style={styles.megaTeam}>
+                  <TeamIcon Icon={match.HomeIcon} />
+                  <Text style={styles.megaTeamName} numberOfLines={1}>{match.homeTeam}</Text>
+                </View>
+                <Text style={styles.megaVs}>VS</Text>
+                <View style={styles.megaTeam}>
+                  <TeamIcon Icon={match.AwayIcon} />
+                  <Text style={styles.megaTeamName} numberOfLines={1}>{match.awayTeam}</Text>
+                </View>
               </View>
-              <Text style={styles.megaVs}>VS</Text>
-              <View style={styles.megaTeam}>
-                <TeamIcon Icon={match.AwayIcon} />
-                <Text style={styles.megaTeamName} numberOfLines={1}>{match.awayTeam}</Text>
+              <Text style={styles.megaLeague} numberOfLines={1}>{match.league}</Text>
+              <View style={styles.megaOddsRow}>
+                <View style={styles.megaAccentBar} />
+                <Text style={styles.megaOddsLabel}>Odds</Text>
+                <View style={styles.megaOddBadge}>
+                  <Text style={styles.megaOddValue}>{match.odd.toFixed(2)}</Text>
+                </View>
               </View>
-            </View>
-            <Text style={styles.megaLeague} numberOfLines={1}>{match.league}</Text>
-            <View style={styles.megaOddsRow}>
-              <View style={styles.megaAccentBar} />
-              <Text style={styles.megaOddsLabel}>Odds</Text>
-              <View style={styles.megaOddBadge}>
-                <Text style={styles.megaOddValue}>{match.odd.toFixed(2)}</Text>
-              </View>
-            </View>
-          </Pressable>
-        ))}
-      </ScrollView>
+            </Pressable>
+          ))}
+        </ScrollView>
       )}
     </>
   );
@@ -644,12 +644,12 @@ interface HeaderProps { sport: SportTheme; onToggleDropdown?: () => void; isDrop
 
 function ChevronIcon({ size = 10, color = colors.secondary, isOpen = false }: { size?: number; color?: string; isOpen?: boolean }) {
   return (
-    <Svg 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      style={{ 
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      style={{
         transform: [{ rotate: isOpen ? '180deg' : '0deg' }],
         marginLeft: 2
       }}
@@ -659,24 +659,38 @@ function ChevronIcon({ size = 10, color = colors.secondary, isOpen = false }: { 
   );
 }
 
-function SportIconRenderer({ sportId, isEmoji = false, emoji = '', size = 18, color = colors.white }: { sportId: SportType; isEmoji?: boolean; emoji?: string; size?: number; color?: string }) {
-  if (sportId === 'futebol') return <SoccerIcon size={size} color={color} />;
-  if (sportId === 'basquete') return <BasketballIcon size={size} color={color} />;
-  if (sportId === 'tenis') return <TennisIcon size={size} color={color} />;
-  if (sportId === 'volei') return <VoleiIcon size={size} color={color} />;
-  if (sportId === 'esports') return <ControllerIcon size={size} color={color} />;
-  if (sportId === 'todos') return <AllSportsIcon size={size} color={color} />;
-  
-  // Fallback para emojis se as constantes mudarem ou faltar ícone
+function SportIconRenderer({ sportId, size = 18 }: { sportId: SportType; size?: number }) {
+  // Configuração do Grid da imagem assets/sports_icons_3d_dark.png (1024x1024, 3x3)
+  const ICON_SIZE = 1024;
+  const CELL_SIZE = 1024 / 3; // ~341px
+
+  let row = 0;
+  let col = 0;
+
+  switch (sportId) {
+    case 'futebol': row = 0; col = 0; break;
+    case 'basquete': row = 0; col = 1; break;
+    case 'tenis': row = 0; col = 2; break;
+    case 'volei': row = 1; col = 0; break;
+    case 'esports': row = 1; col = 1; break;
+    case 'todos': row = 1; col = 2; break;
+    default: row = 1; col = 2; // Bullseye as fallback
+  }
+
+  const scale = size / CELL_SIZE;
+
   return (
-    <Text style={{ 
-      fontSize: size, 
-      fontFamily: 'System', 
-      color: color,
-      textAlignVertical: 'center'
-    }}>
-      {emoji}
-    </Text>
+    <View style={{ width: size, height: size, overflow: 'hidden', borderRadius: 4 }}>
+      <Image
+        source={require('../../assets/sports_icons_3d_dark.png')}
+        style={{
+          width: ICON_SIZE * scale,
+          height: ICON_SIZE * scale,
+          marginLeft: -col * CELL_SIZE * scale,
+          marginTop: -row * CELL_SIZE * scale,
+        }}
+      />
+    </View>
   );
 }
 
@@ -700,11 +714,11 @@ function Header({ sport, onToggleDropdown, isDropdownOpen, onCloseDropdown }: He
       <View style={styles.header}>
         <Image source={require('../../assets/logo.png')} style={{ width: 72, height: 24, resizeMode: 'contain', marginLeft: -8 }} />
 
-        <Pressable 
-          style={[styles.sportSelector, { marginLeft: 8, zIndex: 20 }]} 
+        <Pressable
+          style={[styles.sportSelector, { marginLeft: 8, zIndex: 20 }]}
           onPress={onToggleDropdown}
         >
-          <SportIconRenderer sportId={sport.id} emoji={sport.emoji} size={16} />
+          <SportIconRenderer sportId={sport.id} size={18} />
           <ChevronIcon isOpen={isDropdownOpen} />
         </Pressable>
         <View style={{ flex: 1 }} />
@@ -828,13 +842,13 @@ function PromoBanner({ onPlay }: { onPlay: () => void }) {
                     </Text>
                   )}
                   <View style={styles.bannerButtons}>
-                    <Pressable 
+                    <Pressable
                       onPressIn={() => scale.value = withSpring(0.95)}
                       onPressOut={() => scale.value = withSpring(1)}
                       onPress={onPlay}
                     >
                       <Animated2.View style={[
-                        styles.bannerBtnPlay, 
+                        styles.bannerBtnPlay,
                         item.buttonText && { backgroundColor: item.accent },
                         animatedButtonStyle
                       ]}>
@@ -901,10 +915,10 @@ function SportDropdown({
       <Pressable style={styles.dropBackdrop} onPress={onClose} />
       <Animated2.View style={[styles.sportDropdown, animStyle, { maxHeight: 320, top: (insets.top || 0) + 72, zIndex: 18 }]}>
         <ScrollView showsVerticalScrollIndicator={true} nestedScrollEnabled={true}>
-          
+
           {/* Item selecionado atual, fixo no topo com separador abaixo */}
           <Pressable style={styles.dropItem} onPress={onClose}>
-            <SportIconRenderer sportId={current} emoji={SPORT_THEMES[current].emoji} size={20} color={SPORT_THEMES[current].accent} />
+            <SportIconRenderer sportId={current} size={24} />
             <Text style={[styles.dropLabel, { color: SPORT_THEMES[current].accent }]}>{SPORT_THEMES[current].label}</Text>
           </Pressable>
 
@@ -919,7 +933,7 @@ function SportDropdown({
                 style={styles.dropItem}
                 onPress={() => onSelect(sid)}
               >
-                <SportIconRenderer sportId={sid} emoji={t.emoji} size={20} color={colors.white} />
+                <SportIconRenderer sportId={sid} size={24} />
                 <Text style={[styles.dropLabel, { color: '#10D166' }]}>{t.label}</Text>
               </Pressable>
             );
@@ -1046,15 +1060,15 @@ function BetSlipPanel({ data, betAmount, onChangeBet, onClose, onConfirm, onExpa
           <Text style={styles.betSlipGainLabel}>GANHO POTENCIAL</Text>
           <Text style={styles.betSlipGainValue}>R$ {gain}</Text>
         </View>
-        <Pressable 
+        <Pressable
           style={[
-            styles.betSlipConfirm, 
+            styles.betSlipConfirm,
             isConfirmed && { backgroundColor: '#38E67D' }
-          ]} 
+          ]}
           onPress={!isConfirmed ? handleBet : undefined}
         >
           <Text style={[
-            styles.betSlipConfirmText, 
+            styles.betSlipConfirmText,
             isConfirmed && { color: '#1B2128' }
           ]}>
             {isConfirmed ? '✓ CONFIRMADA' : 'APOSTAR'}
@@ -1101,7 +1115,7 @@ export default function FutebolScreen() {
     const data = { ...betSlip };
     const parts = data.matchLabel.split(' vs ');
     closeBetSlip();
-    
+
     // Pequeno delay para garantir que o modal fechou suavemente antes da transição de tela
     setTimeout(() => {
       navigation.navigate('MatchDetails', {
@@ -1138,10 +1152,10 @@ export default function FutebolScreen() {
       {/* Fixed header */}
       <View style={[styles.headerWrapper, { paddingTop: insets.top }]}>
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top, backgroundColor: colors.primary }} />
-        <Header 
-          sport={sport} 
-          onToggleDropdown={() => setShowDropdown(!showDropdown)} 
-          isDropdownOpen={showDropdown} 
+        <Header
+          sport={sport}
+          onToggleDropdown={() => setShowDropdown(!showDropdown)}
+          isDropdownOpen={showDropdown}
           onCloseDropdown={() => setShowDropdown(false)}
         />
       </View>
@@ -1172,55 +1186,55 @@ export default function FutebolScreen() {
               <View style={styles.sectionTitleBar} />
               <Text style={styles.sectionTitle}>Ao Vivo</Text>
             </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.liveScrollContainer}
-          snapToInterval={SCREEN_W}
-          decelerationRate="fast"
-          onScroll={onLiveScroll}
-          scrollEventThrottle={16}
-        >
-          {LIVE_MATCHES.map((match) => (
-            <LiveMatchCard
-              key={match.id}
-              style={styles.liveMatchCardWidth}
-              data={{
-                league: match.league,
-                isLive: match.isLive,
-                minute: match.minute,
-                homeScore: match.homeScore,
-                awayScore: match.awayScore,
-                homeIcon: <match.HomeIcon width={52} height={52} />,
-                awayIcon: <match.AwayIcon width={52} height={52} />,
-                odds: match.odds,
-                suggestionTeam: match.suggestionTeam,
-                suggestionDetail: match.suggestionDetail,
-                defaultSelected: match.defaultSelected,
-              }}
-              onBetPress={() => openBetSlip({
-                matchLabel: `${match.homeTeam} vs ${match.awayTeam}`,
-                oddLabel: match.odds.find(o => o.key === match.defaultSelected)?.label || 'Empate',
-                oddValue: match.odds.find(o => o.key === match.defaultSelected)?.odd || 1.00,
-                league: match.league,
-              })}
-            />
-          ))}
-        </ScrollView>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.liveScrollContainer}
+              snapToInterval={SCREEN_W}
+              decelerationRate="fast"
+              onScroll={onLiveScroll}
+              scrollEventThrottle={16}
+            >
+              {LIVE_MATCHES.map((match) => (
+                <LiveMatchCard
+                  key={match.id}
+                  style={styles.liveMatchCardWidth}
+                  data={{
+                    league: match.league,
+                    isLive: match.isLive,
+                    minute: match.minute,
+                    homeScore: match.homeScore,
+                    awayScore: match.awayScore,
+                    homeIcon: <match.HomeIcon width={52} height={52} />,
+                    awayIcon: <match.AwayIcon width={52} height={52} />,
+                    odds: match.odds,
+                    suggestionTeam: match.suggestionTeam,
+                    suggestionDetail: match.suggestionDetail,
+                    defaultSelected: match.defaultSelected,
+                  }}
+                  onBetPress={() => openBetSlip({
+                    matchLabel: `${match.homeTeam} vs ${match.awayTeam}`,
+                    oddLabel: match.odds.find(o => o.key === match.defaultSelected)?.label || 'Empate',
+                    oddValue: match.odds.find(o => o.key === match.defaultSelected)?.odd || 1.00,
+                    league: match.league,
+                  })}
+                />
+              ))}
+            </ScrollView>
 
-        <View style={styles.liveDots}>
-          {LIVE_MATCHES.map((_, i) => (
-            <View
-              key={i}
-              style={[
-                styles.dot,
-                i === activeLiveIndex ? styles.dotActive : styles.dotInactive,
-              ]}
-            />
-          ))}
-        </View>
-        <MegaCotacaoSection onPress={openBetSlip} activeSport={activeSportFilter} />
-        <PopularesSection onPress={openBetSlip} activeSport={activeSportFilter} setActiveSport={setActiveSportFilter} />
+            <View style={styles.liveDots}>
+              {LIVE_MATCHES.map((_, i) => (
+                <View
+                  key={i}
+                  style={[
+                    styles.dot,
+                    i === activeLiveIndex ? styles.dotActive : styles.dotInactive,
+                  ]}
+                />
+              ))}
+            </View>
+            <MegaCotacaoSection onPress={openBetSlip} activeSport={activeSportFilter} />
+            <PopularesSection onPress={openBetSlip} activeSport={activeSportFilter} setActiveSport={setActiveSportFilter} />
           </>
         )}
 
